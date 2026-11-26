@@ -21,3 +21,6 @@ export function vapidConfig(): { publicKey: string; privateKey: string; subject:
   if (!publicKey || !privateKey) return null;
   return { publicKey, privateKey, subject: process.env.VAPID_SUBJECT || "mailto:admin@example.com" };
 }
+
+/** Claude API (Phase 2). Optional: ohne Schlüssel greifen regelbasierte Fallbacks. */
+export const hasAnthropicKey = (): boolean => Boolean(process.env.ANTHROPIC_API_KEY);

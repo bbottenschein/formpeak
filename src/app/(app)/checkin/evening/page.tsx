@@ -14,8 +14,8 @@ export default async function EveningCheckinPage() {
   return (
     <section className="flex flex-col gap-6">
       <div>
-        <h1 className="text-4xl font-bold">{t("evening.title")}</h1>
-        <p className="mt-1 text-sm text-muted">{existing ? t("evening.editIntro") : t("evening.intro")}</p>
+        <p className="eyebrow">{t("evening.title")}</p>
+        {existing && <p className="mt-1 text-sm text-muted">{t("evening.editIntro")}</p>}
       </div>
       <EveningForm initial={values} />
     </section>

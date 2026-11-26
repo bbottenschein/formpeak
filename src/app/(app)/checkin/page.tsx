@@ -15,8 +15,8 @@ export default async function CheckinPage() {
   return (
     <section className="flex flex-col gap-6">
       <div>
-        <h1 className="text-4xl font-bold">{t("checkin.title")}</h1>
-        <p className="mt-1 text-sm text-muted">{existing ? t("checkin.editIntro") : t("checkin.intro")}</p>
+        <p className="eyebrow">{t("checkin.title")}</p>
+        {existing && <p className="mt-1 text-sm text-muted">{t("checkin.editIntro")}</p>}
       </div>
       <MorningForm initial={values} />
     </section>

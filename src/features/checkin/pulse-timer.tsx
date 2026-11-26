@@ -10,7 +10,16 @@ const SECONDS = 10;
  * Ruhepuls per 10-Sekunden-Zählung: Timer starten, zählen, Zahl eintragen – die App
  * rechnet × 6. Am Ende vibriert das Handy (falls unterstützt).
  */
-export function PulseTimer({ value, onChange }: { value: number | null; onChange: (bpm: number | null) => void }) {
+export function PulseTimer({
+  value,
+  onChange,
+  compact = false,
+}: {
+  value: number | null;
+  onChange: (bpm: number | null) => void;
+  /** Im Walk-Through: ohne eigene Überschrift und Hinweis, Messen-Button hervorgehoben. */
+  compact?: boolean;
+}) {
   const t = useT();
   const [phase, setPhase] = useState<"idle" | "running" | "count">(value != null ? "count" : "idle");
   const [left, setLeft] = useState(SECONDS);
@@ -53,14 +62,14 @@ export function PulseTimer({ value, onChange }: { value: number | null; onChange
 
   return (
     <fieldset className="flex flex-col gap-2">
-      <legend className="eyebrow mb-2">
+      <legend className={compact ? "sr-only" : "eyebrow mb-2"}>
         {t("checkin.restingHr")} <span className="normal-case tracking-normal text-muted/70">· {t("checkin.restingHrOptional")}</span>
       </legend>
 
       {phase === "idle" && (
         <>
-          <p className="text-sm text-muted">{t("checkin.restingHrHint")}</p>
-          <button type="button" onClick={start} className="btn-secondary">
+          {!compact && <p className="text-sm text-muted">{t("checkin.restingHrHint")}</p>}
+          <button type="button" onClick={start} className={compact ? "btn-primary" : "btn-secondary"}>
             {t("checkin.restingHrStart")}
           </button>
         </>

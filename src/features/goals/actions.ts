@@ -5,7 +5,9 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/features/auth/session";
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
-import { goalSchema } from "./schema";
+import { userToday } from "@/lib/date";
+import { summarizeGoal, type GoalContext, type GoalSummaryResult } from "./ai";
+import { goalSaveSchema } from "./schema";
 
 export type GoalState = { error?: string };
 
@@ -15,7 +17,7 @@ export async function saveGoal(_prev: GoalState, formData: FormData): Promise<Go
   const t = getT(user.locale);
   let parsed;
   try {
-    parsed = goalSchema.safeParse(JSON.parse(String(formData.get("payload") ?? "")));
+    parsed = goalSaveSchema.safeParse(JSON.parse(String(formData.get("payload") ?? "")));
   } catch {
     return { error: t("goal.errorInvalid") };
   }
@@ -36,7 +38,9 @@ export async function saveGoal(_prev: GoalState, formData: FormData): Promise<Go
   const goalRow = {
     type: g.type,
     description: g.description,
-    test_name: g.testName,
+    test_key: g.testKey,
+    test_name: g.testKey ? t(`goal.tests.${g.testKey}.name`) : g.testName,
+    ai_summary: g.aiSummary,
     baseline_value: g.baselineValue,
     target_value: g.targetValue,
     unit: g.unit,
@@ -58,4 +62,14 @@ export async function saveGoal(_prev: GoalState, formData: FormData): Promise<Go
   }
   revalidatePath("/", "layout");
   redirect("/");
+}
+
+/** Ziel von der KI formulieren lassen und einen Test vorschlagen (Zusammenfassungs-Schritt). */
+export async function previewGoal(ctx: Omit<GoalContext, "today">): Promise<GoalSummaryResult> {
+  const user = await getCurrentUser();
+  return summarizeGoal({
+    ...ctx,
+    description: ctx.description.slice(0, 500),
+    today: userToday(user.timezone),
+  });
 }

@@ -25,7 +25,7 @@ export function GoalCard({ goal, t }: { goal: GoalInput | null; t: Translate }) 
         <h2 className="eyebrow">{t("goal.cardTitle")}</h2>
         <span className="text-xs text-muted">{t(`goal.types.${goal.type}`)}</span>
       </div>
-      <p className="font-medium">{goal.description}</p>
+      <p className="font-medium">{goal.aiSummary || goal.description}</p>
       {goal.testName && goal.targetValue != null && (
         <p className="text-sm">
           {goal.testName}: {goal.baselineValue != null ? `${num(goal.baselineValue)} → ` : ""}

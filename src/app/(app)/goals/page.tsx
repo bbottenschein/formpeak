@@ -14,22 +14,22 @@ export default async function GoalsPage() {
   const initial: GoalInput = goal ?? {
     type: "endurance",
     description: "",
+    testKey: null,
     testName: null,
+    aiSummary: null,
     baselineValue: null,
     targetValue: null,
     unit: null,
     targetDate: null,
     extraSessionsPerWeek: frame?.extraSessionsPerWeek ?? 2,
     timeBudgetMin: frame?.timeBudgetMin ?? 60,
-    availableWeekdays: frame?.availableWeekdays ?? [1, 3, 5],
-    equipment: frame?.equipment.length ? frame.equipment : ["gym", "outdoor"],
+    availableWeekdays:
+      frame && frame.availableWeekdays.length === frame.extraSessionsPerWeek ? frame.availableWeekdays : [],
+    equipment: frame?.equipment ?? [],
   };
   return (
     <section className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-4xl font-bold">{t("goal.title")}</h1>
-        <p className="mt-1 text-sm text-muted">{t("goal.intro")}</p>
-      </div>
+      <p className="eyebrow">{t("goal.title")}</p>
       <GoalForm initial={initial} />
     </section>
   );

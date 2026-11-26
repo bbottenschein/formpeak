@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TEST_KEYS } from "./tests";
 
 export const GOAL_TYPES = ["endurance", "speed", "strength", "prevention", "comeback"] as const;
 export const EQUIPMENT_OPTIONS = ["gym", "home", "outdoor", "pitch", "bike"] as const;
@@ -10,24 +11,28 @@ export const goalSchema = z
   .object({
     type: z.enum(GOAL_TYPES),
     description: z.string().trim().min(3).max(500),
+    testKey: z.enum(TEST_KEYS).nullable(),
     testName: z.string().trim().max(60).nullable(),
     baselineValue: z.number().finite().nullable(),
     targetValue: z.number().finite().nullable(),
     unit: z.string().trim().max(20).nullable(),
     targetDate: isoDate.nullable(),
+    aiSummary: z.string().trim().max(1000).nullable(),
     extraSessionsPerWeek: z.number().int().min(0).max(7),
     timeBudgetMin: z.number().int().min(10).max(240),
-    availableWeekdays: z.array(z.number().int().min(0).max(6)).min(1).max(7),
-    equipment: z.array(z.enum(EQUIPMENT_OPTIONS)).min(1),
+    availableWeekdays: z.array(z.number().int().min(0).max(6)).max(7),
+    equipment: z.array(z.enum(EQUIPMENT_OPTIONS)),
   })
-  // Werte nur zusammen mit einem Testnamen.
-  .refine((g) => g.testName || (g.baselineValue == null && g.targetValue == null), { message: "test" });
+  // Werte nur zusammen mit einem Test.
+  .refine((g) => g.testKey || g.testName || (g.baselineValue == null && g.targetValue == null), { message: "test" })
+  // Genau so viele Tage wie Zusatzeinheiten (mindestens einer, auch bei 0 Einheiten egal).
+  .refine((g) => g.extraSessionsPerWeek === 0 || g.availableWeekdays.length === g.extraSessionsPerWeek, {
+    message: "days",
+  });
 
 export type GoalInput = z.infer<typeof goalSchema>;
 
-/** Vorgaben für bekannte Tests (Einheit und ob kleiner besser ist). */
-export const TEST_PRESETS = {
-  yoyo: { unit: "m", lowerIsBetter: false },
-  run3k: { unit: "min", lowerIsBetter: true },
-  sprint30: { unit: "s", lowerIsBetter: true },
-} as const;
+/** Trainingsmittel nur nötig, wenn es Zusatzeinheiten gibt. */
+export const goalSaveSchema = goalSchema.refine((g) => g.extraSessionsPerWeek === 0 || g.equipment.length > 0, {
+  message: "equipment",
+});

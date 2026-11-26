@@ -155,7 +155,24 @@
     "submit": "Check-in speichern",
     "pending": "Wird gespeichert …",
     "errorInvalid": "Bitte prüf deine Eingaben.",
-    "errorSave": "Der Check-in konnte nicht gespeichert werden. Bitte versuch es noch einmal."
+    "errorSave": "Der Check-in konnte nicht gespeichert werden. Bitte versuch es noch einmal.",
+    "q": {
+      "sleepHours": "Wie lange hast du geschlafen?",
+      "sleepQuality": "Wie gut hast du geschlafen?",
+      "energy": "Wie viel Energie hast du?",
+      "soreness": "Wie stark ist dein Muskelkater?",
+      "stress": "Wie gestresst fühlst du dich?",
+      "restingHr": "Ruhepuls messen?",
+      "pain": "Tut dir etwas weh?"
+    },
+    "restingHrSkip": "Heute nicht messen",
+    "painNoneButton": "Nein, alles gut",
+    "painYes": "Ja, Stelle eintragen",
+    "painDone": "Weiter",
+    "summaryTitle": "Passt das so?",
+    "summaryEdit": "Ändern",
+    "summaryNotMeasured": "nicht gemessen",
+    "summaryNoPain": "keine"
   },
   "bodymap": {
     "chooseRegion": "Wo tut es weh?",
@@ -360,7 +377,14 @@
     "submit": "Abend-Check-in speichern",
     "pending": "Wird gespeichert …",
     "errorInvalid": "Bitte prüf deine Eingaben.",
-    "errorSave": "Der Abend-Check-in konnte nicht gespeichert werden."
+    "errorSave": "Der Abend-Check-in konnte nicht gespeichert werden.",
+    "q": {
+      "dailyLoad": "Wie anstrengend war dein Tag außerhalb vom Sport?",
+      "stress": "Wie gestresst warst du heute?",
+      "energy": "Wie viel Energie hast du jetzt noch?",
+      "extras": "Noch etwas?"
+    },
+    "summaryTitle": "Passt das so?"
   },
   "gym": {
     "title": "Übungen",
@@ -544,7 +568,7 @@
     },
     "testName": "Test",
     "baseline": "Ausgangswert",
-    "target": "Zielwert",
+    "target": "Target",
     "unit": "Einheit",
     "targetDate": "Bis wann?",
     "frame": "Dein Trainingsrahmen",
@@ -571,7 +595,85 @@
     "cardFrame": "{sessions} Zusatzeinheiten/Woche · max. {minutes} min",
     "cardUntil": "bis {date}",
     "edit": "Ziel bearbeiten",
-    "planCounter": "Zusatzeinheiten diese Woche: {planned} von {target}"
+    "planCounter": "Zusatzeinheiten diese Woche: {planned} von {target}",
+    "step1Title": "Worum geht es dir?",
+    "step1Hint": "Wähl einen Schwerpunkt und beschreib in eigenen Worten, was du erreichen willst.",
+    "step2Title": "Wie oft kannst du neben dem Fußball trainieren?",
+    "step2Hint": "Zusatzeinheiten pro Woche – Teamtraining und Spiele zählen nicht dazu.",
+    "step3Title": "An welchen Tagen?",
+    "step3Hint": "Wähl genau {count} Tage aus.",
+    "step3HintOne": "Wähl genau einen Tag aus.",
+    "step3Count": "{selected} von {count} gewählt",
+    "step4Title": "Wie lange darf eine Einheit dauern?",
+    "step5Title": "Was kannst du nutzen?",
+    "step5Hint": "Mehrfachauswahl.",
+    "summaryTitle": "Dein Plan auf einen Blick",
+    "summaryGoal": "Dein Ziel",
+    "summaryLoading": "Die KI formuliert dein Ziel …",
+    "summaryFrame": "Trainingsrahmen",
+    "summaryFrameText": "{sessions} × pro Woche ({days}) · max. {minutes} min · {equipment}",
+    "summaryNoExtra": "Nur Fußball, keine Zusatzeinheiten",
+    "summaryFocus": "Schwerpunkte",
+    "targetDateHint": "Bis wann willst du es schaffen?",
+    "testSuggested": "Vorgeschlagener Test",
+    "testIntro": "Damit wir deinen Fortschritt messen können:",
+    "testAlternatives": "Andere passende Tests",
+    "testHow": "So geht's",
+    "testWhy": "Warum dieser Test",
+    "testNeeds": "Braucht: {needs}",
+    "baselineHint": "Aktueller Wert",
+    "targetValueHint": "Zielwert",
+    "aiBadge": "KI",
+    "rulesBadge": "Vorschlag",
+    "editStep": "Ändern",
+    "tests": {
+      "yoyo_ir1": {
+        "name": "Yo-Yo Intermittent Recovery Test 1",
+        "how": "2 × 20 m Pendelläufe nach Tonsignal (App oder Audio), dazwischen 10 s aktive Pause. Das Tempo steigt, bis du zweimal das Signal verpasst. Ergebnis: gelaufene Meter.",
+        "why": "Für Fußball entwickelt und validiert; bildet die wiederholten Sprints und Erholungsphasen im Spiel ab und ist gut reproduzierbar."
+      },
+      "cooper12": {
+        "name": "12-Minuten-Lauf (Cooper-Test)",
+        "how": "Nach dem Aufwärmen 12 Minuten so weit wie möglich laufen, am besten auf einer 400-m-Bahn oder mit GPS-Uhr. Ergebnis: Meter.",
+        "why": "Klassischer Ausdauertest, allein und ohne Audio machbar; zeigt Fortschritte in der Grundlagenausdauer."
+      },
+      "sprint30": {
+        "name": "30-m-Sprint",
+        "how": "Aus dem Stand 30 m sprinten, mit dem Handy in Zeitlupe filmen und die Zeit vom ersten Fußaufsetzen bis zur Ziellinie ablesen. Bester von 3 Versuchen. Ergebnis: Sekunden.",
+        "why": "Standardtest der Linearschnelligkeit im Fußball; mit Zeitlupenvideo präzise genug für den eigenen Verlauf."
+      },
+      "cmj": {
+        "name": "Sprunghöhe (Countermovement Jump)",
+        "how": "Hände an die Hüften, kurz in die Knie und so hoch wie möglich springen. Mit einer Sprung-App (z. B. My Jump) filmen. Bester von 3 Versuchen. Ergebnis: cm.",
+        "why": "Misst die Schnellkraft der Beine; per Smartphone-App nachweislich valide und zuverlässig."
+      },
+      "single_leg_hop": {
+        "name": "Einbeiniger Weitsprung (Seitenvergleich)",
+        "how": "Auf einem Bein so weit wie möglich springen und stabil landen, je Bein 3 Versuche. Ergebnis: schwächeres Bein in % des stärkeren (Ziel: mindestens 90 %).",
+        "why": "Zeigt Kraft- und Stabilitätsunterschiede zwischen den Beinen; gebräuchlich in Prävention und Rückkehr nach Verletzungen."
+      },
+      "y_balance": {
+        "name": "Y-Balance-Test",
+        "how": "Auf einem Bein stehen und mit dem anderen Fuß so weit wie möglich nach vorne, hinten-innen und hinten-außen tippen. Je Bein 3 Durchgänge. Ergebnis: Summe der Reichweiten in % der Beinlänge.",
+        "why": "Screening für Gleichgewicht und Stabilität; Seitenunterschiede deuten auf ein höheres Verletzungsrisiko hin."
+      }
+    },
+    "testUnits": {
+      "m": "m",
+      "s": "s",
+      "cm": "cm",
+      "%": "%"
+    },
+    "summaryFallback": "Du willst {focus}: „{text}“",
+    "summaryFallbackDate": "Du willst {focus} – bis {date}: „{text}“",
+    "goalFocus": {
+      "endurance": "deine Kondition verbessern",
+      "speed": "schneller werden",
+      "strength": "kräftiger werden",
+      "prevention": "Verletzungen vorbeugen",
+      "comeback": "nach der Pause zurückkommen"
+    },
+    "valuesOptional": "Beides optional – du kannst die Werte auch nach dem ersten Test eintragen."
   },
   "history": {
     "title": "Verlauf",
@@ -596,5 +698,10 @@
     "volume": "Volumen je Muskelgruppe (kg × Wdh)",
     "week": "Woche ab {date}",
     "empty": "–"
+  },
+  "wizard": {
+    "next": "Weiter",
+    "progress": "Schritt {step} von {total}",
+    "skip": "Überspringen"
   }
 }
