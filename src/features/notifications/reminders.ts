@@ -54,3 +54,35 @@ export function dueReminders(profile: ReminderProfile, state: ReminderState): Re
   }
   return due;
 }
+
+export interface FeedbackCandidate {
+  id: string;
+  date: string;
+  /** "HH:mm" oder "HH:mm:ss", null = ohne Uhrzeit. */
+  startTime: string | null;
+  durationMin: number;
+  status: "planned" | "done" | "cancelled";
+}
+
+/** So lange nach dem Ende einer Einheit kommt die Feedback-Erinnerung. */
+export const FEEDBACK_DELAY_MIN = 120;
+/** Einheiten ohne Uhrzeit gelten als um diese Zeit beendet. */
+export const FEEDBACK_DEFAULT_END = "20:00";
+
+/**
+ * Einheiten von heute, für die jetzt eine Feedback-Erinnerung fällig ist:
+ * noch geplant (kein Feedback), Ende + 2 h erreicht, noch nicht erinnert.
+ */
+export function dueFeedback(
+  sessions: FeedbackCandidate[],
+  localDate: string,
+  localTime: string,
+  alreadySent: Set<string>,
+): FeedbackCandidate[] {
+  const now = minutes(localTime);
+  return sessions.filter((s) => {
+    if (s.date !== localDate || s.status !== "planned" || alreadySent.has(s.id)) return false;
+    const end = s.startTime ? minutes(s.startTime) + s.durationMin : minutes(FEEDBACK_DEFAULT_END);
+    return now >= end + (s.startTime ? FEEDBACK_DELAY_MIN : 0);
+  });
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dueReminders, inWindow, type ReminderProfile, type ReminderState } from "./reminders";
+import { dueFeedback, dueReminders, inWindow, type ReminderProfile, type ReminderState } from "./reminders";
 
 const profile: ReminderProfile = {
   morningReminder: "07:30:00",
@@ -48,5 +48,27 @@ describe("dueReminders", () => {
 
   it("vor der Morgenzeit nichts", () => {
     expect(dueReminders(profile, state({ localTime: "06:00" }))).toEqual([]);
+  });
+});
+
+describe("dueFeedback", () => {
+  const training = { id: "t", date: "2026-11-26", startTime: "19:00:00", durationMin: 90, status: "planned" as const };
+
+  it("2 Stunden nach dem Ende fällig, vorher nicht", () => {
+    expect(dueFeedback([training], "2026-11-26", "22:29", new Set())).toEqual([]);
+    expect(dueFeedback([training], "2026-11-26", "22:30", new Set())).toEqual([training]);
+  });
+
+  it("nicht bei Feedback, Absage, anderem Tag oder schon erinnert", () => {
+    expect(dueFeedback([{ ...training, status: "done" }], "2026-11-26", "23:00", new Set())).toEqual([]);
+    expect(dueFeedback([{ ...training, status: "cancelled" }], "2026-11-26", "23:00", new Set())).toEqual([]);
+    expect(dueFeedback([training], "2026-11-27", "23:00", new Set())).toEqual([]);
+    expect(dueFeedback([training], "2026-11-26", "23:00", new Set(["t"]))).toEqual([]);
+  });
+
+  it("ohne Uhrzeit ab 20:00", () => {
+    const gym = { ...training, id: "g", startTime: null, durationMin: 45 };
+    expect(dueFeedback([gym], "2026-11-26", "19:59", new Set())).toEqual([]);
+    expect(dueFeedback([gym], "2026-11-26", "20:00", new Set())).toEqual([gym]);
   });
 });

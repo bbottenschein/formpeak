@@ -172,3 +172,31 @@ export async function deleteSession(sessionId: string) {
   refresh();
   redirect(`/week?start=${session.date}`);
 }
+
+/** Schnelles Feedback aus der Übersicht: nur RPE, Dauer bleibt wie geplant. */
+export async function quickFeedback(sessionId: string, rpe: number): Promise<{ ok: boolean }> {
+  const user = await getCurrentUser();
+  if (!Number.isInteger(rpe) || rpe < 0 || rpe > 10) return { ok: false };
+  const session = await ownSession(sessionId, user.id);
+  const today = userToday(user.timezone);
+  if (!session || session.date > today || session.status === "cancelled") return { ok: false };
+
+  let against = false;
+  if (session.date === today) {
+    const metrics = await computeMetricsFor(user.id, today, today);
+    against = metrics.light === "red" && isIntense({ ...toCoreSession(session), status: "done", rpe });
+  }
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("sessions")
+    .update({ status: "done", rpe, against_recommendation: against })
+    .eq("id", sessionId)
+    .eq("user_id", user.id);
+  if (error) {
+    console.error("[sessions] Schnell-Feedback nicht gespeichert", error.message);
+    return { ok: false };
+  }
+  await recomputeDailyMetrics(user.id, today, today);
+  refresh();
+  return { ok: true };
+}

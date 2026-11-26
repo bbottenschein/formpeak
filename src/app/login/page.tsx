@@ -7,7 +7,7 @@ import { getT } from "@/lib/i18n/server";
 export const metadata: Metadata = { title: "Anmelden" };
 
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
-  const { error } = await searchParams;
+  const { error, deleted } = await searchParams;
   const t = getT();
 
   return (
@@ -17,6 +17,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         <ProfileError />
       ) : (
         <>
+          {deleted && <p className="card mb-6 text-center text-sm">{t("privacy.deleted")}</p>}
           <LoginForm initialError={error === "link" ? t("auth.callbackFailed") : undefined} />
           <p className="mt-8 text-center text-xs text-muted">{t("auth.inviteOnly")}</p>
         </>

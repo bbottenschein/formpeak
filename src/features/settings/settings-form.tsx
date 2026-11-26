@@ -11,6 +11,7 @@ export interface SettingsValues {
   eveningReminder: string;
   pushMorning: boolean;
   pushEvening: boolean;
+  pushFeedback: boolean;
 }
 
 const TIMEZONES = ["Europe/Berlin", "Europe/Vienna", "Europe/Zurich", "Europe/London", "Europe/Madrid", "America/New_York"];
@@ -44,6 +45,13 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
             />
           </div>
         ))}
+        <label className="card flex items-center gap-3 py-3">
+          <input type="checkbox" name="pushFeedback" defaultChecked={initial.pushFeedback} className="size-5 accent-primary" />
+          <span>
+            <span className="block">{t("settings.feedbackReminder")}</span>
+            <span className="text-xs text-muted">{t("settings.feedbackReminderHint")}</span>
+          </span>
+        </label>
       </div>
 
       <div className="flex flex-col gap-3">

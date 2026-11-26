@@ -5,12 +5,13 @@ import { usePathname } from "next/navigation";
 import { useT } from "@/lib/i18n/client";
 
 const TABS = [
-  { href: "/", key: "nav.overview", match: (p: string) => p === "/" || p.startsWith("/checkin") },
+  { href: "/", key: "nav.overview", match: (p: string) => p === "/" || p.startsWith("/checkin") || p.startsWith("/history") },
   { href: "/week", key: "nav.plan", match: (p: string) => p.startsWith("/week") || p.startsWith("/sessions") },
   {
     href: "/settings",
     key: "nav.profile",
-    match: (p: string) => p.startsWith("/settings") || p.startsWith("/calendar") || p.startsWith("/admin"),
+    match: (p: string) =>
+      p.startsWith("/settings") || p.startsWith("/calendar") || p.startsWith("/admin") || p.startsWith("/goals"),
   },
 ] as const;
 

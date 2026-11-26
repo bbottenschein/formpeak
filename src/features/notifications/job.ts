@@ -3,7 +3,7 @@ import { zonedParts } from "@/lib/date";
 import { getT } from "@/lib/i18n/server";
 import { claimNotification, sendPush } from "@/lib/push";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { dueReminders, type ReminderKind } from "./reminders";
+import { dueFeedback, dueReminders, type ReminderKind } from "./reminders";
 
 /**
  * Erinnerungs-Job (alle 15 Minuten über pg_cron). Prüft für jeden Nutzer mit Push-Abo die
@@ -17,16 +17,23 @@ export async function runReminders(now: Date = new Date()) {
 
   const { data: profiles, error } = await admin
     .from("profiles")
-    .select("id, timezone, locale, morning_reminder, evening_reminder, push_morning, push_evening")
+    .select("id, timezone, locale, morning_reminder, evening_reminder, push_morning, push_evening, push_feedback")
     .in("id", userIds);
   if (error) throw error;
 
   let sent = 0;
   for (const p of profiles ?? []) {
     const { date, time } = zonedParts(now, p.timezone);
-    const [{ data: checkins }, { data: log }] = await Promise.all([
+    const [{ data: checkins }, { data: log }, { data: sessions }, { data: feedbackLog }] = await Promise.all([
       admin.from("checkins").select("kind").eq("user_id", p.id).eq("date", date),
       admin.from("notification_log").select("kind").eq("user_id", p.id).eq("ref", date),
+      admin
+        .from("sessions")
+        .select("id, date, type, start_time, duration_min, status")
+        .eq("user_id", p.id)
+        .eq("date", date)
+        .eq("status", "planned"),
+      admin.from("notification_log").select("ref").eq("user_id", p.id).eq("kind", "feedback"),
     ]);
     const kinds = new Set((checkins ?? []).map((c) => c.kind));
     const due = dueReminders(
@@ -52,6 +59,30 @@ export async function runReminders(now: Date = new Date()) {
         body: t(kind === "morning" ? "push.morningBody" : "push.eveningBody"),
         url: kind === "morning" ? "/checkin" : "/checkin/evening",
         tag: `checkin-${kind}`,
+      });
+    }
+
+    if (!p.push_feedback) continue;
+    const due_ = dueFeedback(
+      (sessions ?? []).map((x) => ({
+        id: x.id,
+        date: x.date,
+        startTime: x.start_time,
+        durationMin: x.duration_min,
+        status: x.status,
+      })),
+      date,
+      time,
+      new Set((feedbackLog ?? []).map((l) => l.ref as string)),
+    );
+    for (const s of due_) {
+      if (!(await claimNotification(p.id, "feedback", s.id))) continue;
+      const type = (sessions ?? []).find((x) => x.id === s.id)?.type ?? "training";
+      sent += await sendPush([p.id], {
+        title: t("push.feedbackTitle"),
+        body: t("push.feedbackBody", { type: t(`sessionTypes.${type as "training"}`) }),
+        url: `/sessions/${s.id}`,
+        tag: `feedback-${s.id}`,
       });
     }
   }

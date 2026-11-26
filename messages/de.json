@@ -430,7 +430,9 @@
     "eveningTitle": "Abend-Check-in",
     "eveningBody": "Wie war dein Tag? 15 Sekunden.",
     "testTitle": "Es klappt",
-    "testBody": "Erinnerungen sind auf diesem Gerät eingeschaltet."
+    "testBody": "Erinnerungen sind auf diesem Gerät eingeschaltet.",
+    "feedbackTitle": "Wie war's?",
+    "feedbackBody": "{type}: kurz die Intensität (RPE) eintragen – dauert 5 Sekunden."
   },
   "settings": {
     "title": "Einstellungen",
@@ -458,7 +460,9 @@
     "displayName": "Name",
     "timezone": "Zeitzone",
     "install": "App installieren",
-    "installHint": "Am Handy: im Browser-Menü „Zum Startbildschirm hinzufügen“ (iPhone: Teilen → Zum Home-Bildschirm). Dann startet die App wie eine normale App."
+    "installHint": "Am Handy: im Browser-Menü „Zum Startbildschirm hinzufügen“ (iPhone: Teilen → Zum Home-Bildschirm). Dann startet die App wie eine normale App.",
+    "feedbackReminder": "Feedback nach Einheiten",
+    "feedbackReminderHint": "2 Stunden nach dem Ende, wenn noch kein Feedback da ist"
   },
   "overview": {
     "readiness": "Readiness",
@@ -480,13 +484,117 @@
     },
     "extra": "+{count}",
     "calibrating": "ACWR ab {days} Tagen",
-    "acwr": "ACWR {value}"
+    "acwr": "ACWR {value}",
+    "feedbackTitle": "Feedback offen",
+    "feedbackHint": "Wie hart war es? 0 = ganz leicht, 10 = maximal. Details auf der Einheit.",
+    "feedbackSaved": "Gespeichert",
+    "feedbackDetails": "Details"
   },
   "profile": {
     "title": "Profil",
     "fixtures": "Fixe Termine",
     "fixturesHint": "Training und Spiele als Serie",
     "admin": "Einladungen verwalten",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "goal": "Ziel & Trainingsrahmen",
+    "goalHint": "Was du erreichen willst und wie viel Zeit du hast"
+  },
+  "consent": {
+    "title": "Kurz bestätigen",
+    "intro": "Bevor es losgeht: Die App verarbeitet Gesundheitsdaten. Dafür brauchen wir deine ausdrückliche Einwilligung.",
+    "accept": "Einwilligen und weiter",
+    "pending": "Wird gespeichert …",
+    "decline": "Nicht einwilligen und abmelden",
+    "error": "Konnte nicht gespeichert werden. Bitte noch einmal versuchen."
+  },
+  "privacy": {
+    "title": "Deine Daten",
+    "intro": "Deine Gesundheitsdaten sieht nur du. Du kannst sie jederzeit herunterladen oder dein Konto mit allen Daten löschen.",
+    "export": "Daten herunterladen (JSON)",
+    "deleteTitle": "Konto löschen",
+    "deleteText": "Löscht dein Konto und alle Daten endgültig: Check-ins, Einheiten, Schmerzstellen, Gym-Log, Ziele. Das lässt sich nicht rückgängig machen. Damit widerrufst du auch deine Einwilligung.",
+    "deleteConfirmLabel": "Zum Bestätigen LÖSCHEN eintippen",
+    "deleteConfirmWord": "LÖSCHEN",
+    "deleteSubmit": "Konto endgültig löschen",
+    "deletePending": "Wird gelöscht …",
+    "deleteWrong": "Bitte genau LÖSCHEN eintippen.",
+    "deleteFailed": "Das Konto konnte nicht gelöscht werden.",
+    "deleted": "Dein Konto und alle Daten wurden gelöscht."
+  },
+  "goal": {
+    "title": "Ziel & Trainingsrahmen",
+    "intro": "Daraus plant die App deine Zusatzeinheiten rund um den Fußball.",
+    "type": "Worum geht es dir?",
+    "types": {
+      "endurance": "Kondition",
+      "speed": "Schnelligkeit",
+      "strength": "Kraft",
+      "prevention": "Verletzungsprävention",
+      "comeback": "Comeback nach Pause"
+    },
+    "description": "Was willst du erreichen?",
+    "descriptionPlaceholder": "z. B. 90 Minuten durchlaufen, ohne in der zweiten Halbzeit einzubrechen",
+    "test": "Messbarer Test",
+    "testHint": "Optional – damit sich Fortschritt zeigen lässt.",
+    "testPresets": {
+      "yoyo": "Yo-Yo-Test",
+      "run3k": "3-km-Lauf",
+      "sprint30": "30-m-Sprint",
+      "custom": "Eigener Test"
+    },
+    "testName": "Test",
+    "baseline": "Ausgangswert",
+    "target": "Zielwert",
+    "unit": "Einheit",
+    "targetDate": "Bis wann?",
+    "frame": "Dein Trainingsrahmen",
+    "sessionsPerWeek": "Zusatzeinheiten pro Woche neben dem Fußball",
+    "timeBudget": "Maximale Dauer pro Einheit",
+    "minutes": "{value} min",
+    "weekdays": "An welchen Tagen hast du Zeit?",
+    "equipment": "Was kannst du nutzen?",
+    "equipmentTypes": {
+      "gym": "Fitnessstudio",
+      "home": "Kurzhanteln / Bänder zuhause",
+      "outdoor": "Laufen / Rad draußen",
+      "pitch": "Platz / Sprintstrecke",
+      "bike": "Ergometer / Rad drinnen"
+    },
+    "save": "Ziel speichern",
+    "saving": "Wird gespeichert …",
+    "errorInvalid": "Bitte Zieltyp, Beschreibung, Anzahl der Einheiten, Dauer, mindestens einen Tag und ein Trainingsmittel angeben.",
+    "errorSave": "Konnte nicht gespeichert werden.",
+    "cardEmptyTitle": "Was ist dein Ziel?",
+    "cardEmptyText": "Leg fest, was du erreichen willst, wie viel Zeit du hast und was du nutzen kannst. Danach richtet sich dein Plan.",
+    "cardCta": "Ziel festlegen",
+    "cardTitle": "Dein Ziel",
+    "cardFrame": "{sessions} Zusatzeinheiten/Woche · max. {minutes} min",
+    "cardUntil": "bis {date}",
+    "edit": "Ziel bearbeiten",
+    "planCounter": "Zusatzeinheiten diese Woche: {planned} von {target}"
+  },
+  "history": {
+    "title": "Verlauf",
+    "intro": "Die letzten 4 Wochen aus deinen Check-ins, Einheiten und dem Gym-Log.",
+    "link": "Alle Verläufe",
+    "wellbeing": "Wohlbefinden",
+    "sleep": "Schlafdauer",
+    "energy": "Energie (1–5)",
+    "stress": "Stress (1–5)",
+    "soreness": "Muskelkater (1–5)",
+    "hours": "{value} h",
+    "noValue": "kein Check-in",
+    "pain": "Schmerzhistorie",
+    "painEmpty": "In den letzten 4 Wochen keine Schmerzen eingetragen.",
+    "painSummary": "{days} Tage · max. Stärke {max}",
+    "gym": "Gym-Fortschritt",
+    "gymEmpty": "Noch keine Gym-Einheiten mit Sätzen eingetragen.",
+    "exercise": "Übung",
+    "e1rm": "Geschätztes 1RM",
+    "e1rmValue": "{value} kg",
+    "e1rmSingle": "Erst eine Einheit – ab der zweiten erscheint der Verlauf.",
+    "volume": "Volumen je Muskelgruppe (kg × Wdh)",
+    "week": "Woche ab {date}",
+    "empty": "–"
   }
 }

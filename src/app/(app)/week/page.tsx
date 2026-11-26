@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { mondayOf } from "@/core/load";
 import { getCurrentUser } from "@/features/auth/session";
 import { computeMetricsFor } from "@/features/today/metrics";
+import { getGoal } from "@/features/goals/queries";
 import { getWeek } from "@/features/week/queries";
 import { WeekView } from "@/features/week/week-view";
 import { userToday } from "@/lib/date";
@@ -19,11 +20,19 @@ export default async function WeekPage({ searchParams }: PageProps<"/week">) {
 
   const isThisWeek = monday === mondayOf(today);
   const todayMetrics = isThisWeek ? await computeMetricsFor(user.id, today, today) : null;
-  const week = await getWeek(user.id, monday, today, todayMetrics);
+  const [week, { frame }] = await Promise.all([getWeek(user.id, monday, today, todayMetrics), getGoal(user.id)]);
+  const extraPlanned = week.days
+    .flatMap((d) => d.sessions)
+    .filter((s) => !s.is_fixture && s.status !== "cancelled").length;
 
   return (
     <section className="flex flex-col gap-4">
       <h1 className="text-4xl font-bold">{t("week.title")}</h1>
+      {frame && frame.extraSessionsPerWeek > 0 && (
+        <p className={`text-sm ${extraPlanned >= frame.extraSessionsPerWeek ? "text-muted" : "text-foreground"}`}>
+          {t("goal.planCounter", { planned: extraPlanned, target: frame.extraSessionsPerWeek })}
+        </p>
+      )}
       <WeekView week={week} today={today} t={t} />
     </section>
   );

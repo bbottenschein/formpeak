@@ -46,6 +46,7 @@ const settingsSchema = z.object({
   eveningReminder: time,
   pushMorning: z.boolean(),
   pushEvening: z.boolean(),
+  pushFeedback: z.boolean(),
 });
 
 export type SettingsState = { error?: string; ok?: boolean };
@@ -61,6 +62,7 @@ export async function saveSettings(_prev: SettingsState, formData: FormData): Pr
     eveningReminder: formData.get("eveningReminder"),
     pushMorning: formData.get("pushMorning") === "on",
     pushEvening: formData.get("pushEvening") === "on",
+    pushFeedback: formData.get("pushFeedback") === "on",
   });
   if (!parsed.success) return { error: t("settings.errorSave") };
   const s = parsed.data;
@@ -74,6 +76,7 @@ export async function saveSettings(_prev: SettingsState, formData: FormData): Pr
       evening_reminder: s.eveningReminder,
       push_morning: s.pushMorning,
       push_evening: s.pushEvening,
+      push_feedback: s.pushFeedback,
     })
     .eq("id", user.id);
   if (error) {
