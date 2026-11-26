@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { logout } from "@/features/auth/actions";
 import { getCurrentUser } from "@/features/auth/session";
 import { PushToggle } from "@/features/notifications/push-toggle";
 import { SettingsForm } from "@/features/settings/settings-form";
@@ -6,7 +8,7 @@ import { vapidConfig } from "@/lib/env.server";
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Einstellungen" };
+export const metadata: Metadata = { title: "Profil" };
 
 export default async function SettingsPage() {
   const user = await getCurrentUser();
@@ -21,9 +23,16 @@ export default async function SettingsPage() {
   return (
     <section className="flex flex-col gap-6">
       <div>
-        <h1 className="text-4xl font-bold">{t("settings.title")}</h1>
-        <p className="mt-1 text-sm text-muted">{t("settings.notificationsIntro")}</p>
+        <h1 className="text-4xl font-bold">{t("profile.title")}</h1>
       </div>
+      <Link href="/calendar" className="card flex items-center justify-between gap-3">
+        <span>
+          <span className="block font-display text-lg font-semibold uppercase tracking-wide">{t("profile.fixtures")}</span>
+          <span className="text-sm text-muted">{t("profile.fixturesHint")}</span>
+        </span>
+        <span aria-hidden className="text-muted">→</span>
+      </Link>
+      <p className="text-sm text-muted">{t("settings.notificationsIntro")}</p>
       <PushToggle publicKey={vapidConfig()?.publicKey ?? null} />
       {p && (
         <SettingsForm
@@ -37,6 +46,14 @@ export default async function SettingsPage() {
           }}
         />
       )}
+      {user.role === "admin" && (
+        <Link href="/admin" className="btn-secondary text-center">
+          {t("profile.admin")}
+        </Link>
+      )}
+      <form action={logout}>
+        <button className="btn-secondary w-full">{t("profile.logout")}</button>
+      </form>
       <div className="flex flex-col gap-1 border-t border-line pt-4">
         <h2 className="eyebrow">{t("settings.install")}</h2>
         <p className="text-sm text-muted">{t("settings.installHint")}</p>

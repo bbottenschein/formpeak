@@ -2,9 +2,12 @@ import "server-only";
 import {
   addDays,
   computeDailyMetrics,
+  computeTrend,
+  type DailyInput,
   type DailyMetrics,
   type MorningCheckin,
   type PainEntry,
+  type TrendPoint,
 } from "@/core/load";
 import { ensureFixtures, loadSessions, toCoreSession } from "@/features/sessions/data";
 import { createClient } from "@/lib/supabase/server";
@@ -23,12 +26,8 @@ async function firstDataDate(supabase: Supabase, userId: string): Promise<string
   return dates.length ? dates.sort()[0] : null;
 }
 
-/** Lädt alles, was die Belastungslogik für einen Tag braucht, und berechnet die Kennzahlen. */
-export async function computeMetricsFor(
-  userId: string,
-  date: string,
-  today: string,
-): Promise<DailyMetrics> {
+/** Lädt alles, was die Belastungslogik bis zu einem Tag braucht. */
+async function loadDailyInput(userId: string, date: string, today: string): Promise<DailyInput> {
   const supabase = await createClient();
   const from = addDays(date, -LOOKBACK_DAYS);
 
@@ -56,7 +55,7 @@ export async function computeMetricsFor(
     if (r.error) throw new Error(`Daten für Kennzahlen nicht lesbar: ${r.error.message}`);
   }
 
-  return computeDailyMetrics(date, {
+  return {
     sessions: sessions.map(toCoreSession),
     morningCheckins: (checkins.data ?? []).map(
       (c): MorningCheckin => ({
@@ -72,7 +71,25 @@ export async function computeMetricsFor(
     painEntries: (pains.data ?? []) as PainEntry[],
     firstDataDate: first,
     today,
-  });
+  };
+}
+
+/** Kennzahlen eines Tages. */
+export async function computeMetricsFor(userId: string, date: string, today: string): Promise<DailyMetrics> {
+  return computeDailyMetrics(date, await loadDailyInput(userId, date, today));
+}
+
+/** Kennzahlen für heute plus Verlauf der letzten `days` Tage (inkl. heute), mit einem Datenabruf. */
+export async function computeTodayWithTrend(
+  userId: string,
+  today: string,
+  days = 14,
+): Promise<{ metrics: DailyMetrics; trend: TrendPoint[] }> {
+  const input = await loadDailyInput(userId, today, today);
+  return {
+    metrics: computeDailyMetrics(today, input),
+    trend: computeTrend(addDays(today, -(days - 1)), today, input),
+  };
 }
 
 /** Berechnet die Kennzahlen eines Tages neu und speichert sie in `daily_metrics`. */

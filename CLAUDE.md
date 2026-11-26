@@ -53,9 +53,9 @@ wird. Die Ampel wird nie von der KI überstimmt. Die App stellt keine Diagnosen.
   Spieltagslogik). **Reines TypeScript ohne Next.js- oder Supabase-Abhängigkeiten**, damit es
   später auch in Expo läuft. Alle Schwellen in einer Konfiguration.
 - `src/app/` – nur Routing, dünne Seiten.
-  - `(app)/` – alles hinter dem Login, mit Tab-Leiste.
+  - `(app)/` – alles hinter dem Login, mit Tab-Leiste (Übersicht · Plan · Profil).
   - `login/`, `invite/` – öffentlich.
-- `src/features/<modul>/` – ein Ordner pro Feature (`today`, `week`, `checkin`, `feedback`,
+- `src/features/<modul>/` – ein Ordner pro Feature (`overview`, `today`, `week`, `checkin`, `feedback`,
   `bodymap`, `gym`, `calendar`, `history`, `settings`, `notifications`, `auth`, `admin`, `shell`).
   Komponenten, Server Actions, Queries und reine Logik des Moduls liegen dort.
 - `src/lib/` – modulübergreifende Helfer (Supabase-Clients, Datum/Zeitzone, Env, i18n).

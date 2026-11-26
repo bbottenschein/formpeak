@@ -60,7 +60,7 @@ export function WeekView({ week, today, t }: { week: WeekData; today: string; t:
           const isToday = day.date === today;
           const active = day.sessions.filter((s) => s.status !== "cancelled");
           return (
-            <li key={day.date} className="flex flex-col gap-2">
+            <li key={day.date} id={day.date} className="flex scroll-mt-4 flex-col gap-2">
               <div className="flex items-baseline justify-between gap-2">
                 <h2 className={`font-display text-lg font-semibold uppercase tracking-wide ${isToday ? "text-primary" : ""}`}>
                   {t(`weekdays.long.${weekdayOf(day.date) as 0 | 1 | 2 | 3 | 4 | 5 | 6}`)}{" "}

@@ -118,7 +118,10 @@
     "checkin": "Check-in",
     "week": "Woche",
     "calendar": "Kalender",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "overview": "Übersicht",
+    "plan": "Plan",
+    "profile": "Profil"
   },
   "checkin": {
     "title": "Morgen-Check-in",
@@ -273,7 +276,7 @@
     "errorSave": "Die Serie konnte nicht gespeichert werden."
   },
   "week": {
-    "title": "Woche",
+    "title": "Plan",
     "prev": "Vorherige Woche",
     "next": "Nächste Woche",
     "thisWeek": "Diese Woche",
@@ -456,5 +459,34 @@
     "timezone": "Zeitzone",
     "install": "App installieren",
     "installHint": "Am Handy: im Browser-Menü „Zum Startbildschirm hinzufügen“ (iPhone: Teilen → Zum Home-Bildschirm). Dann startet die App wie eine normale App."
+  },
+  "overview": {
+    "readiness": "Readiness",
+    "noCheckinRing": "Noch kein Check-in",
+    "checkinCta": "Check-in starten",
+    "weekTitle": "Deine Woche",
+    "weekLink": "Zum Plan",
+    "trendReadiness": "Readiness · 14 Tage",
+    "trendLoad": "Belastung · 14 Tage",
+    "trendLoadUnit": "AU",
+    "trendEmpty": "Noch zu wenig Daten. Der Verlauf füllt sich mit jedem Check-in.",
+    "threshold": "{value}",
+    "tooltipReadiness": "Readiness {value}",
+    "tooltipNoCheckin": "kein Check-in",
+    "tooltipLoad": "{value} AU",
+    "fixtures": {
+      "training": "TR",
+      "match": "SP"
+    },
+    "extra": "+{count}",
+    "calibrating": "ACWR ab {days} Tagen",
+    "acwr": "ACWR {value}"
+  },
+  "profile": {
+    "title": "Profil",
+    "fixtures": "Fixe Termine",
+    "fixturesHint": "Training und Spiele als Serie",
+    "admin": "Einladungen verwalten",
+    "logout": "Abmelden"
   }
 }

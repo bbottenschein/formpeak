@@ -5,19 +5,22 @@ import { usePathname } from "next/navigation";
 import { useT } from "@/lib/i18n/client";
 
 const TABS = [
-  { href: "/", key: "nav.today", match: (p: string) => p === "/" },
-  { href: "/week", key: "nav.week", match: (p: string) => p.startsWith("/week") || p.startsWith("/sessions") },
-  { href: "/checkin", key: "nav.checkin", match: (p: string) => p.startsWith("/checkin") },
-  { href: "/calendar", key: "nav.calendar", match: (p: string) => p.startsWith("/calendar") },
+  { href: "/", key: "nav.overview", match: (p: string) => p === "/" || p.startsWith("/checkin") },
+  { href: "/week", key: "nav.plan", match: (p: string) => p.startsWith("/week") || p.startsWith("/sessions") },
+  {
+    href: "/settings",
+    key: "nav.profile",
+    match: (p: string) => p.startsWith("/settings") || p.startsWith("/calendar") || p.startsWith("/admin"),
+  },
 ] as const;
 
-/** Tab-Leiste unten, aktiver Tab in Limette. */
+/** Tab-Leiste unten: Übersicht (Hauptseite), Plan, Profil. Aktiver Tab in Limette. */
 export function TabBar() {
   const t = useT();
   const path = usePathname();
   return (
     <nav className="sticky bottom-0 z-10 border-t border-line bg-background pb-[env(safe-area-inset-bottom)]">
-      <ul className="mx-auto grid max-w-lg grid-cols-4">
+      <ul className="mx-auto grid max-w-lg grid-cols-3">
         {TABS.map((tab) => {
           const active = tab.match(path);
           return (

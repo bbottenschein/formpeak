@@ -302,12 +302,20 @@ schreibt. Zeitstempel `created_at`/`updated_at`. Tagesbezug als `date` in der Nu
 
 ## 6. Screens
 
-- **Heute:** Ampel, Readiness, heutige Einheiten mit Hinweisen und Begründung, Button zum Check-in.
-- **Woche:** Kalender mit fixen Fußballterminen (MD-Markierung) und geplanten Zusatzeinheiten, Einheiten verschiebbar.
-- **Erfassen:** Check-ins und Feedback als Karten zum Durchtippen, Körperkarte, Gym-Log Übung für Übung.
+Navigation mit drei Tabs: **Übersicht** (Hauptseite) · **Plan** · **Profil**. Check-ins sind kein
+eigener Tab, sondern werden aus der Übersicht gestartet (und per Push-Erinnerung verlinkt).
+
+- **Übersicht** (Hauptseite): Readiness-Ring mit Ampel, Empfehlung und ACWR; Check-in starten bzw.
+  bearbeiten; „Deine Woche“ als Leiste Mo–So mit MD-Labels und festen Terminen (TR/SP) plus
+  Zähler für Zusatzeinheiten; heutige Einheiten mit Hinweisen; aktive Schmerzstellen;
+  Readiness-Verlauf (Linie, 14 Tage, Schwellen 50/70) und Tageslast (Balken, 14 Tage);
+  Abend-Check-in.
+- **Plan:** Woche Mo–So mit allen Einheiten, Hinweisen und Wochenhinweisen, Einheiten planen,
+  Einzeltermine; Detailseite je Einheit mit Feedback, Gym-Log, Absagen/Verschieben.
+- **Profil:** Fixe Termine (Serien), Benachrichtigungen und Erinnerungszeiten, Name, Zeitzone,
+  Admin (Einladungen), Abmelden.
+- **Check-ins:** Morgen (`/checkin`) und Abend (`/checkin/evening`) als eigene Seiten.
 - **Ziele** (Phase 2): aktives Ziel, nächster Testtermin, Fortschrittskurve.
-- **Verlauf** (Basis in Phase 1, Diagramme in Phase 2): Belastungskurve, Readiness-Verlauf, Schmerzhistorie je Stelle, Gym-Verlauf, Insights.
-- **Einstellungen:** Profil, Kalender-Serien, Saisonphasen, Trainingsmittel, Zeitbudget, Erinnerungen, Datenexport, Konto löschen.
 
 Täglicher Ablauf (ca. 2 Minuten Eingabe): Morgen-Check-in → Readiness & Ampel → Tagesplan
 anpassen → Einheit trainieren → Feedback → Abend-Check-in → Last neu berechnen.
