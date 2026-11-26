@@ -56,3 +56,33 @@ export function parseMorningPayload(raw: unknown): MorningCheckinInput | null {
   const result = morningCheckinSchema.safeParse(json);
   return result.success ? result.data : null;
 }
+
+const eveningScale = z.number().int().min(1).max(5);
+
+export const eveningCheckinSchema = z.object({
+  dailyLoad: eveningScale,
+  stress: eveningScale,
+  energy: eveningScale,
+  steps: z.number().int().min(0).max(200_000).nullable(),
+  note: z.string().trim().max(500).nullable(),
+});
+
+export type EveningCheckinInput = z.infer<typeof eveningCheckinSchema>;
+
+export const EMPTY_EVENING: EveningCheckinInput = {
+  dailyLoad: 3,
+  stress: 2,
+  energy: 3,
+  steps: null,
+  note: null,
+};
+
+export function parseEveningPayload(raw: unknown): EveningCheckinInput | null {
+  if (typeof raw !== "string") return null;
+  try {
+    const result = eveningCheckinSchema.safeParse(JSON.parse(raw));
+    return result.success ? result.data : null;
+  } catch {
+    return null;
+  }
+}

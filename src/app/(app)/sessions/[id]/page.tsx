@@ -5,6 +5,9 @@ import { getCurrentUser } from "@/features/auth/session";
 import { cancelSession, deleteSession, moveSession, restoreSession } from "@/features/sessions/actions";
 import { SESSION_COLUMNS, toCoreSession, type SessionRow } from "@/features/sessions/data";
 import { FeedbackForm } from "@/features/sessions/feedback-form";
+import { GymLog } from "@/features/gym/gym-log";
+import { lastPerformances, listExercises, loadGymLog } from "@/features/gym/queries";
+import { computeMetricsFor } from "@/features/today/metrics";
 import type { FeedbackInput } from "@/features/sessions/schema";
 import { formatLongDate, userToday } from "@/lib/date";
 import { getT } from "@/lib/i18n/server";
@@ -38,6 +41,20 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
     .eq("session_id", id);
 
   const load = sessionLoad(toCoreSession(session), today);
+
+  let gym: React.ReactNode = null;
+  if (session.type === "gym" && session.status !== "cancelled") {
+    const [library, log] = await Promise.all([listExercises(supabase), loadGymLog(supabase, session.id)]);
+    const last = await lastPerformances(
+      supabase,
+      user.id,
+      log.map((e) => e.exerciseId),
+      session.id,
+      session.date,
+    );
+    const light = session.date === today ? (await computeMetricsFor(user.id, today, today)).light : undefined;
+    gym = <GymLog sessionId={session.id} library={library} initial={log} last={last} light={light} />;
+  }
   const canGiveFeedback = session.status !== "cancelled" && session.date <= today;
   const initial: FeedbackInput = {
     durationMin: session.duration_min,
@@ -67,6 +84,8 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
         {session.notes && <p className="mt-2 text-sm">{session.notes}</p>}
         {session.against_recommendation && <p className="mt-2 text-sm text-light-yellow">{t("session.againstRecommendation")}</p>}
       </div>
+
+      {gym}
 
       {canGiveFeedback ? (
         <div className="flex flex-col gap-3">

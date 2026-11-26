@@ -1,7 +1,7 @@
 import "server-only";
 import { addDays } from "@/core/load";
 import { createClient } from "@/lib/supabase/server";
-import { EMPTY_MORNING, type MorningCheckinInput } from "./schema";
+import { EMPTY_EVENING, EMPTY_MORNING, type EveningCheckinInput, type MorningCheckinInput } from "./schema";
 
 export interface MorningFormData {
   values: MorningCheckinInput;
@@ -47,4 +47,38 @@ export async function getMorningFormData(userId: string, today: string): Promise
       pains: (pains ?? []).filter((p) => p.intensity > 0) as MorningCheckinInput["pains"],
     },
   };
+}
+
+/** Heutiger Abend-Check-in zum Bearbeiten, sonst Standardwerte. */
+export async function getEveningFormData(
+  userId: string,
+  today: string,
+): Promise<{ values: EveningCheckinInput; existing: boolean }> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("checkins")
+    .select("daily_load, evening_stress, evening_energy, steps, note")
+    .eq("user_id", userId)
+    .eq("kind", "evening")
+    .eq("date", today)
+    .maybeSingle();
+  if (!data) return { values: EMPTY_EVENING, existing: false };
+  return {
+    existing: true,
+    values: {
+      dailyLoad: data.daily_load,
+      stress: data.evening_stress,
+      energy: data.evening_energy,
+      steps: data.steps,
+      note: data.note,
+    },
+  };
+}
+
+/** Welche Check-ins es heute schon gibt. */
+export async function getCheckinStatus(userId: string, today: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("checkins").select("kind").eq("user_id", userId).eq("date", today);
+  const kinds = new Set((data ?? []).map((c) => c.kind));
+  return { morning: kinds.has("morning"), evening: kinds.has("evening") };
 }

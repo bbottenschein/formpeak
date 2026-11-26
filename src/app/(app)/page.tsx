@@ -6,7 +6,8 @@ import { mondayOf } from "@/core/load";
 import { LightCard } from "@/features/today/light-card";
 import { computeMetricsFor } from "@/features/today/metrics";
 import { PainList } from "@/features/today/pain-list";
-import { formatLongDate, userToday } from "@/lib/date";
+import { formatLongDate, userToday, zonedParts } from "@/lib/date";
+import { getCheckinStatus } from "@/features/checkin/queries";
 import { getT } from "@/lib/i18n/server";
 
 export default async function TodayPage() {
@@ -18,6 +19,24 @@ export default async function TodayPage() {
   const hasCheckin = metrics.readiness != null;
   const week = await getWeek(user.id, mondayOf(today), today, metrics);
   const todaySessions = week.days.find((d) => d.date === today)?.sessions ?? [];
+  const status = await getCheckinStatus(user.id, today);
+  const evening = zonedParts(new Date(), user.timezone).hour >= 17;
+  const eveningBlock = status.evening ? (
+    <Link href="/checkin/evening" className="text-center text-sm text-muted underline underline-offset-4">
+      {t("today.eveningDone")}
+    </Link>
+  ) : evening ? (
+    <div className="card flex flex-col gap-3">
+      <p className="text-muted">{t("today.eveningPrompt")}</p>
+      <Link href="/checkin/evening" className="btn-primary text-center">
+        {t("today.eveningCta")}
+      </Link>
+    </div>
+  ) : (
+    <Link href="/checkin/evening" className="text-center text-sm text-muted underline underline-offset-4">
+      {t("today.eveningCta")}
+    </Link>
+  );
   const sessionsBlock = (
     <div className="flex flex-col gap-2">
       <h2 className="eyebrow">{t("today.sessionsTitle")}</h2>
@@ -54,6 +73,7 @@ export default async function TodayPage() {
         </div>
       )}
       {!hasCheckin && sessionsBlock}
+      {eveningBlock}
     </section>
   );
 }

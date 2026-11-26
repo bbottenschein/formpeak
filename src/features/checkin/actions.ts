@@ -6,7 +6,7 @@ import { recomputeDailyMetrics } from "@/features/today/metrics";
 import { userToday } from "@/lib/date";
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
-import { parseMorningPayload } from "./schema";
+import { parseEveningPayload, parseMorningPayload } from "./schema";
 
 export type CheckinState = { error?: string };
 
@@ -71,5 +71,36 @@ export async function saveMorningCheckin(
   }
 
   await recomputeDailyMetrics(user.id, today, today);
+  redirect("/");
+}
+
+/** Speichert den Abend-Check-in des heutigen Tages. Fließt nur in Insights ein, nicht in die Ampel. */
+export async function saveEveningCheckin(
+  _prev: CheckinState,
+  formData: FormData,
+): Promise<CheckinState> {
+  const user = await getCurrentUser();
+  const t = getT(user.locale);
+  const input = parseEveningPayload(formData.get("payload"));
+  if (!input) return { error: t("evening.errorInvalid") };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("checkins").upsert(
+    {
+      user_id: user.id,
+      date: userToday(user.timezone),
+      kind: "evening",
+      daily_load: input.dailyLoad,
+      evening_stress: input.stress,
+      evening_energy: input.energy,
+      steps: input.steps,
+      note: input.note || null,
+    },
+    { onConflict: "user_id,date,kind" },
+  );
+  if (error) {
+    console.error("[checkin] Abend nicht gespeichert", error.message);
+    return { error: t("evening.errorSave") };
+  }
   redirect("/");
 }

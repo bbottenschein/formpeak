@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EMPTY_MORNING, parseMorningPayload } from "./schema";
+import { EMPTY_EVENING, EMPTY_MORNING, parseEveningPayload, parseMorningPayload } from "./schema";
 
 const valid = { ...EMPTY_MORNING, restingHr: 60 };
 const parse = (x: unknown) => parseMorningPayload(JSON.stringify(x));
@@ -43,5 +43,24 @@ describe("parseMorningPayload", () => {
     const knee = { region: "knee", side: "left", intensity: 4, kind: "joint", swollen: false };
     expect(parse({ ...valid, pains: [knee, { ...knee, intensity: 2 }] })).toBeNull();
     expect(parse({ ...valid, pains: [knee, { ...knee, side: "right" }] })).not.toBeNull();
+  });
+});
+
+describe("parseEveningPayload", () => {
+  const ok = { ...EMPTY_EVENING, steps: 8500, note: "Lange Vorlesung" };
+  const p = (x: unknown) => parseEveningPayload(JSON.stringify(x));
+
+  it("gültig, Schritte und Notiz optional", () => {
+    expect(p(ok)).toEqual(ok);
+    expect(p(EMPTY_EVENING)).toEqual(EMPTY_EVENING);
+  });
+
+  it("Grenzen", () => {
+    expect(p({ ...ok, dailyLoad: 0 })).toBeNull();
+    expect(p({ ...ok, energy: 6 })).toBeNull();
+    expect(p({ ...ok, steps: -1 })).toBeNull();
+    expect(p({ ...ok, steps: 1.5 })).toBeNull();
+    expect(p({ ...ok, note: "x".repeat(501) })).toBeNull();
+    expect(parseEveningPayload("{")).toBeNull();
   });
 });
