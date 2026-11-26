@@ -1,0 +1,67 @@
+# FormPeak – Projektregeln
+
+Trainings- und Belastungs-App für Amateurfußballer (Arbeitstitel **FormPeak**). Plant Gym,
+Mobilität, Regeneration und Ruhe um das feste Teamtraining und warnt vor Überlastung.
+Die vollständige Spezifikation steht in `SPEC.md` – vor größeren Änderungen lesen.
+
+Erst eigener Gebrauch (Dogfooding, Admin: Benedikt), später für andere Spieler. Deshalb von
+Anfang an mehrnutzerfähig. Mit NinAI hat dieses Projekt nichts zu tun.
+
+## Stack
+
+- Next.js (App Router, TypeScript, Tailwind v4) als PWA, gehostet auf Vercel.
+  Nach dem Setup gilt: Vor dem Schreiben von Next.js-Code die Doku in `node_modules/next/dist/docs/`
+  lesen – die Version kann von deinem Trainingswissen abweichen.
+- Supabase (EU-Region): Postgres mit Row Level Security, Auth (E-Mail + Passwort, Magic Link,
+  Registrierung nur per Einladung).
+- Claude API ab Phase 2, nur serverseitig.
+- Geplante Jobs (Erinnerungen, Neuberechnung): Supabase `pg_cron` + `pg_net` ruft geschützte
+  Routen unter `/api/jobs/*` auf (`Authorization: Bearer $JOBS_SECRET`). Jobs laufen stündlich,
+  sind idempotent und prüfen die Uhrzeit in der Zeitzone jedes Nutzers.
+- Diagramme mit Recharts. Später nativ mit Expo (Apple Health / Health Connect).
+
+## Grundprinzip
+
+Regeln im Code entscheiden, **ob** belastet werden darf. Die KI entscheidet nur, **was** trainiert
+wird. Die Ampel wird nie von der KI überstimmt. Die App stellt keine Diagnosen.
+
+## Ordnerstruktur
+
+- `src/core/load/` – Belastungslogik (sRPE, ACWR, EWMA, Readiness, Ampel, Schmerzregeln,
+  Spieltagslogik). **Reines TypeScript ohne Next.js- oder Supabase-Abhängigkeiten**, damit es
+  später auch in Expo läuft. Alle Schwellen in einer Konfiguration.
+- `src/app/` – nur Routing, dünne Seiten.
+  - `(app)/` – alles hinter dem Login, mit Tab-Leiste.
+  - `login/`, `invite/` – öffentlich.
+- `src/features/<modul>/` – ein Ordner pro Feature (`today`, `week`, `checkin`, `feedback`,
+  `bodymap`, `gym`, `calendar`, `history`, `settings`, `notifications`, `auth`, `admin`, `shell`).
+  Komponenten, Server Actions, Queries und reine Logik des Moduls liegen dort.
+- `src/lib/` – modulübergreifende Helfer (Supabase-Clients, Datum/Zeitzone, Env, i18n).
+- `messages/` – UI-Texte (i18n), zuerst `de`.
+- `supabase/migrations/` – Schema. Änderungen immer als **neue** Migration, deployte Migrationen nie bearbeiten.
+- `scripts/` – Admin-Skripte (z. B. Einladungen erzeugen).
+
+## Regeln
+
+- **Belastungsmodul zuerst und vollständig getestet** (Vitest, `*.test.ts` neben der Datei).
+  Jede Regel aus `SPEC.md` Abschnitt 4 braucht Tests inkl. Grenzwerten (z. B. ACWR genau 1,3 / 1,5,
+  Readiness genau 50 / 70) und den Referenz-Testfall (Training Di + Do, Spiel Sa).
+  Fehler in der Logik sind teurer als Fehler im Design.
+- **Zeitzone pro Nutzer** (`profiles.timezone`, Standard `Europe/Berlin`). Tagesgrenzen immer
+  über die Datumshelfer in `src/lib/date.ts` bilden, nie `new Date().toISOString().slice(0, 10)`.
+- **Gesundheitsdaten:** Jede Nutzertabelle hat `user_id` und RLS nur für den Besitzer. Der Admin
+  sieht keine Gesundheitsdaten anderer Nutzer. KI-Anfragen enthalten keine Namen.
+- API-Schlüssel nur serverseitig. Im Browser nur `NEXT_PUBLIC_SUPABASE_URL` und
+  `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Der Secret Key nur in Jobs und Skripten.
+- Rollen stehen in `profiles.role` und werden nur über `app_metadata` gesetzt, nie aus dem Client.
+- Schmerz: nie zum Weitertrainieren raten; bei Rot-Regeln immer der Hinweis auf Ärztin oder Physio.
+- UI-Texte auf Deutsch, aber immer über i18n (keine hartcodierten Strings in Komponenten).
+  Code, Tabellen und Spalten auf Englisch. Mobile first, Check-ins unter 30 Sekunden.
+
+## Befehle (nach dem Setup)
+
+- `npm run dev` – Entwicklungsserver
+- `npm test` – Unit-Tests (Vitest)
+- `npm run typecheck` / `npm run lint` / `npm run build`
+- `npx supabase start` – lokale Supabase (Docker), wendet die Migrationen an
+- `npx supabase db reset` – lokale DB neu aufsetzen
