@@ -8,7 +8,7 @@ import { Wordmark } from "./wordmark";
 export function AppHeader({ user }: { user: CurrentUser }) {
   const t = getT(user.locale);
   return (
-    <header className="flex items-center justify-between gap-4 border-b border-line px-4 py-3">
+    <header className="flex items-center justify-between gap-4 border-b border-line px-4 pb-3 pt-[calc(env(safe-area-inset-top)+0.75rem)]">
       <Link href="/">
         <Wordmark className="text-2xl" />
       </Link>

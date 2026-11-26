@@ -42,6 +42,8 @@ wird. Die Ampel wird nie von der KI überstimmt. Die App stellt keine Diagnosen.
   Das Ampel-Grün ist kühl (Richtung Türkis), damit es sich klar vom Limettengrün abhebt.
 - **Schrift:** Barlow für Text, Barlow Condensed für Überschriften, Zahlen und Buttons
   (Buttons und Kleinüberschriften in Großbuchstaben, `.eyebrow`).
+- **iPhone-Homescreen:** Die App läuft unter die Statusleiste (`black-translucent`). Oben und unten
+  immer `env(safe-area-inset-top/bottom)` als Abstand einrechnen, sonst sind Bedienelemente verdeckt.
 - **Kein „KI-Look“:** keine Verläufe, kein Glow, keine Glas-Effekte, keine Emojis als Icons,
   keine bunten Karten. Flache Flächen, feine Linien, klare Hierarchie über Größe und Gewicht.
 

@@ -14,7 +14,7 @@ export default async function InvitePage({ params }: PageProps<"/invite/[code]">
   const open = invitation != null && invitationStatus(invitation) === "open";
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center px-6 py-12">
+    <main className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center px-6 pb-12 pt-[calc(env(safe-area-inset-top)+3rem)]">
       <Brand className="mb-8" />
       {open ? (
         <>
