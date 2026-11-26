@@ -3,8 +3,9 @@
 /*
  * FormPeak. – CI (siehe CLAUDE.md › Design)
  * Dunkel als Standard. Warmes Graphit statt Schwarz, gebrochenes Weiß statt Reinweiß.
- * Orange ist der einzige Signalton: Aktionen, Marke, Fokus – nie für Status.
+ * Limettengrün ist der einzige Signalton: Aktionen, Marke, Fokus – nie für Status.
  * Ampelfarben (grün/gelb/rot) sind eigene, gedämpfte Töne und nur für den Belastungsstatus.
+ * Das Ampel-Grün ist bewusst kühler (Richtung Türkis), damit es nicht mit dem Limettengrün verwechselt wird.
  */
 :root {
   color-scheme: dark;
@@ -16,13 +17,13 @@
   --foreground: #efebe4;
   --muted: #9b958b;
 
-  --primary: #ff6b1a;
-  --primary-hover: #ff8136;
-  --primary-foreground: #160b04;
+  --primary: #bfff00;
+  --primary-hover: #d2ff4d;
+  --primary-foreground: #121110;
 
   --danger: #f06a5f;
 
-  --light-green: #4fb37f;
+  --light-green: #3fae95;
   --light-yellow: #e3bc4a;
   --light-red: #e0554e;
   --light-grey: #6f6a63;

@@ -1,5 +1,5 @@
 /**
- * Wortmarke „FormPeak.“ – kursiv, kondensiert, Punkt in Signal-Orange.
+ * Wortmarke „FormPeak.“ – kursiv, kondensiert, Punkt in Limettengrün.
  * Der Punkt gehört zum Namen; Name ohne Punkt nicht als Logo verwenden.
  */
 export function Wordmark({ className = "" }: { className?: string }) {
