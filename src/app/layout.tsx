@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Barlow, Barlow_Condensed } from "next/font/google";
+import { ServiceWorkerRegistration } from "@/features/shell/service-worker-registration";
 import { I18nProvider } from "@/lib/i18n/client";
 import { DEFAULT_LOCALE, messagesFor } from "@/lib/i18n/translate";
 import "./globals.css";
@@ -21,6 +22,8 @@ const barlowCondensed = Barlow_Condensed({
 export const metadata: Metadata = {
   title: { default: "FormPeak.", template: "%s · FormPeak." },
   description: "Belastungssteuerung für Amateurfußballer – in Form zum Spieltag.",
+  appleWebApp: { capable: true, title: "FormPeak.", statusBarStyle: "black-translucent" },
+  icons: { apple: "/icons/apple-touch-icon.png" },
 };
 
 export const viewport: Viewport = {
@@ -37,6 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang={DEFAULT_LOCALE} className={`${barlow.variable} ${barlowCondensed.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <I18nProvider messages={messagesFor(DEFAULT_LOCALE)}>{children}</I18nProvider>
+        <ServiceWorkerRegistration />
       </body>
     </html>
   );

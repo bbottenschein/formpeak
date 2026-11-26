@@ -13,3 +13,11 @@ export const supabaseSecretKey = () => required("SUPABASE_SECRET_KEY");
 
 /** Schützt die Routen unter /api/jobs/*. */
 export const jobsSecret = () => required("JOBS_SECRET");
+
+/** Web Push (VAPID). Optional: fehlen die Schlüssel, werden keine Pushes verschickt. */
+export function vapidConfig(): { publicKey: string; privateKey: string; subject: string } | null {
+  const publicKey = process.env.VAPID_PUBLIC_KEY;
+  const privateKey = process.env.VAPID_PRIVATE_KEY;
+  if (!publicKey || !privateKey) return null;
+  return { publicKey, privateKey, subject: process.env.VAPID_SUBJECT || "mailto:admin@example.com" };
+}

@@ -117,7 +117,8 @@
     "admin": "Admin",
     "checkin": "Check-in",
     "week": "Woche",
-    "calendar": "Kalender"
+    "calendar": "Kalender",
+    "settings": "Einstellungen"
   },
   "checkin": {
     "title": "Morgen-Check-in",
@@ -419,5 +420,41 @@
       "bodyweight": "Körpergewicht",
       "other": "Sonstiges"
     }
+  },
+  "push": {
+    "morningTitle": "Guten Morgen",
+    "morningBody": "30 Sekunden Check-in – dann weißt du, was heute sinnvoll ist.",
+    "eveningTitle": "Abend-Check-in",
+    "eveningBody": "Wie war dein Tag? 15 Sekunden.",
+    "testTitle": "Es klappt",
+    "testBody": "Erinnerungen sind auf diesem Gerät eingeschaltet."
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "notifications": "Erinnerungen",
+    "notificationsIntro": "Die App erinnert dich an deine Check-ins – nur wenn du noch nicht eingecheckt hast.",
+    "device": "Benachrichtigungen auf diesem Gerät",
+    "on": "An",
+    "off": "Aus",
+    "enable": "Einschalten",
+    "disable": "Ausschalten",
+    "enabled": "Eingeschaltet – eine Test-Benachrichtigung ist unterwegs.",
+    "enabledNoTest": "Eingeschaltet.",
+    "failed": "Hat nicht geklappt. Bitte noch einmal versuchen.",
+    "unsupported": "Dieser Browser unterstützt keine Benachrichtigungen.",
+    "denied": "Benachrichtigungen sind blockiert. Du kannst sie in den Einstellungen des Handys wieder erlauben.",
+    "iosInstall": "Auf dem iPhone gehen Benachrichtigungen nur, wenn die App auf dem Home-Bildschirm liegt: in Safari auf Teilen → Zum Home-Bildschirm, dann von dort öffnen.",
+    "noVapid": "Push ist auf dem Server noch nicht eingerichtet.",
+    "morningReminder": "Morgen-Check-in",
+    "eveningReminder": "Abend-Check-in",
+    "save": "Speichern",
+    "saving": "Wird gespeichert …",
+    "saved": "Gespeichert.",
+    "errorSave": "Konnte nicht gespeichert werden.",
+    "profile": "Profil",
+    "displayName": "Name",
+    "timezone": "Zeitzone",
+    "install": "App installieren",
+    "installHint": "Am Handy: im Browser-Menü „Zum Startbildschirm hinzufügen“ (iPhone: Teilen → Zum Home-Bildschirm). Dann startet die App wie eine normale App."
   }
 }

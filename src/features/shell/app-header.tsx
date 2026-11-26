@@ -13,6 +13,9 @@ export function AppHeader({ user }: { user: CurrentUser }) {
         <Wordmark className="text-2xl" />
       </Link>
       <nav className="flex items-center gap-4 text-sm font-medium">
+        <Link href="/settings" className="text-muted hover:text-primary">
+          {t("nav.settings")}
+        </Link>
         {user.role === "admin" && (
           <Link href="/admin" className="text-muted hover:text-primary">
             {t("nav.admin")}
