@@ -1,0 +1,70 @@
+{
+  "app": {
+    "name": "FormPeak",
+    "tagline": "In Form zum Spieltag."
+  },
+  "common": {
+    "email": "E-Mail",
+    "password": "Passwort",
+    "name": "Name",
+    "logout": "Abmelden",
+    "save": "Speichern",
+    "copy": "Kopieren",
+    "copied": "Kopiert"
+  },
+  "auth": {
+    "loginTitle": "Anmelden",
+    "loginSubmit": "Anmelden",
+    "loginPending": "Anmelden …",
+    "loginMissing": "Bitte E-Mail und Passwort eingeben.",
+    "loginFailed": "E-Mail oder Passwort stimmt nicht.",
+    "magicLinkToggle": "Lieber per Link anmelden",
+    "passwordToggle": "Mit Passwort anmelden",
+    "magicLinkSubmit": "Link schicken",
+    "magicLinkPending": "Wird gesendet …",
+    "magicLinkSent": "Falls es ein Konto mit dieser Adresse gibt, ist ein Anmeldelink unterwegs. Schau in dein Postfach.",
+    "magicLinkMissing": "Bitte deine E-Mail eingeben.",
+    "callbackFailed": "Der Anmeldelink ist ungültig oder abgelaufen. Bitte fordere einen neuen an.",
+    "inviteOnly": "Noch kein Konto? FormPeak ist im Moment nur mit Einladung nutzbar.",
+    "profileErrorTitle": "Dein Profil konnte nicht geladen werden.",
+    "profileErrorText": "Die Anmeldung hat geklappt, aber zu deinem Konto fehlt das Profil. Bitte melde dich beim Admin."
+  },
+  "invite": {
+    "title": "Willkommen bei FormPeak",
+    "intro": "Du wurdest eingeladen. Leg hier dein Konto an.",
+    "invalid": "Diese Einladung ist ungültig, abgelaufen oder wurde schon eingelöst.",
+    "passwordHint": "Mindestens 8 Zeichen.",
+    "consentLabel": "Ich willige ein, dass FormPeak meine Gesundheitsdaten (z. B. Schlaf, Ruhepuls, Schmerzen, Trainingsbelastung) speichert und verarbeitet, um mir Trainingsempfehlungen zu geben. Die Daten sieht nur ich. Ich kann die Einwilligung jederzeit widerrufen und meine Daten löschen.",
+    "noDiagnosis": "FormPeak gibt Trainingsempfehlungen und stellt keine Diagnosen. Bei Schmerzen oder Verletzungen wende dich an eine Ärztin oder einen Physio.",
+    "submit": "Konto anlegen",
+    "pending": "Konto wird angelegt …",
+    "errorMissing": "Bitte alle Felder ausfüllen und die Einwilligung bestätigen.",
+    "errorPassword": "Das Passwort muss mindestens 8 Zeichen haben.",
+    "errorEmailMismatch": "Diese Einladung gilt für eine andere E-Mail-Adresse.",
+    "errorExists": "Zu dieser E-Mail gibt es schon ein Konto. Melde dich stattdessen an.",
+    "errorGeneric": "Das Konto konnte nicht angelegt werden. Bitte versuch es noch einmal."
+  },
+  "today": {
+    "greeting": "Hallo {name}",
+    "placeholder": "Hier erscheinen bald deine Ampel, der Check-in und die Einheiten des Tages."
+  },
+  "admin": {
+    "title": "Einladungen",
+    "intro": "Erzeuge einen Einladungslink und schick ihn an die Person. Der Link gilt 14 Tage und nur einmal.",
+    "emailOptional": "E-Mail (optional, bindet die Einladung an diese Adresse)",
+    "note": "Notiz (z. B. Name)",
+    "create": "Link erzeugen",
+    "creating": "Wird erzeugt …",
+    "created": "Neuer Einladungslink:",
+    "list": "Bisherige Einladungen",
+    "empty": "Noch keine Einladungen.",
+    "statusOpen": "offen bis {date}",
+    "statusRedeemed": "eingelöst am {date}",
+    "statusExpired": "abgelaufen",
+    "error": "Die Einladung konnte nicht erzeugt werden."
+  },
+  "nav": {
+    "today": "Heute",
+    "admin": "Admin"
+  }
+}

@@ -12,6 +12,7 @@ Anfang an mehrnutzerfähig. Mit NinAI hat dieses Projekt nichts zu tun.
 ## Stack
 
 - Next.js (App Router, TypeScript, Tailwind v4) als PWA, gehostet auf Vercel.
+  `cacheComponents` ist bewusst **aus**: Jede Seite hängt vom Login ab und wird pro Request gerendert.
   Nach dem Setup gilt: Vor dem Schreiben von Next.js-Code die Doku in `node_modules/next/dist/docs/`
   lesen – die Version kann von deinem Trainingswissen abweichen.
 - Supabase (EU-Region): Postgres mit Row Level Security, Auth (E-Mail + Passwort, Magic Link,
