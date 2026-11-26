@@ -18,7 +18,7 @@ export default async function InvitePage({ params }: PageProps<"/invite/[code]">
       <Brand className="mb-8" />
       {open ? (
         <>
-          <h2 className="text-xl font-bold">{t("invite.title")}</h2>
+          <h2 className="text-3xl font-bold">{t("invite.title")}</h2>
           <p className="mb-6 mt-1 text-sm text-muted">{t("invite.intro")}</p>
           <InviteForm code={code} presetEmail={invitation.email} />
         </>

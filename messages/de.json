@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "FormPeak",
+    "name": "FormPeak.",
     "tagline": "In Form zum Spieltag."
   },
   "common": {
@@ -25,17 +25,17 @@
     "magicLinkSent": "Falls es ein Konto mit dieser Adresse gibt, ist ein Anmeldelink unterwegs. Schau in dein Postfach.",
     "magicLinkMissing": "Bitte deine E-Mail eingeben.",
     "callbackFailed": "Der Anmeldelink ist ungültig oder abgelaufen. Bitte fordere einen neuen an.",
-    "inviteOnly": "Noch kein Konto? FormPeak ist im Moment nur mit Einladung nutzbar.",
+    "inviteOnly": "Noch kein Konto? Die App ist im Moment nur mit Einladung nutzbar.",
     "profileErrorTitle": "Dein Profil konnte nicht geladen werden.",
     "profileErrorText": "Die Anmeldung hat geklappt, aber zu deinem Konto fehlt das Profil. Bitte melde dich beim Admin."
   },
   "invite": {
-    "title": "Willkommen bei FormPeak",
+    "title": "Willkommen bei FormPeak.",
     "intro": "Du wurdest eingeladen. Leg hier dein Konto an.",
     "invalid": "Diese Einladung ist ungültig, abgelaufen oder wurde schon eingelöst.",
     "passwordHint": "Mindestens 8 Zeichen.",
-    "consentLabel": "Ich willige ein, dass FormPeak meine Gesundheitsdaten (z. B. Schlaf, Ruhepuls, Schmerzen, Trainingsbelastung) speichert und verarbeitet, um mir Trainingsempfehlungen zu geben. Die Daten sieht nur ich. Ich kann die Einwilligung jederzeit widerrufen und meine Daten löschen.",
-    "noDiagnosis": "FormPeak gibt Trainingsempfehlungen und stellt keine Diagnosen. Bei Schmerzen oder Verletzungen wende dich an eine Ärztin oder einen Physio.",
+    "consentLabel": "Ich willige ein, dass die App meine Gesundheitsdaten (z. B. Schlaf, Ruhepuls, Schmerzen, Trainingsbelastung) speichert und verarbeitet, um mir Trainingsempfehlungen zu geben. Die Daten sieht nur ich. Ich kann die Einwilligung jederzeit widerrufen und meine Daten löschen.",
+    "noDiagnosis": "Die App gibt Trainingsempfehlungen und stellt keine Diagnosen. Bei Schmerzen oder Verletzungen wende dich an eine Ärztin oder einen Physio.",
     "submit": "Konto anlegen",
     "pending": "Konto wird angelegt …",
     "errorMissing": "Bitte alle Felder ausfüllen und die Einwilligung bestätigen.",

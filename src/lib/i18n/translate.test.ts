@@ -5,7 +5,7 @@ describe("createTranslator", () => {
   const t = createTranslator(messagesFor("de"));
 
   it("liefert den Text zu einem Schlüssel", () => {
-    expect(t("app.name")).toBe("FormPeak");
+    expect(t("app.name")).toBe("FormPeak.");
   });
 
   it("ersetzt Platzhalter und lässt unbekannte stehen", () => {

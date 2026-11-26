@@ -19,7 +19,7 @@ export async function InviteList() {
 
   return (
     <div className="flex flex-col gap-2">
-      <h2 className="font-semibold">{t("admin.list")}</h2>
+      <h2 className="eyebrow">{t("admin.list")}</h2>
       {!data?.length && <p className="text-sm text-muted">{t("admin.empty")}</p>}
       <ul className="flex flex-col divide-y divide-line">
         {data?.map((inv) => {

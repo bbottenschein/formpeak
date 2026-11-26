@@ -1,39 +1,51 @@
 @import "tailwindcss";
 
+/*
+ * FormPeak. – CI (siehe CLAUDE.md › Design)
+ * Dunkel als Standard. Warmes Graphit statt Schwarz, gebrochenes Weiß statt Reinweiß.
+ * Orange ist der einzige Signalton: Aktionen, Marke, Fokus – nie für Status.
+ * Ampelfarben (grün/gelb/rot) sind eigene, gedämpfte Töne und nur für den Belastungsstatus.
+ */
 :root {
-  --background: #f7f8f6;
-  --surface: #ffffff;
-  --foreground: #14201a;
-  --muted: #5d6b63;
-  --line: #dfe5e0;
-  --primary: #15803d;
-  --primary-foreground: #ffffff;
-  --danger: #b91c1c;
-}
+  color-scheme: dark;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0e1512;
-    --surface: #16201b;
-    --foreground: #e8efe9;
-    --muted: #93a39a;
-    --line: #26332c;
-    --primary: #22c55e;
-    --primary-foreground: #06210f;
-    --danger: #f87171;
-  }
+  --background: #121110;
+  --surface: #1b1a18;
+  --surface-raised: #24221f;
+  --line: #2e2b27;
+  --foreground: #efebe4;
+  --muted: #9b958b;
+
+  --primary: #ff6b1a;
+  --primary-hover: #ff8136;
+  --primary-foreground: #160b04;
+
+  --danger: #f06a5f;
+
+  --light-green: #4fb37f;
+  --light-yellow: #e3bc4a;
+  --light-red: #e0554e;
+  --light-grey: #6f6a63;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-line: var(--line);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
-  --color-line: var(--line);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-foreground: var(--primary-foreground);
   --color-danger: var(--danger);
-  --font-sans: var(--font-geist-sans);
+  --color-light-green: var(--light-green);
+  --color-light-yellow: var(--light-yellow);
+  --color-light-red: var(--light-red);
+  --color-light-grey: var(--light-grey);
+
+  --font-sans: var(--font-barlow);
+  --font-display: var(--font-barlow-condensed);
 }
 
 body {
@@ -42,20 +54,34 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  letter-spacing: 0.005em;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
 @layer components {
   .label {
     @apply text-sm font-medium text-muted;
   }
   .input {
-    @apply w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/30 read-only:opacity-70;
+    @apply w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-base text-foreground outline-none transition-colors placeholder:text-muted/60 focus:border-primary read-only:opacity-70;
   }
   .btn-primary {
-    @apply rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground transition active:scale-[0.98] disabled:opacity-60;
+    @apply rounded-lg bg-primary px-4 py-3 font-display text-lg font-semibold uppercase tracking-wide text-primary-foreground transition hover:bg-primary-hover active:scale-[0.98] disabled:opacity-60;
   }
   .btn-secondary {
-    @apply rounded-xl border border-line bg-surface px-4 py-2.5 font-medium transition active:scale-[0.98] disabled:opacity-60;
+    @apply rounded-lg border border-line bg-surface px-4 py-2.5 font-medium transition hover:border-muted/50 active:scale-[0.98] disabled:opacity-60;
   }
   .card {
-    @apply rounded-2xl border border-line bg-surface p-4;
+    @apply rounded-xl border border-line bg-surface p-4;
+  }
+  .eyebrow {
+    @apply font-display text-sm font-semibold uppercase tracking-[0.14em] text-muted;
   }
 }

@@ -12,7 +12,7 @@ export default async function AdminPage() {
   return (
     <section className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold">{t("admin.title")}</h1>
+        <h1 className="text-4xl font-bold">{t("admin.title")}</h1>
         <p className="mt-1 text-sm text-muted">{t("admin.intro")}</p>
       </div>
       <InviteCreator />

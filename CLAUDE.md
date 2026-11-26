@@ -28,6 +28,22 @@ Anfang an mehrnutzerfähig. Mit NinAI hat dieses Projekt nichts zu tun.
 Regeln im Code entscheiden, **ob** belastet werden darf. Die KI entscheidet nur, **was** trainiert
 wird. Die Ampel wird nie von der KI überstimmt. Die App stellt keine Diagnosen.
 
+## Design (CI)
+
+- **Name:** immer „FormPeak.“ mit Punkt. Als Logo nur die Komponente `Wordmark`
+  (Barlow Condensed, fett, kursiv, Punkt in Orange). Im Fließtext lieber „die App“, damit kein
+  Punkt mitten im Satz steht.
+- **Dunkel als Standard** (`color-scheme: dark`). Warmes Graphit statt Schwarz, gebrochenes Weiß
+  statt Reinweiß. Farben nur über die Tokens in `src/app/globals.css`, keine Hex-Werte in Komponenten.
+- **Orange (`primary`) ist der einzige Signalton:** Aktionen, Marke, Fokus, aktiver Tab.
+  Nie für Status oder Warnungen.
+- **Ampelfarben** (`light-green`, `light-yellow`, `light-red`, `light-grey`) nur für den
+  Belastungsstatus, gedämpft und meist als Tönung (Hintergrund ca. 18 %, Rand ca. 45 %).
+- **Schrift:** Barlow für Text, Barlow Condensed für Überschriften, Zahlen und Buttons
+  (Buttons und Kleinüberschriften in Großbuchstaben, `.eyebrow`).
+- **Kein „KI-Look“:** keine Verläufe, kein Glow, keine Glas-Effekte, keine Emojis als Icons,
+  keine bunten Karten. Flache Flächen, feine Linien, klare Hierarchie über Größe und Gewicht.
+
 ## Ordnerstruktur
 
 - `src/core/load/` – Belastungslogik (sRPE, ACWR, EWMA, Readiness, Ampel, Schmerzregeln,
