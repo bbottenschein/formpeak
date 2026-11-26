@@ -10,7 +10,13 @@
     "logout": "Abmelden",
     "save": "Speichern",
     "copy": "Kopieren",
-    "copied": "Kopiert"
+    "copied": "Kopiert",
+    "cancel": "Abbrechen",
+    "remove": "Entfernen",
+    "skip": "Überspringen",
+    "edit": "Bearbeiten",
+    "left": "links",
+    "right": "rechts"
   },
   "auth": {
     "loginTitle": "Anmelden",
@@ -46,7 +52,40 @@
   },
   "today": {
     "greeting": "Hallo {name}",
-    "placeholder": "Hier erscheinen bald deine Ampel, der Check-in und die Einheiten des Tages."
+    "placeholder": "Hier erscheinen bald deine Ampel, der Check-in und die Einheiten des Tages.",
+    "checkinCta": "Morgen-Check-in starten",
+    "checkinEdit": "Check-in bearbeiten",
+    "noCheckin": "Mach deinen Morgen-Check-in, dann bekommst du deine Ampel für heute.",
+    "readiness": "Readiness",
+    "acwr": "Belastung (ACWR)",
+    "calibrating": "Kalibrierung läuft – noch {days} Tage",
+    "lights": {
+      "grey": "Kein Check-in",
+      "green": "Grün",
+      "yellow": "Gelb",
+      "red": "Rot"
+    },
+    "lightAdvice": {
+      "grey": "Ohne Check-in keine Empfehlung.",
+      "green": "Plan wie vorgesehen. Intensive Einheiten sind heute okay.",
+      "yellow": "Umfang oder Intensität um etwa 30 % senken, keine Maximaleinheiten.",
+      "red": "Heute nur Mobilität, Regeneration oder Ruhe."
+    },
+    "reasons": {
+      "no_checkin": "Noch kein Morgen-Check-in.",
+      "readiness_low": "Readiness {value} liegt unter 50.",
+      "readiness_medium": "Readiness {value} liegt unter 70.",
+      "acwr_spike": "Belastungsspitze: ACWR {value} über 1,5.",
+      "acwr_elevated": "Erhöhte Belastung: ACWR {value} über 1,3.",
+      "pain_red": "Starke oder anhaltende Schmerzen.",
+      "all_good": "Erholt und Belastung im grünen Bereich."
+    },
+    "underload": "Deine Last ist seit einiger Zeit niedrig. Steigere langsam, höchstens 10–15 % pro Woche.",
+    "painTitle": "Schmerzstellen",
+    "painSeries": "seit {days} Tagen",
+    "painNote": "Notiert. Training normal möglich.",
+    "painRestrict": "In Zusatzeinheiten aussparen.",
+    "painRed": "Bitte lass das von einer Ärztin oder einem Physio anschauen. Die App stellt keine Diagnose."
   },
   "admin": {
     "title": "Einladungen",
@@ -65,6 +104,90 @@
   },
   "nav": {
     "today": "Heute",
-    "admin": "Admin"
+    "admin": "Admin",
+    "checkin": "Check-in"
+  },
+  "checkin": {
+    "title": "Morgen-Check-in",
+    "intro": "Dauert unter 30 Sekunden. Vorbelegt mit den Werten von gestern.",
+    "editIntro": "Du hast heute schon eingecheckt. Hier kannst du die Werte ändern.",
+    "sleepHours": "Schlafdauer",
+    "hoursValue": "{hours} h",
+    "sleepQuality": "Schlafqualität",
+    "energy": "Energie",
+    "soreness": "Muskelkater",
+    "stress": "Stress",
+    "scaleSleepQualityLow": "sehr schlecht",
+    "scaleSleepQualityHigh": "sehr gut",
+    "scaleEnergyLow": "leer",
+    "scaleEnergyHigh": "voll da",
+    "scaleSorenessLow": "keiner",
+    "scaleSorenessHigh": "stark",
+    "scaleStressLow": "entspannt",
+    "scaleStressHigh": "sehr hoch",
+    "restingHr": "Ruhepuls",
+    "restingHrOptional": "optional",
+    "restingHrHint": "Finger an Hals oder Handgelenk, Timer starten und 10 Sekunden lang zählen.",
+    "restingHrStart": "10 Sekunden messen",
+    "restingHrRunning": "Zählen …",
+    "restingHrCountLabel": "Gezählte Schläge in 10 Sekunden",
+    "restingHrResult": "= {bpm} Schläge pro Minute",
+    "restingHrReset": "Neu messen",
+    "pain": "Schmerzen",
+    "painNone": "Keine Schmerzen",
+    "painAdd": "Schmerzstelle hinzufügen",
+    "submit": "Check-in speichern",
+    "pending": "Wird gespeichert …",
+    "errorInvalid": "Bitte prüf deine Eingaben.",
+    "errorSave": "Der Check-in konnte nicht gespeichert werden. Bitte versuch es noch einmal."
+  },
+  "bodymap": {
+    "chooseRegion": "Wo tut es weh?",
+    "side": "Seite",
+    "intensity": "Stärke",
+    "intensityValue": "Stärke {value}",
+    "kind": "Art",
+    "swollen": "Geschwollen",
+    "addEntry": "Hinzufügen",
+    "groups": {
+      "head": "Kopf & Oberkörper",
+      "trunk": "Rumpf & Rücken",
+      "hip": "Hüfte & Leiste",
+      "thigh": "Oberschenkel & Knie",
+      "lower": "Unterschenkel & Fuß"
+    },
+    "regions": {
+      "head_neck": "Kopf/Nacken",
+      "shoulder": "Schulter",
+      "chest": "Brust",
+      "abdomen": "Bauch",
+      "upper_back": "Oberer Rücken",
+      "lower_back": "Unterer Rücken",
+      "elbow_upper_arm": "Ellbogen/Oberarm",
+      "wrist_hand": "Handgelenk/Hand",
+      "hip": "Hüfte",
+      "groin": "Leiste",
+      "adductors": "Adduktoren",
+      "glutes": "Gesäß",
+      "thigh_front": "Oberschenkel vorne",
+      "thigh_back": "Oberschenkel hinten",
+      "knee": "Knie",
+      "shin": "Schienbein",
+      "calf": "Wade",
+      "achilles": "Achillessehne",
+      "ankle": "Sprunggelenk",
+      "foot_heel": "Fuß/Ferse"
+    },
+    "sides": {
+      "left": "links",
+      "right": "rechts",
+      "center": "mittig"
+    },
+    "kinds": {
+      "muscle": "Muskel",
+      "joint": "Gelenk",
+      "tendon": "Sehne",
+      "unclear": "unklar"
+    }
   }
 }

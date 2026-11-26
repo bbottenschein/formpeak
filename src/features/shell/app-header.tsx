@@ -16,6 +16,9 @@ export function AppHeader({ user }: { user: CurrentUser }) {
         <Link href="/" className="hover:text-primary">
           {t("nav.today")}
         </Link>
+        <Link href="/checkin" className="hover:text-primary">
+          {t("nav.checkin")}
+        </Link>
         {user.role === "admin" && (
           <Link href="/admin" className="hover:text-primary">
             {t("nav.admin")}
