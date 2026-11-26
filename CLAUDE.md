@@ -4,6 +4,8 @@ Trainings- und Belastungs-App für Amateurfußballer (Arbeitstitel **FormPeak**)
 Mobilität, Regeneration und Ruhe um das feste Teamtraining und warnt vor Überlastung.
 Die vollständige Spezifikation steht in `SPEC.md` – vor größeren Änderungen lesen.
 
+@AGENTS.md
+
 Erst eigener Gebrauch (Dogfooding, Admin: Benedikt), später für andere Spieler. Deshalb von
 Anfang an mehrnutzerfähig. Mit NinAI hat dieses Projekt nichts zu tun.
 
