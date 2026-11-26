@@ -76,7 +76,7 @@ export function MorningForm({ initial }: { initial: MorningCheckinInput }) {
         </p>
       )}
 
-      <div className="sticky bottom-0 -mx-4 border-t border-line bg-background/95 px-4 py-3">
+      <div className="pt-2">
         <button type="submit" disabled={pending} className="btn-primary w-full">
           {pending ? t("checkin.pending") : t("checkin.submit")}
         </button>

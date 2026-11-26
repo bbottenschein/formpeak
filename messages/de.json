@@ -16,7 +16,11 @@
     "skip": "Überspringen",
     "edit": "Bearbeiten",
     "left": "links",
-    "right": "rechts"
+    "right": "rechts",
+    "delete": "Löschen",
+    "back": "Zurück",
+    "minutes": "{value} min",
+    "optional": "optional"
   },
   "auth": {
     "loginTitle": "Anmelden",
@@ -85,7 +89,10 @@
     "painSeries": "seit {days} Tagen",
     "painNote": "Notiert. Training normal möglich.",
     "painRestrict": "In Zusatzeinheiten aussparen.",
-    "painRed": "Bitte lass das von einer Ärztin oder einem Physio anschauen. Die App stellt keine Diagnose."
+    "painRed": "Bitte lass das von einer Ärztin oder einem Physio anschauen. Die App stellt keine Diagnose.",
+    "sessionsTitle": "Heute geplant",
+    "noSessions": "Heute ist nichts geplant.",
+    "feedbackCta": "Feedback eintragen"
   },
   "admin": {
     "title": "Einladungen",
@@ -105,7 +112,9 @@
   "nav": {
     "today": "Heute",
     "admin": "Admin",
-    "checkin": "Check-in"
+    "checkin": "Check-in",
+    "week": "Woche",
+    "calendar": "Kalender"
   },
   "checkin": {
     "title": "Morgen-Check-in",
@@ -189,5 +198,139 @@
       "tendon": "Sehne",
       "unclear": "unklar"
     }
+  },
+  "sessionTypes": {
+    "training": "Teamtraining",
+    "match": "Spiel",
+    "gym": "Gym",
+    "run_intervals": "Lauf / Intervalle",
+    "mobility": "Mobilität",
+    "recovery": "Regeneration"
+  },
+  "sessionStatus": {
+    "planned": "geplant",
+    "done": "absolviert",
+    "cancelled": "ausgefallen"
+  },
+  "intensity": {
+    "low": "locker",
+    "medium": "mittel",
+    "high": "intensiv"
+  },
+  "gymFocus": {
+    "lower": "Unterkörper",
+    "upper": "Oberkörper",
+    "full": "Ganzkörper"
+  },
+  "weekdays": {
+    "short": {
+      "0": "So",
+      "1": "Mo",
+      "2": "Di",
+      "3": "Mi",
+      "4": "Do",
+      "5": "Fr",
+      "6": "Sa"
+    },
+    "long": {
+      "0": "Sonntag",
+      "1": "Montag",
+      "2": "Dienstag",
+      "3": "Mittwoch",
+      "4": "Donnerstag",
+      "5": "Freitag",
+      "6": "Samstag"
+    }
+  },
+  "calendar": {
+    "title": "Fußballkalender",
+    "intro": "Trag hier deine festen Termine ein. Sie sind fix – alles andere wird darum herum geplant.",
+    "series": "Feste Termine",
+    "noSeries": "Noch keine festen Termine. Leg zuerst Training und Spiel an.",
+    "addSeries": "Termin-Serie anlegen",
+    "kind": "Art",
+    "weekdays": "Wochentage",
+    "startTime": "Uhrzeit",
+    "duration": "Dauer (Minuten)",
+    "expectedIntensity": "Erwartete Intensität",
+    "defaultRpe": "Standard-RPE (0–10)",
+    "defaultRpeHint": "Wird genutzt, wenn du nach dem Termin kein Feedback einträgst.",
+    "validFrom": "Gültig ab",
+    "validUntil": "Gültig bis",
+    "validFromHint": "Liegt das Datum in der Vergangenheit, zählen die Termine seitdem als absolviert (geschätzt).",
+    "save": "Serie speichern",
+    "saving": "Wird gespeichert …",
+    "deleteSeries": "Serie beenden",
+    "deleteConfirm": "Serie beenden? Künftige geplante Termine werden entfernt, vergangene bleiben erhalten.",
+    "seriesLine": "{days} · {time} · {duration} min · {intensity}",
+    "since": "seit {date}",
+    "until": "bis {date}",
+    "errorInvalid": "Bitte Art, mindestens einen Wochentag, Dauer und Datum angeben.",
+    "errorSave": "Die Serie konnte nicht gespeichert werden."
+  },
+  "week": {
+    "title": "Woche",
+    "prev": "Vorherige Woche",
+    "next": "Nächste Woche",
+    "thisWeek": "Diese Woche",
+    "rangeLabel": "{from} – {to}",
+    "restDay": "Ruhetag",
+    "addSession": "Einheit planen",
+    "addFixture": "Einzeltermin (Pokal, Nachholspiel …)",
+    "manageCalendar": "Feste Termine verwalten",
+    "noCalendar": "Du hast noch keine festen Fußballtermine. Leg sie im Kalender an, dann erscheinen sie hier automatisch.",
+    "plannedLoad": "Geplante Last {value} AU",
+    "feedbackDue": "Feedback fehlt",
+    "estimated": "geschätzt",
+    "today": "Heute",
+    "hints": {
+      "light_red_only_recovery": "Ampel rot: heute nur Mobilität, Regeneration oder Ruhe.",
+      "light_yellow_reduce": "Ampel gelb: Umfang oder Intensität um ca. {percent} % senken.",
+      "matchday_no_extra": "Spieltag: keine Zusatzeinheit außer Mobilität.",
+      "md_plus_1_recovery": "Tag nach dem Spiel: nur Regeneration oder lockere Mobilität.",
+      "md_minus_1_short": "Tag vor dem Spiel: nur kurz und aktivierend oder Ruhe.",
+      "lower_body_too_soon_after_match": "Beintraining frühestens 2 Tage nach dem Spiel.",
+      "lower_body_too_close_to_match": "Beintraining spätestens 3 Tage vor dem Spiel – lieber verschieben.",
+      "intervals_next_to_intense_training": "Harte Intervalle nicht direkt vor oder nach intensivem Teamtraining.",
+      "pain_spare_region": "Schmerzstelle aussparen: {spots}.",
+      "no_rest_day": "Diese Woche fehlt ein kompletter Ruhetag.",
+      "weekly_load_increase": "Geplante Last {percent} % über der Vorwoche – empfohlen sind höchstens 10–15 %."
+    }
+  },
+  "session": {
+    "newTitle": "Einheit planen",
+    "newFixtureTitle": "Einzeltermin",
+    "type": "Art",
+    "date": "Datum",
+    "time": "Uhrzeit",
+    "duration": "Dauer (Minuten)",
+    "targetRpe": "Ziel-Intensität (RPE 0–10)",
+    "gymFocus": "Schwerpunkt",
+    "notes": "Notiz",
+    "create": "Einheit speichern",
+    "creating": "Wird gespeichert …",
+    "feedbackTitle": "Feedback",
+    "feedbackIntro": "Wie war die Einheit? Daraus berechnet die App deine Belastung.",
+    "rpe": "Intensität (RPE)",
+    "rpeLow": "ganz leicht",
+    "rpeHigh": "maximal",
+    "fatigue": "Müdigkeit danach",
+    "fatigueLow": "frisch",
+    "fatigueHigh": "platt",
+    "matchMinutes": "Spielminuten",
+    "saveFeedback": "Feedback speichern",
+    "savingFeedback": "Wird gespeichert …",
+    "markCancelled": "Ist ausgefallen",
+    "restore": "Wieder einplanen",
+    "move": "Verschieben auf",
+    "moveSubmit": "Verschieben",
+    "delete": "Einheit löschen",
+    "load": "Last: {value} AU",
+    "fromSeries": "Fester Termin",
+    "futureFeedback": "Feedback kannst du eintragen, sobald die Einheit stattgefunden hat.",
+    "againstRecommendation": "Gegen die Empfehlung der Ampel trainiert.",
+    "errorInvalid": "Bitte prüf deine Eingaben.",
+    "errorSave": "Konnte nicht gespeichert werden. Bitte versuch es noch einmal.",
+    "notFound": "Diese Einheit gibt es nicht."
   }
 }

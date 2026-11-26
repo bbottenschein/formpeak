@@ -5,8 +5,8 @@ import {
   type DailyMetrics,
   type MorningCheckin,
   type PainEntry,
-  type Session,
 } from "@/core/load";
+import { ensureFixtures, loadSessions, toCoreSession } from "@/features/sessions/data";
 import { createClient } from "@/lib/supabase/server";
 
 /** So weit zurück werden Daten für ACWR (28 Tage), EWMA und Schmerzserien geladen. */
@@ -32,15 +32,11 @@ export async function computeMetricsFor(
   const supabase = await createClient();
   const from = addDays(date, -LOOKBACK_DAYS);
 
+  // Feste Termine müssen als Einheit existieren, damit vergangene Termine in die Last eingehen.
+  await ensureFixtures(supabase, userId, from, addDays(date, 14));
+
   const [sessions, checkins, pains, first] = await Promise.all([
-    supabase
-      .from("sessions")
-      .select(
-        "id, date, type, status, duration_min, rpe, target_rpe, default_rpe, is_fixture, expected_intensity, gym_focus",
-      )
-      .eq("user_id", userId)
-      .gte("date", from)
-      .lte("date", date),
+    loadSessions(supabase, userId, from, date),
     supabase
       .from("checkins")
       .select("date, sleep_hours, sleep_quality, energy, soreness, stress, resting_hr")
@@ -56,26 +52,12 @@ export async function computeMetricsFor(
       .lte("date", date),
     firstDataDate(supabase, userId),
   ]);
-  for (const r of [sessions, checkins, pains]) {
+  for (const r of [checkins, pains]) {
     if (r.error) throw new Error(`Daten für Kennzahlen nicht lesbar: ${r.error.message}`);
   }
 
   return computeDailyMetrics(date, {
-    sessions: (sessions.data ?? []).map(
-      (s): Session => ({
-        id: s.id,
-        date: s.date,
-        type: s.type,
-        status: s.status,
-        durationMin: s.duration_min,
-        rpe: s.rpe,
-        targetRpe: s.target_rpe,
-        defaultRpe: s.default_rpe,
-        isFixture: s.is_fixture,
-        expectedIntensity: s.expected_intensity,
-        gymFocus: s.gym_focus,
-      }),
-    ),
+    sessions: sessions.map(toCoreSession),
     morningCheckins: (checkins.data ?? []).map(
       (c): MorningCheckin => ({
         date: c.date,
