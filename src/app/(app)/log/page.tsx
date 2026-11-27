@@ -13,7 +13,17 @@ import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Erfassen" };
 
-/** + Erfassen – „Schnell eintragen“. */
+function Check({ done }: { done: boolean }) {
+  return done ? (
+    <svg viewBox="0 0 20 20" className="size-5 text-muted" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <path d="M4 10.5l4 4 8-9" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ) : (
+    <span aria-hidden className="text-muted">→</span>
+  );
+}
+
+/** + Erfassen – „Schnell eintragen“: große Kacheln, ein Tipp pro Eintrag. */
 export default async function LogPage() {
   const user = await getCurrentUser();
   const t = getT(user.locale);
@@ -29,47 +39,53 @@ export default async function LogPage() {
     .flatMap((d) => d.sessions)
     .filter((s) => s.feedbackDue && (s.date < today || !s.start_time || s.start_time.slice(0, 5) <= nowTime));
 
-  const tile = (href: string, title: string, sub: string, done = false) => (
-    <Link href={href} className="card flex items-center justify-between gap-3 transition hover:border-muted/50">
-      <span>
-        <span className="block font-display text-lg font-semibold uppercase tracking-wide">{title}</span>
-        <span className={`text-sm ${done ? "text-muted" : ""}`}>{sub}</span>
-      </span>
-      <span aria-hidden className="text-muted">→</span>
-    </Link>
-  );
+  const tile = "card flex min-h-20 items-center justify-between gap-2 text-left transition hover:border-muted/50";
+  const tileTitle = "font-display text-lg font-semibold uppercase leading-tight tracking-wide";
 
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex flex-col gap-5">
       <h1 className="text-4xl font-bold">{t("log.title")}</h1>
-      <div className="grid gap-2">
-        {tile("/checkin", t("log.morning"), status.morning ? t("log.done") : t("log.open"), status.morning)}
-        {tile("/checkin/evening", t("log.evening"), status.evening ? t("log.done") : t("log.open"), status.evening)}
-      </div>
 
-      <div className="flex flex-col gap-2">
-        <h2 className="eyebrow">{t("log.feedback")}</h2>
-        {openFeedback.length === 0 && <p className="text-sm text-muted">{t("log.noFeedback")}</p>}
-        {openFeedback.map((s) => (
-          <QuickFeedback
-            key={s.id}
-            sessionId={s.id}
-            title={t(`sessionTypes.${s.type}`)}
-            meta={[formatLongDate(s.date), s.start_time?.slice(0, 5)].filter(Boolean).join(" · ")}
-          />
-        ))}
-      </div>
-
-      <form action={startGymSession}>
-        <button className="card flex w-full items-center justify-between gap-3 text-left transition hover:border-muted/50">
-          <span>
-            <span className="block font-display text-lg font-semibold uppercase tracking-wide">{t("log.gym")}</span>
-            <span className="text-sm text-muted">{t("log.gymHint")}</span>
+      <div className="grid grid-cols-2 gap-2">
+        <Link href="/checkin" className={`${tile} ${status.morning ? "opacity-60" : ""}`} aria-label={`${t("log.morning")}: ${status.morning ? t("log.done") : t("log.open")}`}>
+          <span className="flex flex-col">
+            <span className="eyebrow text-xs">{t("log.checkin")}</span>
+            <span className={tileTitle}>{t("log.morningShort")}</span>
           </span>
-          <span aria-hidden className="text-muted">→</span>
-        </button>
-      </form>
-      {tile(`/sessions/new?date=${today}`, t("log.plan"), t("log.planHint"))}
+          <Check done={status.morning} />
+        </Link>
+        <Link href="/checkin/evening" className={`${tile} ${status.evening ? "opacity-60" : ""}`} aria-label={`${t("log.evening")}: ${status.evening ? t("log.done") : t("log.open")}`}>
+          <span className="flex flex-col">
+            <span className="eyebrow text-xs">{t("log.checkin")}</span>
+            <span className={tileTitle}>{t("log.eveningShort")}</span>
+          </span>
+          <Check done={status.evening} />
+        </Link>
+        <form action={startGymSession} className="contents">
+          <button className={tile}>
+            <span className={tileTitle}>{t("log.gymShort")}</span>
+            <Check done={false} />
+          </button>
+        </form>
+        <Link href={`/sessions/new?date=${today}`} className={tile}>
+          <span className={tileTitle}>{t("log.planShort")}</span>
+          <Check done={false} />
+        </Link>
+      </div>
+
+      {openFeedback.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h2 className="eyebrow">{t("log.feedback")}</h2>
+          {openFeedback.map((s) => (
+            <QuickFeedback
+              key={s.id}
+              sessionId={s.id}
+              title={s.title ?? t(`sessionTypes.${s.type}`)}
+              meta={[formatLongDate(s.date), s.start_time?.slice(0, 5)].filter(Boolean).join(" · ")}
+            />
+          ))}
+        </div>
+      )}
 
       <BodyForm weight={body?.weight_kg == null ? null : Number(body.weight_kg)} waist={body?.waist_cm == null ? null : Number(body.waist_cm)} />
     </section>

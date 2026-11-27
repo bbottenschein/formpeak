@@ -27,10 +27,11 @@ export function QuickFeedback({ sessionId, title, meta }: { sessionId: string; t
           <p className="font-display text-lg font-semibold uppercase tracking-wide">{title}</p>
           <p className="text-xs text-muted">{meta}</p>
         </div>
-        <Link href={`/sessions/${sessionId}`} className="text-sm text-muted underline underline-offset-4">
-          {t("overview.feedbackDetails")}
+        <Link href={`/sessions/${sessionId}`} aria-label={t("overview.feedbackDetails")} className="text-muted hover:text-foreground">
+          →
         </Link>
       </div>
+      <p className="eyebrow text-xs">{t("overview.rpeHint")}</p>
       <div className="grid grid-cols-11 gap-1" role="radiogroup" aria-label="RPE">
         {Array.from({ length: 11 }, (_, n) => n).map((n) => (
           <button

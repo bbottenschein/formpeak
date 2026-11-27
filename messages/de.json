@@ -520,7 +520,8 @@
     "feedbackTitle": "Feedback offen",
     "feedbackHint": "Wie hart war es? 0 = ganz leicht, 10 = maximal. Details auf der Einheit.",
     "feedbackSaved": "Gespeichert",
-    "feedbackDetails": "Details"
+    "feedbackDetails": "Details",
+    "rpeHint": "Wie anstrengend? 0–10"
   },
   "profile": {
     "title": "Profil",
@@ -775,19 +776,19 @@
     "stressInfo": "Dein Stress aus den Check-ins der letzten 7 Tage im Vergleich zu den Wochen davor. Viel Stress bremst die Erholung, auch ohne Training."
   },
   "score": {
-    "title": "So entsteht dein Score",
+    "title": "Dein Score",
     "intro": "Der Performance-Score fasst deinen Morgen-Check-in zusammen und wird bei hoher Belastung korrigiert.",
     "recovery": "Erholung aus dem Check-in",
     "correction": "Korrektur durch Belastung",
     "final": "Performance-Score",
-    "share": "{value} % Anteil",
-    "notToday": "heute nicht gemessen – Anteil auf die anderen verteilt",
+    "share": "Zählt {value} % zum Score.",
+    "notToday": "Heute nicht gemessen – der Anteil wird auf die anderen verteilt.",
     "full": "voll – kein Abzug",
     "costs": "zieht heute {value} Punkte ab",
     "correctionNone": "Belastung im normalen Bereich – keine Korrektur",
     "correctionApplied": "Belastung deutlich über deinem Schnitt (ACWR {acwr}) – {value} Punkte Abzug",
     "correctionCalibrating": "Noch keine Korrektur – der Vergleich mit deinem Schnitt startet nach ca. 4 Wochen",
-    "drag": "Heute am meisten: {component} ({value} Punkte)",
+    "drag": "Kostet heute am meisten: {component} ({value} Punkte)",
     "components": {
       "sleepDuration": "Schlafdauer",
       "sleepQuality": "Schlafqualität",
@@ -805,7 +806,11 @@
     "weightsText": "Die Studien zeigen, welche Fragen etwas über deine Erholung aussagen – Gewichte legen sie nicht fest. Die Anteile sind Startwerte der App: Schlaf und Energie zählen am meisten, weil sie deinen Gesamtzustand am direktesten beschreiben. Sobald genug eigene Daten da sind, sollen die Gewichte an dich angepasst werden.",
     "limitsTitle": "Grenzen",
     "limitsText": "Der Score ist keine medizinische Bewertung. Das Verhältnis von akuter zu chronischer Belastung (ACWR) ist wissenschaftlich umstritten und dient nur als Richtwert. Dein Körpergefühl bleibt die wichtigste Quelle.",
-    "sourcesLink": "Alle Quellen"
+    "sourcesLink": "Alle Quellen",
+    "reliableTitle": "Wie der Score entsteht",
+    "recoveryShort": "Erholung",
+    "correctionShort": "Belastung",
+    "finalShort": "Score"
   },
   "sources": {
     "title": "Quellen",
@@ -1057,7 +1062,13 @@
     "waist": "Taille (cm)",
     "bodySave": "Speichern",
     "bodySaved": "Gespeichert",
-    "bodyInvalid": "Bitte Gewicht und/oder Taillenumfang angeben."
+    "bodyInvalid": "Bitte Gewicht und/oder Taillenumfang angeben.",
+    "gymShort": "Gym-Einheit",
+    "planShort": "Einheit planen",
+    "bodyInfo": "Für die Ziele Muskelaufbau und Gewichtsabnahme. Am besten morgens nach dem Aufstehen messen – die App bildet daraus Wochenschnitte.",
+    "checkin": "Check-in",
+    "morningShort": "Morgen",
+    "eveningShort": "Abend"
   },
   "header": {
     "profile": "Profil"
