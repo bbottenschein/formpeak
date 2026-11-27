@@ -1,13 +1,17 @@
 # FormPeak – Spezifikation
 
-Stand: 26.11.2026 · Arbeitstitel **FormPeak** (Markenprüfung offen, siehe „Offene Punkte“).
+Stand: 27.11.2026 · **FormPeak.** · Produktkonzept und Value Proposition: `docs/KONZEPT.md`,
+Änderungshistorie: `docs/AENDERUNGEN.md`.
 
 FormPeak macht aus zwei kurzen Check-ins pro Tag und dem Feedback nach jeder Einheit einen
 Wochenplan. Gym, Mobilität, Regeneration und Ruhe werden so um das feste Teamtraining gelegt,
 dass der Nutzer an seinem Ziel arbeitet, ohne sich zu überlasten – und am Spieltag in Form ist.
 
-**Zielnutzer:** zuerst Benedikt (Dogfooding), danach ambitionierte Amateur- und Vereinsfußballer,
-die neben dem Teamtraining selbstständig trainieren.
+**Zielnutzer:** zuerst Benedikt (Dogfooding), danach Spieler zwischen Breiten- und Leistungssport
+(Landesliga, Bayernliga, Regionalliga), die viel investieren, aber kein Profi-Umfeld haben.
+
+**Versprechen:** Jeden Morgen wissen, was heute dran ist – und alle paar Wochen schwarz auf weiß
+sehen, dass es wirkt.
 
 **Kernnutzen**
 
@@ -182,9 +186,14 @@ ACWR     = akut / chronisch
 - **Unterlast:** ACWR < 0,8 → nur Hinweis („Last länger niedrig – langsam steigern“), keine Ampeländerung.
 - ACWR ist wissenschaftlich umstritten und wird in der UI als **Richtwert** kommuniziert.
 
-### 4.3 Readiness-Score (0–100)
+### 4.3 Performance-Score (0–100)
 
-Gewichteter Mittelwert aus dem Morgen-Check-in. Jeder Faktor wird auf 0–100 normiert:
+Zwei Stufen: **Erholung** (Readiness, gewichteter Mittelwert aus dem Morgen-Check-in) und
+**Performance-Score** = Erholung minus Belastungskorrektur (4.3a). Die Ampel (4.4) nutzt die
+Erholung und den ACWR getrennt, damit die Belastung nicht doppelt zählt. Der Ring zeigt die Zahl
+des Performance-Scores in der Ampelfarbe.
+
+Erholung = gewichteter Mittelwert aus dem Morgen-Check-in. Jeder Faktor wird auf 0–100 normiert:
 
 | Faktor | Gewicht | Normierung |
 | --- | --- | --- |
@@ -204,7 +213,26 @@ Gewichteter Mittelwert aus dem Morgen-Check-in. Jeder Faktor wird auf 0–100 no
 - **Fehlt der Ruhepuls** (nicht gemessen oder noch keine Basis), werden die übrigen Gewichte
   anteilig hochskaliert (Summe wieder 100 %).
 
-Ergebnis auf ganze Zahlen runden. Ohne Morgen-Check-in gibt es keinen Readiness-Score.
+Ergebnis auf ganze Zahlen runden. Ohne Morgen-Check-in gibt es keinen Score.
+
+#### 4.3a Belastungskorrektur und Aufschlüsselung
+
+- ACWR ≤ 1,3 oder nicht verfügbar → 0; 1,3 < ACWR ≤ 1,5 → −10; ACWR > 1,5 → −20 Punkte
+  (Score nie unter 0).
+- Das Score-Modul liefert pro Baustein: Gewicht (nach Umverteilung), Teilwert, **Beitrag in Punkten**
+  und **Abweichung vom Bestwert** in Punkten (`Gewicht × (100 − Teilwert)`), damit die App sagen
+  kann: „Dein Schlaf zieht den Score heute um 5 Punkte runter.“
+- Ein Satz zum Score je Ampel: grün „gut erholt“, gelb „etwas angeschlagen“, rot „Erholung zuerst“.
+- Die Gewichte sind Startwerte der App (nicht aus den Studien abgeleitet) und sollen später an die
+  eigenen Daten angepasst werden. Das steht so auch in der Aufschlüsselung.
+
+### 4.3b Akutes Belastungs- und Stresslevel
+
+- **Belastung:** Last der letzten 7 Tage im Vergleich zum Wochenschnitt der 3 Wochen davor,
+  in Prozent (`akut / chronisch − 1`, = ACWR − 1). Ohne chronische Last kein Wert.
+- **Stress:** Mittel aus Morgen-Stress und Abend-Stress der letzten 7 Tage im Vergleich zum Mittel
+  der 3 Wochen davor, in Prozent. Mindestens 3 Werte in jedem Zeitraum, sonst kein Wert.
+- Anzeige als zwei Kacheln unter dem Ring, z. B. „Belastung +20 % über deinem Schnitt“.
 
 ### 4.4 Tagesampel
 
@@ -292,7 +320,11 @@ schreibt. Zeitstempel `created_at`/`updated_at`. Tagesbezug als `date` in der Nu
 | `exercise_sets` | Gewicht (kg), Wiederholungen, RIR, Satztyp (`warmup` / `working`), Reihenfolge |
 | `daily_metrics` | Pro Nutzer + Tag berechnet: Tageslast, akut, chronisch, ACWR, EWMA-Verhältnis, Readiness, Ampel, aktive Sperren, Begründung |
 | `push_subscriptions` | Web-Push-Endpunkte pro Gerät |
-| `goals`, `goal_tests` | Phase 2 |
+| `goals` | Aktives Ziel: Typ, Freitext, KI-Zusammenfassung, Referenztest (`test_key`), Ausgangs-/Zielwert, Zieldatum |
+| `goal_tests` | Referenztests mit Termin und Ergebnis: `scheduled_for`, `status` (`planned`/`done`/`skipped`), `value` |
+| `body_measurements` | Körpergewicht und Taillenumfang (für Muskelaufbau und Gewichtsabnahme) |
+| `team_members` | Rolle `player` / `coach` (Trainer); Vorbereitung Trainer-Modus |
+| `sharing_settings` | Freigaben pro Spieler und Team: Ampel und Verfügbarkeit immer, Schmerzdetails und Notizen nur mit Zustimmung |
 | `ai_plans` | Phase 2: Kontext-JSON, Antwort-JSON, Prompt-Version, Modell, Validierungsergebnis |
 
 `daily_metrics` wird nach jedem Check-in und jedem Feedback für die betroffenen Tage neu berechnet
@@ -302,32 +334,41 @@ schreibt. Zeitstempel `created_at`/`updated_at`. Tagesbezug als `date` in der Nu
 
 ## 6. Screens
 
-Navigation mit drei Tabs: **Übersicht** (Hauptseite) · **Plan** · **Profil**. Check-ins sind kein
-eigener Tab, sondern werden aus der Übersicht gestartet (und per Push-Erinnerung verlinkt).
+**Leitprinzip:** Jeder Bereich beantwortet genau eine Frage. Navigation unten mit fünf Bereichen,
+Profil als Symbol oben rechts.
 
-- **Übersicht** (Hauptseite): Readiness-Ring mit Ampel, Empfehlung und ACWR; Check-in starten bzw.
-  bearbeiten; „Deine Woche“ als Leiste Mo–So mit MD-Labels und festen Terminen (TR/SP) plus
-  Zähler für Zusatzeinheiten; heutige Einheiten mit Hinweisen; aktive Schmerzstellen;
-  Readiness-Verlauf (Linie, 14 Tage, Schwellen 50/70) und Tageslast (Balken, 14 Tage);
-  Abend-Check-in.
-- **Plan:** Woche Mo–So mit allen Einheiten, Hinweisen und Wochenhinweisen, Einheiten planen,
-  Einzeltermine; Detailseite je Einheit mit Feedback, Gym-Log, Absagen/Verschieben.
-- **Profil:** Fixe Termine (Serien), Benachrichtigungen und Erinnerungszeiten, Name, Zeitzone,
-  Admin (Einladungen), Abmelden.
-- **Check-ins:** Morgen (`/checkin`) und Abend (`/checkin/evening`) als eigene Seiten.
-- **Ziele** (Phase 2): aktives Ziel, nächster Testtermin, Fortschrittskurve.
+| Bereich | Frage | Inhalt |
+| --- | --- | --- |
+| **Home** (`/`) | Wie geht es mir gerade? | Performance-Ring mit Satz, Tipp → Aufschlüsselung (`/score`); Kacheln Belastung und Stress vs. Normalwert; Wochenleiste Mo–So mit festen Terminen; aktive Schmerzstellen; Verlauf von Score und Belastung über 4 Wochen |
+| **Heute** (`/today`) | Was mache ich heute? | Ohne Check-in zuerst „Check-in starten“. Termine mit Uhrzeit, eine passende Ergänzung zum Ziel aus der Routinen-Bibliothek (Start-Button, Übungen), höchstens ein Tipp, offenes Feedback |
+| **Ziel** (`/goals`) | Komme ich voran? | Ohne Ziel: Onboarding (Click-Through). Mit Ziel: Ziel-Übersicht, Referenztest mit Anleitung, nächster Termin mit Countdown, Ergebnis eintragen, Vorher-nachher |
+| **Kalender** (`/week`) | Wann ist was? | Woche mit festen Terminen und geplanten Einheiten, Hinweisen zur Belastung, Einheit planen, Einzeltermin, Serien verwalten, Referenztest-Termine |
+| **+ Erfassen** (`/log`) | Schnell eintragen | Morgen-Check-in, Abend-Check-in, offenes Feedback, Gym-Einheit, Körpermaße |
+| Profil (oben rechts, `/settings`) | – | Erinnerungen, Name, Zeitzone, Datenschutz, Admin, Abmelden, Quellen |
 
-Täglicher Ablauf (ca. 2 Minuten Eingabe): Morgen-Check-in → Readiness & Ampel → Tagesplan
-anpassen → Einheit trainieren → Feedback → Abend-Check-in → Last neu berechnen.
+Weitere Seiten: `/score` (Aufschlüsselung), `/sources` (Quellen), `/history` (alle Verläufe),
+`/checkin`, `/checkin/evening`, `/sessions/*`, `/calendar` (Serien).
 
 ---
 
 ## 7. Phase 2: KI-Coach (zur Orientierung, noch nicht bauen)
 
-### 7.1 Ziele
+### 7.1 Ziele und Referenztests (umgesetzt, siehe Bereich Ziel)
 
-Typ (Kondition, Schnelligkeit, Kraft, Prävention, Comeback), Test mit Ausgangs- und Zielwert
-(z. B. Yo-Yo-Test, 3-km-Lauf, 30-m-Sprint), Zieldatum, Priorität 1–3. Mehrere Ziele möglich.
+Typen: Kondition, Schnelligkeit, Kraft, Muskelaufbau, Gewichtsabnahme, Prävention, Comeback.
+Ein aktives Ziel. Erster Referenztest zum Start, Wiederholung automatisch nach 5 Wochen
+(Termin im Kalender, Countdown im Bereich Ziel), Fortschritt als Vorher-nachher.
+
+| Ziel | Referenztests |
+| --- | --- |
+| Kondition | Yo-Yo IR1 (Platz), 3-km-Lauf |
+| Schnelligkeit | 10-m- und 20-m-Sprint |
+| Kraft | 5-Wiederholungs-Maximum Kniebeuge (geschätztes 1RM nach Epley) |
+| Muskelaufbau | 5RM Kniebeuge und Bankdrücken, Körpergewicht |
+| Gewichtsabnahme | Körpergewicht (Wochenschnitt), Taillenumfang; Richtwert ≤ 0,5–1 % pro Woche |
+| Prävention / Comeback | Einbeiniger Weitsprung (Seitenvergleich), Y-Balance-Test |
+
+Die App plant Training, keine Ernährung und keine Therapie.
 
 ### 7.2 Wochenplanung (Sonntagabend oder nach dem Spiel)
 
@@ -367,3 +408,18 @@ Antworten in `ai_plans` speichern. Tipps-Feed: 1–2 kurze datenbasierte Hinweis
   Statusänderung gilt als absolviert mit Standard-RPE (`estimated`), bis der Nutzer ihn korrigiert.
   Selbst geplante Einheiten zählen erst, wenn sie als absolviert markiert sind. Mit Gate 1 überprüfen.
 - Push-Technik (Web Push auf iOS nur als installierte PWA) beim Bau von Schritt 6 testen.
+
+---
+
+## 10. Quellen (geprüft am 27.11.2026)
+
+| Baustein | Quelle |
+| --- | --- |
+| Fragebogen (Schlaf, Energie, Muskelkater, Stress) | Hooper & Mackinnon (1995), *Sports Med* 20:321–327, [doi:10.2165/00007256-199520050-00003](https://doi.org/10.2165/00007256-199520050-00003); Hooper et al. (1995), *Med Sci Sports Exerc* 27:106–112, [PubMed 7898325](https://pubmed.ncbi.nlm.nih.gov/7898325/); McLean et al. (2010), *IJSPP* 5:367–383, [PubMed 20861526](https://pubmed.ncbi.nlm.nih.gov/20861526/); Saw, Main & Gastin (2016), *BJSM* 50:281–291, [bjsm.bmj.com](https://bjsm.bmj.com/content/50/5/281.short) |
+| Ruhepuls | Buchheit (2014), *Front Physiol* 5:73, [PubMed 24578692](https://pubmed.ncbi.nlm.nih.gov/24578692/) |
+| Session-Last (sRPE) | Foster et al. (2001), *J Strength Cond Res* 15:109–115, [PubMed 11708692](https://pubmed.ncbi.nlm.nih.gov/11708692/) |
+| ACWR | Gabbett (2016), *BJSM* 50:273–280, [PMC4789704](https://pmc.ncbi.nlm.nih.gov/articles/PMC4789704); kritisch: Impellizzeri et al. (2020), *IJSPP* 15:907–913, [doi:10.1123/ijspp.2019-0864](https://doi.org/10.1123/ijspp.2019-0864) |
+| Yo-Yo IR1 | Krustrup et al. (2003), *MSSE* 35:697–705, [PubMed 12673156](https://pubmed.ncbi.nlm.nih.gov/12673156/) |
+| Sprunghöhe per App | Meta-Analyse My Jump, [PMC10656545](https://pmc.ncbi.nlm.nih.gov/articles/PMC10656545) |
+| 10/20-m-Sprint | Reliabilität bei Teamsportlern, [PMC11991301](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11991301/) |
+| Seitenvergleich / Y-Balance | [PMC7863609](https://pmc.ncbi.nlm.nih.gov/articles/PMC7863609); [PubMed 37875255](https://pubmed.ncbi.nlm.nih.gov/37875255/) |

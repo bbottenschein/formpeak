@@ -1,8 +1,9 @@
 # FormPeak – Projektregeln
 
-Trainings- und Belastungs-App für Amateurfußballer (Arbeitstitel **FormPeak**). Plant Gym,
-Mobilität, Regeneration und Ruhe um das feste Teamtraining und warnt vor Überlastung.
-Die vollständige Spezifikation steht in `SPEC.md` – vor größeren Änderungen lesen.
+Trainings- und Belastungs-App für ambitionierte Amateurfußballer (Landesliga bis Regionalliga)
+ohne Profi-Umfeld. **Versprechen:** Jeden Morgen wissen, was heute dran ist – und alle paar Wochen
+schwarz auf weiß sehen, dass es wirkt. Produktkonzept: `docs/KONZEPT.md`, Änderungen:
+`docs/AENDERUNGEN.md`, technische Spezifikation: `SPEC.md` – vor größeren Änderungen lesen.
 
 @AGENTS.md
 
@@ -26,7 +27,16 @@ Anfang an mehrnutzerfähig. Mit NinAI hat dieses Projekt nichts zu tun.
 ## Grundprinzip
 
 Regeln im Code entscheiden, **ob** belastet werden darf. Die KI entscheidet nur, **was** trainiert
-wird. Die Ampel wird nie von der KI überstimmt. Die App stellt keine Diagnosen.
+wird. Die Ampel wird nie von der KI überstimmt. Die App stellt keine Diagnosen und plant keine
+Ernährung.
+
+**Jeder Bereich beantwortet genau eine Frage** (Home: Wie geht es mir? · Heute: Was mache ich heute?
+· Ziel: Komme ich voran? · Kalender: Wann ist was? · +: Schnell eintragen). Nichts überfrachten;
+Neues gehört in den Bereich, dessen Frage es beantwortet.
+
+**Transparenz:** Der Score ist erklärbar (Aufschlüsselung pro Baustein mit Beitrag und Quelle).
+Quellen nur verlinken, wenn sie geprüft sind; Grenzen (ACWR umstritten, Gewichte sind Startwerte)
+offen benennen.
 
 ## Design (CI)
 
@@ -53,9 +63,10 @@ wird. Die Ampel wird nie von der KI überstimmt. Die App stellt keine Diagnosen.
   Spieltagslogik). **Reines TypeScript ohne Next.js- oder Supabase-Abhängigkeiten**, damit es
   später auch in Expo läuft. Alle Schwellen in einer Konfiguration.
 - `src/app/` – nur Routing, dünne Seiten.
-  - `(app)/` – alles hinter dem Login, mit Tab-Leiste (Übersicht · Plan · Profil).
+  - `(app)/` – alles hinter dem Login, mit Tab-Leiste (Home · Heute · + · Ziel · Kalender),
+    Profil oben rechts.
   - `login/`, `invite/` – öffentlich.
-- `src/features/<modul>/` – ein Ordner pro Feature (`overview`, `today`, `week`, `checkin`, `feedback`,
+- `src/features/<modul>/` – ein Ordner pro Feature (`overview`, `today`, `goals`, `week`, `log`, `checkin`,
   `bodymap`, `gym`, `calendar`, `history`, `settings`, `notifications`, `auth`, `admin`, `shell`).
   Komponenten, Server Actions, Queries und reine Logik des Moduls liegen dort.
 - `src/lib/` – modulübergreifende Helfer (Supabase-Clients, Datum/Zeitzone, Env, i18n).
