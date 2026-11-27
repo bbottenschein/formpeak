@@ -1,6 +1,6 @@
 import "server-only";
 import type { createClient } from "@/lib/supabase/server";
-import type { GymSet } from "./logic";
+import { best1rm, type GymSet } from "./logic";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
@@ -95,4 +95,27 @@ export async function lastPerformances(
     if (!current || date > current.date) result[row.exercise_id] = { date, sets };
   }
   return result;
+}
+
+/** Bisher bestes geschätztes 1RM pro Übung (alle Einheiten außer der aktuellen) – für Bestwerte. */
+export async function bestE1rms(
+  supabase: Supabase,
+  userId: string,
+  exerciseIds: string[],
+  excludeSessionId: string,
+): Promise<Record<string, number>> {
+  if (exerciseIds.length === 0) return {};
+  const { data } = await supabase
+    .from("session_exercises")
+    .select("exercise_id, session_id, exercise_sets(weight_kg, reps, rir, set_type, position)")
+    .eq("user_id", userId)
+    .in("exercise_id", exerciseIds)
+    .neq("session_id", excludeSessionId)
+    .limit(500);
+  const out: Record<string, number> = {};
+  for (const row of data ?? []) {
+    const best = best1rm(((row.exercise_sets ?? []) as SetRow[]).map(toSet));
+    if (best > (out[row.exercise_id] ?? 0)) out[row.exercise_id] = best;
+  }
+  return out;
 }

@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { PainPicker } from "@/features/bodymap/pain-picker";
 import { ScaleInput } from "@/features/checkin/scale-input";
-import type { GymSet } from "@/features/gym/logic";
+import { isPersonalBest, restSeconds, suggestWeight, type GymSet } from "@/features/gym/logic";
 import type { FeedbackInput } from "@/features/sessions/schema";
 import { Info } from "@/features/ui/info";
 import { useT } from "@/lib/i18n/client";
 import { finishRoutine, finishTraining } from "./actions";
 import { parsePrescription } from "./prescription";
+import { RestTimer } from "./rest-timer";
 import { Timer } from "./timer";
 
 export interface FlowExercise {
@@ -20,16 +21,20 @@ export interface FlowExercise {
   exerciseId: string | null;
   /** Letzte Arbeitssätze dieser Übung (Vorbelegung). */
   last: GymSet[] | null;
+  /** Bisher bestes geschätztes 1RM (für „Bestwert“). */
+  best?: number | null;
 }
 
 type Finish = { kind: "session"; id: string } | { kind: "routine"; key: string };
 
+/** Vorbelegung: Sätze und Wiederholungen aus der Vorgabe, Gewicht aus dem letzten Mal (+2,5 kg, wenn alles geschafft). */
 function initialSets(e: FlowExercise): GymSet[] {
   const p = parsePrescription(e.prescription);
   const lastWorking = e.last?.filter((s) => s.setType === "working") ?? [];
   const count = p.sets ?? (lastWorking.length || 3);
+  const suggested = suggestWeight(lastWorking, p.reps);
   return Array.from({ length: Math.min(count, 8) }, (_, i) => ({
-    weightKg: p.weightKg ?? lastWorking[i]?.weightKg ?? lastWorking.at(-1)?.weightKg ?? 0,
+    weightKg: suggested?.weightKg ?? p.weightKg ?? lastWorking[i]?.weightKg ?? 0,
     reps: p.reps ?? lastWorking[i]?.reps ?? 8,
     rir: null,
     setType: "working",
@@ -57,6 +62,9 @@ export function TrainingFlow({
   const total = exercises.length;
   const [step, setStep] = useState(0); // 0 = Start, 1…total = Übungen, total + 1 = Feedback
   const [sets, setSets] = useState<GymSet[][]>(() => exercises.map((e) => (e.exerciseId ? initialSets(e) : [])));
+  const [done, setDone] = useState<boolean[][]>(() => exercises.map((e) => (e.exerciseId ? initialSets(e).map(() => false) : [])));
+  // Pause nach einem abgehakten Satz: Ende als Zeitstempel (null = keine Pause).
+  const [restUntil, setRestUntil] = useState<number | null>(null);
   const [fb, setFb] = useState<FeedbackInput>({ durationMin, rpe: 5, fatigue: 3, matchMinutes: null, pains: [] });
   const [rpeSet, setRpeSet] = useState(false);
   const [hasPain, setHasPain] = useState(false);
@@ -152,11 +160,12 @@ export function TrainingFlow({
               {last.length > 0 && (
                 <span className="text-xs text-muted">
                   {t("training.last", { value: last.map((s) => `${s.reps}×${s.weightKg}`).join(" · ") })}
+                  {suggestWeight(last, p.reps)?.progressed && ` · ${t("training.progress")}`}
                 </span>
               )}
             </div>
             {sets[i].map((s, j) => (
-              <div key={j} className="grid grid-cols-[2rem_1fr_1fr] items-center gap-2">
+              <div key={j} className="grid grid-cols-[2rem_1fr_1fr_2.75rem] items-center gap-2">
                 <span className="font-display text-lg font-bold text-muted">{j + 1}</span>
                 <label className="flex items-center gap-1.5">
                   <input
@@ -191,6 +200,27 @@ export function TrainingFlow({
                   />
                   <span className="text-sm text-muted">{t("training.reps")}</span>
                 </label>
+                <button
+                  type="button"
+                  aria-pressed={done[i][j]}
+                  aria-label={t("training.setDone", { n: j + 1 })}
+                  onClick={() => {
+                    const next = done.map((row) => [...row]);
+                    next[i][j] = !next[i][j];
+                    setDone(next);
+                    if (next[i][j]) setRestUntil(Date.now() + restSeconds(s.reps) * 1000);
+                  }}
+                  className={`flex size-11 items-center justify-center rounded-lg border transition ${
+                    done[i][j] ? "border-primary bg-primary text-primary-foreground" : "border-line text-muted"
+                  }`}
+                >
+                  <svg viewBox="0 0 20 20" className="size-5" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
+                    <path d="M4 10.5l4 4 8-9" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+                {done[i][j] && isPersonalBest(s, e.best ?? null) && (
+                  <span className="col-span-3 col-start-2 -mt-1 text-xs font-semibold uppercase tracking-wide">{t("training.personalBest")}</span>
+                )}
               </div>
             ))}
             <button
@@ -200,12 +230,15 @@ export function TrainingFlow({
                 const next = sets.map((row) => [...row]);
                 next[i].push({ ...(next[i].at(-1) ?? { weightKg: 0, reps: 8, rir: null, setType: "working" }) });
                 setSets(next);
+                setDone(done.map((row, k) => (k === i ? [...row, false] : row)));
               }}
             >
               + {t("training.addSet")}
             </button>
           </div>
         )}
+
+        {restUntil && <RestTimer until={restUntil} onDone={() => setRestUntil(null)} />}
 
         <div className="grid grid-cols-[auto_1fr] gap-2">
           <button className="btn-secondary px-5" onClick={() => go(step - 1)} aria-label={t("training.back")}>

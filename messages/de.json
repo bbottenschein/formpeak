@@ -465,7 +465,9 @@
     "testTitle": "Es klappt",
     "testBody": "Erinnerungen sind auf diesem Gerät eingeschaltet.",
     "feedbackTitle": "Wie war's?",
-    "feedbackBody": "{type}: kurz die Intensität (RPE) eintragen – dauert 5 Sekunden."
+    "feedbackBody": "{type}: kurz die Intensität (RPE) eintragen – dauert 5 Sekunden.",
+    "morningPlan": "Heute: {plan}. Kurz einchecken – dann passt die App den Plan an dich an.",
+    "morningRest": "Heute ist frei. Kurz einchecken – 30 Sekunden."
   },
   "settings": {
     "title": "Einstellungen",
@@ -776,7 +778,18 @@
     "below": "unter",
     "details": "Woraus sich das ergibt",
     "loadInfo": "Deine Trainingslast der letzten 7 Tage im Vergleich zu deinem Schnitt der letzten 4 Wochen. Deutlich darüber heißt: Verletzungsrisiko steigt – lieber dosieren.",
-    "stressInfo": "Dein Stress aus den Check-ins der letzten 7 Tage im Vergleich zu den Wochen davor. Viel Stress bremst die Erholung, auch ohne Training."
+    "stressInfo": "Dein Stress aus den Check-ins der letzten 7 Tage im Vergleich zu den Wochen davor. Viel Stress bremst die Erholung, auch ohne Training.",
+    "adjusted": {
+      "light_red": "Dein Plan für heute ist angepasst: Erholung statt Belastung.",
+      "light_yellow": "Dein Plan für heute ist angepasst: etwas kürzer und leichter.",
+      "pain": "Dein Plan für heute spart die schmerzende Stelle aus.",
+      "rules": "Dein Plan für heute wurde angepasst."
+    },
+    "adjustedCta": "Zum Plan",
+    "streak": "{days} Tage Check-in-Serie",
+    "rate": "{value} % erledigt (4 Wo.)",
+    "consistencyTitle": "Dranbleiben",
+    "consistencyInfo": "Check-in-Serie: Tage in Folge mit Morgen-Check-in. Erledigt: Anteil der vorgeschlagenen Einheiten der letzten 4 Wochen, die du gemacht hast – ohne die, die die App nach deinem Check-in gestrichen hat."
   },
   "score": {
     "title": "Dein Score",
@@ -910,6 +923,104 @@
         "journal": "Prospektive Kohortenstudie",
         "year": "2023",
         "summary": "Der Y-Balance-Test ist ein einfaches, zuverlässiges Screening, um vor der Saison Spieler mit höherem Verletzungsrisiko zu erkennen."
+      },
+      "wisloff2004": {
+        "title": "Strong correlation of maximal squat strength with sprint performance and vertical jump height in elite soccer players",
+        "authors": "Wisløff et al.",
+        "journal": "British Journal of Sports Medicine",
+        "year": "2004",
+        "summary": "Bei 17 Nationalspielern hing die Maximalkraft in der halben Kniebeuge eng mit Sprintzeiten und Sprunghöhe zusammen (Korrelation)."
+      },
+      "schoenfeld2017": {
+        "title": "Dose-response relationship between weekly resistance training volume and increases in muscle mass",
+        "authors": "Schoenfeld, Ogborn & Krieger",
+        "journal": "Journal of Sports Sciences",
+        "year": "2017",
+        "summary": "Meta-Analyse: Mit mehr Sätzen pro Muskel und Woche wächst die Muskelmasse stärker; 10+ Sätze schnitten tendenziell am besten ab."
+      },
+      "helgerud2001": {
+        "title": "Aerobic endurance training improves soccer performance",
+        "authors": "Helgerud et al.",
+        "journal": "Medicine & Science in Sports & Exercise",
+        "year": "2001",
+        "summary": "4 × 4 min Intervalle, zweimal pro Woche über 8 Wochen: VO2max +11 %, Laufstrecke im Spiel +20 % bei jungen Elite-Fußballern."
+      },
+      "seiler2010": {
+        "title": "What is best practice for training intensity and duration distribution in endurance athletes?",
+        "authors": "Seiler",
+        "journal": "International Journal of Sports Physiology and Performance",
+        "year": "2010",
+        "summary": "Übersicht: Erfolgreiche Ausdauersportler trainieren etwa 80 % locker und 20 % hart."
+      },
+      "malone2017": {
+        "title": "High chronic training loads and exposure to bouts of maximal velocity running reduce injury risk in elite Gaelic football",
+        "authors": "Malone et al.",
+        "journal": "Journal of Science and Medicine in Sport",
+        "year": "2017",
+        "summary": "Beobachtung über eine Saison: Regelmäßige Sprints nahe der Maximalgeschwindigkeit gingen mit weniger Verletzungen einher; zu wenige und zu viele mit mehr."
+      },
+      "malone2018": {
+        "title": "High-speed running and sprinting as an injury risk factor in soccer",
+        "authors": "Malone et al.",
+        "journal": "Journal of Science and Medicine in Sport",
+        "year": "2018",
+        "summary": "Im Fußball ging ein mittleres Sprintpensum mit weniger Verletzungen einher, große Sprünge von Woche zu Woche mit mehr."
+      },
+      "petersen2011": {
+        "title": "Preventive effect of eccentric training on acute hamstring injuries in men's soccer",
+        "authors": "Petersen et al.",
+        "journal": "American Journal of Sports Medicine",
+        "year": "2011",
+        "summary": "Randomisierte Studie: Nordic Hamstring Curls senkten neue Oberschenkelverletzungen um etwa 70 %."
+      },
+      "vanderhorst2015": {
+        "title": "The preventive effect of the nordic hamstring exercise on hamstring injuries in amateur soccer players",
+        "authors": "van der Horst et al.",
+        "journal": "American Journal of Sports Medicine",
+        "year": "2015",
+        "summary": "Randomisierte Studie mit Amateurfußballern: deutlich weniger Verletzungen des hinteren Oberschenkels mit Nordic Curls."
+      },
+      "haroy2019": {
+        "title": "The Adductor Strengthening Programme prevents groin problems among male football players",
+        "authors": "Harøy et al.",
+        "journal": "British Journal of Sports Medicine",
+        "year": "2019",
+        "summary": "Randomisierte Studie: Das Copenhagen-Adduktorenprogramm senkte Leistenprobleme um 41 %."
+      },
+      "soligard2008": {
+        "title": "Comprehensive warm-up programme to prevent injuries in young female footballers",
+        "authors": "Soligard et al.",
+        "journal": "BMJ",
+        "year": "2008",
+        "summary": "Spielerinnen von 13 bis 17 Jahren: Das Aufwärmprogramm FIFA 11+ senkte Verletzungen insgesamt."
+      },
+      "thorborg2017": {
+        "title": "Effect of specific exercise-based football injury prevention programmes on the overall injury rate in football",
+        "authors": "Thorborg et al.",
+        "journal": "British Journal of Sports Medicine",
+        "year": "2017",
+        "summary": "Meta-Analyse: FIFA 11+ senkt Verletzungen im Freizeit- und unterklassigen Fußball um etwa 39 %."
+      },
+      "bosquet2007": {
+        "title": "Effects of tapering on performance: a meta-analysis",
+        "authors": "Bosquet et al.",
+        "journal": "Medicine & Science in Sports & Exercise",
+        "year": "2007",
+        "summary": "Umfang etwa zwei Wochen um 40–60 % senken bei gleicher Intensität verbesserte die Wettkampfleistung."
+      },
+      "mujika2000": {
+        "title": "Detraining: loss of training-induced physiological and performance adaptations (Part I/II)",
+        "authors": "Mujika & Padilla",
+        "journal": "Sports Medicine",
+        "year": "2000",
+        "summary": "Ohne Trainingsreiz sinkt die Ausdauer schon in wenigen Wochen, Kraft bleibt deutlich länger erhalten."
+      },
+      "vanhooren2018": {
+        "title": "Do We Need a Cool-Down After Exercise?",
+        "authors": "Van Hooren & Peake",
+        "journal": "Sports Medicine",
+        "year": "2018",
+        "summary": "Übersicht: Lockeres Auslaufen beschleunigt die Erholung kaum; Muskelkater und Leistung am Folgetag verbessern sich meist nicht."
       }
     }
   },
@@ -1154,7 +1265,8 @@
         "light_yellow": "Deine Ampel ist heute gelb – kürzer und weniger intensiv, mit weniger Sätzen.",
         "pain": "Du hast Schmerzen angegeben – die Übungen sparen die Stelle aus. Lass alles weg, was dort zieht; hält der Schmerz an, lass ihn ärztlich oder physiotherapeutisch abklären.",
         "rules": "Die Einheit passt heute nicht mehr in deinen Plan und wurde angepasst."
-      }
+      },
+      "removedShort": "Heute ausgelassen"
     },
     "exerciseCount": "{count} Übungen",
     "targetRpeInfo": "Ziel-Anstrengung: {value} von 10.",
@@ -1162,7 +1274,18 @@
     "week": "Woche",
     "byAiInfo": "Die KI hat diese Woche aus deinem Ziel, deinen Terminen und deinem Verlauf geplant. Ob und wie stark belastet werden darf, entscheiden feste Regeln (Spieltag, Ampel, Wochenlast) – die KI wählt nur, was trainiert wird.",
     "byRulesInfo": "Diese Woche hat die App nach festen Regeln aus ihrer Übungsbibliothek geplant – passend zu Ziel, Spieltagen und Wochenlast.",
-    "exerciseCountOne": "1 Übung"
+    "exerciseCountOne": "1 Übung",
+    "choices": {
+      "move": "Heute keine Zeit",
+      "moving": "Sucht freien Tag …",
+      "moved": "Verschoben auf {day}.",
+      "noDay": "Diese Woche passt kein anderer Tag.",
+      "drop": "Streichen",
+      "swap": "Lieber etwas anderes",
+      "swapping": "Sucht Alternative …",
+      "noAlternative": "Heute passt keine andere Einheit in deinen Rahmen.",
+      "dropped": "Kein Problem – kurze Einheiten lässt du heute einfach aus."
+    }
   },
   "training": {
     "start": "Training starten",
@@ -1193,22 +1316,29 @@
     "duration": "Dauer (min)",
     "save": "Training speichern",
     "saving": "Wird gespeichert …",
-    "error": "Speichern hat nicht geklappt. Bitte nochmal versuchen."
+    "error": "Speichern hat nicht geklappt. Bitte nochmal versuchen.",
+    "setDone": "Satz {n} geschafft",
+    "personalBest": "Neuer Bestwert",
+    "progress": "heute +2,5 kg",
+    "rest": "Pause",
+    "restOver": "Weiter geht's",
+    "skipRest": "Überspringen",
+    "restClose": "OK"
   },
   "basis": {
     "title": "Wissenschaftliche Grundlage",
-    "strength_speed": "Maximalkraft in Kniebeuge und Co. hängt eng mit Sprint- und Sprungleistung von Fußballern zusammen (Wisløff et al. 2004).",
-    "hypertrophy_volume": "Muskelaufbau: mehr Sätze pro Muskel und Woche bringen mehr Zuwachs, sinnvoll sind etwa 10 oder mehr (Schoenfeld et al. 2017).",
-    "hiit_4x4": "Intervalle 4 × 4 min bei 90–95 % der maximalen Herzfrequenz verbessern die Ausdauer (VO2max) und Laufleistung im Spiel deutlich (Helgerud et al. 2001).",
-    "aerobic_base": "Lockere, längere Läufe bauen die Grundlagenausdauer auf und ergänzen harte Intervalle (Seiler 2010).",
-    "sprint_exposure": "Regelmäßige Sprints mit nahezu maximaler Geschwindigkeit gingen bei Feldsportlern mit weniger Verletzungen einher; lange Sprint-Pausen erhöhen das Risiko beim Wiedereinstieg (Malone et al. 2017).",
-    "nordic": "Nordic Hamstring Curls senken Verletzungen des hinteren Oberschenkels um etwa die Hälfte (Petersen et al. 2011; van der Horst et al. 2015).",
-    "copenhagen": "Das Copenhagen-Adduktorenprogramm senkt Leistenprobleme bei Fußballern deutlich (Harøy et al. 2019).",
-    "warmup_11plus": "Das Aufwärmprogramm FIFA 11+ senkt Verletzungen im Fußball um etwa ein Drittel (Soligard et al. 2008; Meta-Analyse Thorborg et al. 2017).",
-    "load_progression": "Belastung schrittweise steigern und Spitzen vermeiden senkt das Verletzungsrisiko; ACWR ist dabei nur ein Richtwert (Gabbett 2016; kritisch: Impellizzeri et al. 2020).",
-    "deload": "Umfang deutlich senken bei gleicher Intensität erhält die Leistungsfähigkeit und lässt Ermüdung abklingen (Bosquet et al. 2007, Meta-Analyse zum Tapering).",
-    "detraining": "Ohne Ausdauerreiz sinkt die Ausdauer schon nach 2–4 Wochen spürbar, Kraft hält länger (Mujika & Padilla 2000).",
-    "recovery_light": "Lockere Bewegung tut subjektiv gut; dass sie die Erholung messbar beschleunigt, ist kaum belegt (Van Hooren & Peake 2018)."
+    "strength_speed": "Maximalkraft in der halben Kniebeuge hängt bei Elite-Fußballern eng mit Sprint- und Sprungleistung zusammen (Wisløff et al. 2004).",
+    "hypertrophy_volume": "Muskelaufbau: Mehr Sätze pro Muskel und Woche bringen mehr Zuwachs, 10 oder mehr Sätze schnitten tendenziell am besten ab (Schoenfeld et al. 2017).",
+    "hiit_4x4": "Intervalle 4 × 4 min bei 90–95 % der maximalen Herzfrequenz, zweimal pro Woche über 8 Wochen, steigerten bei jungen Elite-Fußballern VO2max und Laufleistung im Spiel deutlich (Helgerud et al. 2001).",
+    "aerobic_base": "Bei Ausdauersportlern hat sich viel lockeres, längeres Training kombiniert mit wenigen harten Intervallen bewährt (Seiler 2010).",
+    "sprint_exposure": "Wer im Training regelmäßig nahezu Maximalgeschwindigkeit erreicht, verletzt sich seltener; zu wenige wie zu viele Sprints und große Sprünge von Woche zu Woche gingen mit mehr Verletzungen einher (Malone et al. 2017, Gaelic Football; Malone et al. 2018, Fußball).",
+    "nordic": "Nordic Hamstring Curls senkten bei männlichen Fußballern Verletzungen des hinteren Oberschenkels um etwa zwei Drittel (Petersen et al. 2011; van der Horst et al. 2015).",
+    "copenhagen": "Das Adduktoren-Programm mit Copenhagen Plank senkte Leistenprobleme bei Fußballern um etwa 40 % (Harøy et al. 2019).",
+    "warmup_11plus": "Das Aufwärmprogramm FIFA 11+ senkt Verletzungen im Amateur- und Jugendfußball um etwa ein Drittel (Soligard et al. 2008; Meta-Analyse Thorborg et al. 2017).",
+    "load_progression": "Schnelle, große Belastungssprünge gehen mit mehr Verletzungen einher, daher Belastung schrittweise steigern; dass Steuern nach ACWR Verletzungen verhindert, ist nicht belegt (Gabbett 2016; kritisch: Impellizzeri et al. 2020).",
+    "deload": "Umfang für etwa zwei Wochen um 40–60 % senken bei gleicher Intensität verbesserte die Wettkampfleistung (Bosquet et al. 2007, Meta-Analyse zum Tapering).",
+    "detraining": "Ohne Ausdauerreiz sinkt die Ausdauer (VO2max) schon in den ersten Wochen, Kraft bleibt deutlich länger erhalten (Mujika & Padilla 2000).",
+    "recovery_light": "Lockeres Auslaufen nach dem Training beschleunigt die Erholung kaum messbar: Muskelkater, Leistung am Folgetag und Erholungsgefühl verbessern sich meist nicht (Van Hooren & Peake 2018)."
   },
   "offseason": {
     "season": "Season",
@@ -1267,5 +1397,28 @@
     "endConfirm": "Beenden",
     "edit": "Off-Season anpassen",
     "unitCounter": "Einheiten diese Woche: {planned} von {target}"
+  },
+  "review": {
+    "weekTitle": "Deine Woche",
+    "monthTitle": "Dein {month}",
+    "done": "erledigt",
+    "load": "Last vs. davor",
+    "bests": "Bestwerte",
+    "checkins": "Check-ins",
+    "writing": "Rückblick wird geschrieben …",
+    "details": "Details",
+    "info": "Erledigt = absolvierte Einheiten von allen geplanten (ohne die, die die App nach deinem Check-in gestrichen hat). Last = Anstrengung × Minuten im Vergleich zum Zeitraum davor. Bestwerte = neues bestes geschätztes Maximalgewicht einer Gym-Übung.",
+    "pageTitle": "Rückblick",
+    "bestsTitle": "Neue Bestwerte",
+    "noBests": "Diesmal keine neuen Bestwerte.",
+    "testsTitle": "Referenztests",
+    "e1rm": "{value} kg (geschätztes Maximum)",
+    "hints": {
+      "load_spike": "Deine Last ist deutlich gestiegen – gib dem Körper nächste Woche Zeit, sich anzupassen, statt weiter draufzulegen.",
+      "few_done": "Einige Einheiten sind ausgefallen – lieber weniger planen und alles schaffen als viel planen und wenig schaffen.",
+      "few_checkins": "Mehr Check-ins machen deinen Plan genauer – 30 Sekunden am Morgen reichen.",
+      "load_drop": "Deine Last ist deutlich gesunken – steig nächste Woche behutsam wieder ein, damit der Anstieg später keine Spitze wird.",
+      "steady": "Gute, gleichmäßige Woche – genau so weitermachen."
+    }
   }
 }

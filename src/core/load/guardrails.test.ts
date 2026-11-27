@@ -3,6 +3,7 @@ import { LOAD_CONFIG } from "./config";
 import {
   dayAllowances,
   enforcePlan,
+  findMoveDate,
   isMainUnit,
   validatePlan,
   weekLoads,
@@ -352,5 +353,26 @@ describe("Off-Season-Leitplanken", () => {
     const codes = validatePlan(kept, c).map((v) => v.code);
     expect(codes).not.toContain("too_few_rest_days");
     expect(codes).not.toContain("deload_too_high");
+  });
+});
+
+describe("findMoveDate – „Heute keine Zeit“", () => {
+  // Referenzwoche, heute Mo: Gym Mo (Unterkörper) soll verschoben werden.
+  const gymMo = unit("2026-11-30", { lowerBody: true, targetRpe: 7 });
+  const days = ["2026-12-01", "2026-12-02", "2026-12-03", "2026-12-04", "2026-12-05", "2026-12-06"];
+
+  it("nächster passender Tag: Mi (MD−3, gewählt, Unterkörper erlaubt) – aber nur mit RPE ≤ 6 wegen Do intensiv", () => {
+    expect(findMoveDate(gymMo, [], ctx(), days)).toBeNull();
+    expect(findMoveDate({ ...gymMo, targetRpe: 6 }, [], ctx(), days)).toBe("2026-12-02");
+  });
+
+  it("leichte Mobilität passt auch an Trainingstage", () => {
+    const mob = unit("2026-11-30", { kind: "mobility", durationMin: 15, targetRpe: 2 });
+    expect(findMoveDate(mob, [], ctx(), days)).toBe("2026-12-01");
+  });
+
+  it("belegter Tag (schon eine Haupteinheit, Höchstzahl erreicht) wird übersprungen", () => {
+    const others = [unit("2026-12-02", { targetRpe: 6 })];
+    expect(findMoveDate({ ...gymMo, targetRpe: 6 }, others, ctx({ maxMainUnits: 1 }), days)).toBeNull();
   });
 });

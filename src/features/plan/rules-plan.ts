@@ -101,3 +101,25 @@ export function rulesPlan(
   }
   return items;
 }
+
+/**
+ * „Lieber etwas anderes“ ohne KI: eine andere Routine, die in den Tagesrahmen passt.
+ * Pflichtinhalte der bisherigen Einheit (Sprint, Prävention) bleiben erhalten; sonst bevorzugt
+ * die Routine mit den meisten gemeinsamen Inhalten.
+ */
+export function rulesAlternative(
+  allowance: DayAllowance,
+  current: { routineKey: string | null; title: string; focus: string[] },
+  equipment: string[],
+  routineTitle: (k: RoutineKey) => string,
+): RoutineKey | null {
+  const keep = current.focus.filter((f) => f === "sprint" || f === "prevention");
+  const candidates = (Object.keys(ROUTINES) as RoutineKey[])
+    .map((k) => ROUTINES[k])
+    .filter((r) => r.key !== current.routineKey && routineTitle(r.key) !== current.title)
+    .filter((r) => fits(r, allowance, equipment) && (r.sessionType === "mobility" || r.sessionType === "recovery" || allowance.main))
+    .filter((r) => keep.every((f) => r.focus.includes(f as never)));
+  if (candidates.length === 0) return null;
+  const overlap = (r: Routine) => r.focus.filter((f) => current.focus.includes(f)).length;
+  return candidates.sort((a, b) => overlap(b) - overlap(a))[0].key;
+}

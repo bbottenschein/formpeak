@@ -3,7 +3,7 @@ import { zonedParts } from "@/lib/date";
 import { getT } from "@/lib/i18n/server";
 import { claimNotification, sendPush } from "@/lib/push";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { dueFeedback, dueReminders, type ReminderKind } from "./reminders";
+import { dueFeedback, dueReminders, todayLine, type ReminderKind } from "./reminders";
 
 /**
  * Erinnerungs-Job (alle 15 Minuten über pg_cron). Prüft für jeden Nutzer mit Push-Abo die
@@ -29,7 +29,7 @@ export async function runReminders(now: Date = new Date()) {
       admin.from("notification_log").select("kind").eq("user_id", p.id).eq("ref", date),
       admin
         .from("sessions")
-        .select("id, date, type, start_time, duration_min, status")
+        .select("id, date, type, start_time, duration_min, status, title, planned_by")
         .eq("user_id", p.id)
         .eq("date", date)
         .eq("status", "planned"),
@@ -54,9 +54,23 @@ export async function runReminders(now: Date = new Date()) {
     const t = getT(p.locale);
     for (const kind of due) {
       if (!(await claimNotification(p.id, kind, date))) continue;
+      // Morgens mit dem Plan des Tages: „Heute: Kraft Unterkörper · 50 min“ – ein Grund, die App zu öffnen.
+      const line = todayLine(
+        (sessions ?? []).map((x) => ({
+          type: x.type,
+          title: x.planned_by === "user" ? null : x.title,
+          durationMin: x.duration_min,
+          startTime: x.start_time,
+        })),
+        (type) => t(`sessionTypes.${type as "training"}`),
+      );
+      const morningBody =
+        line.length > 0
+          ? t("push.morningPlan", { plan: line.map((l) => `${l.label} · ${l.detail}`).join(", ") })
+          : t("push.morningRest");
       sent += await sendPush([p.id], {
         title: t(kind === "morning" ? "push.morningTitle" : "push.eveningTitle"),
-        body: t(kind === "morning" ? "push.morningBody" : "push.eveningBody"),
+        body: kind === "morning" ? morningBody : t("push.eveningBody"),
         url: kind === "morning" ? "/checkin" : "/checkin/evening",
         tag: `checkin-${kind}`,
       });

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/features/auth/session";
-import { lastPerformances } from "@/features/gym/queries";
+import { bestE1rms, lastPerformances } from "@/features/gym/queries";
 import { getPlannedExercises } from "@/features/plan/queries";
 import { SESSION_COLUMNS, type SessionRow } from "@/features/sessions/data";
 import { TrainingFlow } from "@/features/training/training-flow";
@@ -23,7 +23,10 @@ export default async function TrainPage({ params }: PageProps<"/sessions/[id]/tr
   if (!session || session.status !== "planned" || exercises.length === 0) redirect(`/sessions/${id}`);
 
   const gymIds = exercises.map((e) => e.exerciseId).filter((x): x is string => Boolean(x));
-  const last = await lastPerformances(supabase, user.id, gymIds, id, userToday(user.timezone));
+  const [last, best] = await Promise.all([
+    lastPerformances(supabase, user.id, gymIds, id, userToday(user.timezone)),
+    bestE1rms(supabase, user.id, gymIds, id),
+  ]);
 
   return (
     <TrainingFlow
@@ -33,6 +36,7 @@ export default async function TrainPage({ params }: PageProps<"/sessions/[id]/tr
         ...e,
         exerciseId: session.type === "gym" ? e.exerciseId : null,
         last: e.exerciseId ? (last[e.exerciseId]?.sets ?? null) : null,
+        best: e.exerciseId ? (best[e.exerciseId] ?? null) : null,
       }))}
       finish={{ kind: "session", id }}
       closeHref="/today"

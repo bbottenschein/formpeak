@@ -429,6 +429,22 @@ Ausdauer, Sprint, Prävention, Reihenfolge, Progression) und begründet jede Ein
 aus einer festen Liste geprüfter Quellen (`src/features/plan/basis.ts`, Texte unter `basis.*`) –
 sie kann keine Studien erfinden. Sichtbar im Info-Symbol der Einheit.
 
+### 7.4 Alltag mit dem Plan (umgesetzt)
+
+- **Morgen-Push mit Plan:** „Heute: Kraft Unterkörper · 50 min“ statt allgemeiner Erinnerung; ohne
+  Einheit „Heute ist frei“. Nach dem Check-in zeigt Home einen Hinweis, wenn der Plan angepasst wurde.
+- **Heute keine Zeit:** Haupteinheiten wandern auf den nächsten Tag der Woche, an dem sie in alle
+  Leitplanken passen (`findMoveDate`); sonst „Streichen“. Kurze, leichte Einheiten entfallen einfach.
+- **Lieber etwas anderes:** Alternative im gleichen Tagesrahmen (KI, sonst Routinen-Bibliothek),
+  Pflichtinhalte (Sprint, Prävention) bleiben; Inhalte stehen in `sessions.focus`.
+- **Training:** Satz abhaken → Pause (≤ 6 Wdh 2:30, ≤ 12 Wdh 1:30, sonst 1:00); Gewicht vom letzten
+  Mal, +2,5 kg wenn alle Ziel-Wiederholungen geschafft; neuer Bestwert (geschätztes 1RM) markiert.
+- **Rückblick:** sonntags/montags die Woche, am 1.–3. der Vormonat als Karte auf Home (erledigt/
+  geplant, Last vs. davor, Bestwerte, ein KI-Satz bzw. Regel-Hinweis; Tabelle `reviews`), Details
+  unter `/review`. **Dranbleiben:** Check-in-Serie und Anteil erledigter Vorschläge (4 Wochen).
+- **Quellen:** Alle Grundlagen der Trainingsplanung gegen die Originalstudien geprüft und auf der
+  Quellenseite verlinkt.
+
 Prompt: System-Prompt mit Rolle (Athletiktrainer für Amateurfußball), Regeln, Verboten (keine
 Diagnosen, Ampel nie überstimmen) und Schema; Nutzer-Nachricht nur JSON-Kontext. Kleines Modell
 für die tägliche Anpassung, stärkeres für Wochenplan und Monatsrückblick. Alle Anfragen und

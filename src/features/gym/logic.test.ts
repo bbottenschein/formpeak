@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { best1rm, epley1rm, setsFromSuggestion, suggestNext, volume, type GymSet } from "./logic";
+import { best1rm, epley1rm, isPersonalBest, restSeconds, setsFromSuggestion, suggestNext, suggestWeight, volume, type GymSet } from "./logic";
 
 const w = (weightKg: number, reps: number, rir: number | null = null): GymSet => ({ weightKg, reps, rir, setType: "working" });
 const warm = (weightKg: number, reps: number): GymSet => ({ weightKg, reps, rir: null, setType: "warmup" });
@@ -70,5 +70,39 @@ describe("setsFromSuggestion", () => {
       w(62.5, 8),
       w(62.5, 8),
     ]);
+  });
+});
+
+describe("suggestWeight – Training ohne RIR", () => {
+  it("alle Ziel-Wiederholungen geschafft → +2,5 kg", () => {
+    expect(suggestWeight([w(60, 5), w(60, 5), w(60, 5)], 5)).toEqual({ weightKg: 62.5, progressed: true });
+  });
+  it("ein Satz zu kurz → gleiches Gewicht", () => {
+    expect(suggestWeight([w(60, 5), w(60, 4)], 5)).toEqual({ weightKg: 60, progressed: false });
+  });
+  it("ohne Ziel: höchste Wiederholungszahl des letzten Mals als Ziel", () => {
+    expect(suggestWeight([w(40, 8), w(40, 8)], null)).toEqual({ weightKg: 42.5, progressed: true });
+  });
+  it("ohne Verlauf oder nur Körpergewicht → kein Vorschlag", () => {
+    expect(suggestWeight([], 5)).toBeNull();
+    expect(suggestWeight([w(0, 10)], 10)).toBeNull();
+  });
+});
+
+describe("restSeconds – Grenzen", () => {
+  it("≤ 6 Wdh 150 s, ≤ 12 Wdh 90 s, darüber 60 s, unbekannt 90 s", () => {
+    expect(restSeconds(6)).toBe(150);
+    expect(restSeconds(7)).toBe(90);
+    expect(restSeconds(12)).toBe(90);
+    expect(restSeconds(13)).toBe(60);
+    expect(restSeconds(null)).toBe(90);
+  });
+});
+
+describe("isPersonalBest", () => {
+  it("über dem bisherigen besten 1RM", () => {
+    expect(isPersonalBest({ weightKg: 102.5, reps: 5 }, 116.5)).toBe(true); // 119,6
+    expect(isPersonalBest({ weightKg: 100, reps: 5 }, 116.5)).toBe(false); // 116,7 ≈ gleich
+    expect(isPersonalBest({ weightKg: 100, reps: 5 }, null)).toBe(false);
   });
 });

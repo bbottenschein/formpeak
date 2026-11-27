@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCurrentUser } from "@/features/auth/session";
-import { lastPerformances } from "@/features/gym/queries";
+import { bestE1rms, lastPerformances } from "@/features/gym/queries";
 import { loadLibrary, rulesToSessions } from "@/features/plan/generate";
 import { ROUTINE_KEYS, ROUTINES, type RoutineKey } from "@/features/today/routines";
 import { TrainingFlow } from "@/features/training/training-flow";
@@ -25,13 +25,21 @@ export default async function RoutinePage({ params }: PageProps<"/today/routine/
     await loadLibrary(supabase),
   );
   const gymIds = session.exercises.map((e) => e.exerciseId).filter((x): x is string => Boolean(x));
-  const last = await lastPerformances(supabase, user.id, gymIds, "00000000-0000-0000-0000-000000000000", userToday(user.timezone));
+  const none = "00000000-0000-0000-0000-000000000000";
+  const [last, best] = await Promise.all([
+    lastPerformances(supabase, user.id, gymIds, none, userToday(user.timezone)),
+    bestE1rms(supabase, user.id, gymIds, none),
+  ]);
 
   return (
     <TrainingFlow
       title={session.title}
       durationMin={routine.minutes}
-      exercises={session.exercises.map((e) => ({ ...e, last: e.exerciseId ? (last[e.exerciseId]?.sets ?? null) : null }))}
+      exercises={session.exercises.map((e) => ({
+        ...e,
+        last: e.exerciseId ? (last[e.exerciseId]?.sets ?? null) : null,
+        best: e.exerciseId ? (best[e.exerciseId] ?? null) : null,
+      }))}
       finish={{ kind: "routine", key: routine.key }}
       closeHref="/today"
     />

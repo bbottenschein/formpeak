@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dueFeedback, dueReminders, inWindow, type ReminderProfile, type ReminderState } from "./reminders";
+import { dueFeedback, dueReminders, inWindow, todayLine, type ReminderProfile, type ReminderState } from "./reminders";
 
 const profile: ReminderProfile = {
   morningReminder: "07:30:00",
@@ -70,5 +70,27 @@ describe("dueFeedback", () => {
     const gym = { ...training, id: "g", startTime: null, durationMin: 45 };
     expect(dueFeedback([gym], "2026-11-26", "19:59", new Set())).toEqual([]);
     expect(dueFeedback([gym], "2026-11-26", "20:00", new Set())).toEqual([gym]);
+  });
+});
+
+describe("todayLine", () => {
+  const label = (t: string) => ({ training: "Teamtraining", gym: "Gym" })[t] ?? t;
+  it("Termine mit Uhrzeit zuerst, Vorschläge mit Dauer, höchstens zwei", () => {
+    expect(
+      todayLine(
+        [
+          { type: "gym", title: "Kraft Unterkörper", durationMin: 50, startTime: null },
+          { type: "training", title: null, durationMin: 90, startTime: "19:00:00" },
+          { type: "mobility", title: "Mobilität", durationMin: 15, startTime: null },
+        ],
+        label,
+      ),
+    ).toEqual([
+      { label: "Teamtraining", detail: "19:00" },
+      { label: "Kraft Unterkörper", detail: "50 min" },
+    ]);
+  });
+  it("leer bei Ruhetag", () => {
+    expect(todayLine([], label)).toEqual([]);
   });
 });

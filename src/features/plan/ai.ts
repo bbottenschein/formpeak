@@ -185,3 +185,29 @@ export async function aiSpareUnit(context: unknown, library: LibraryExercise[]):
   });
   return message.stop_reason === "refusal" ? null : message.parsed_output;
 }
+
+const ALT_SYSTEM = `Du bist Athletiktrainer für Amateurfußballer. Der Spieler möchte statt der geplanten Einheit heute etwas anderes machen. Schlage genau eine Alternative vor.
+
+Regeln:
+- Gleiches Datum. Nur Arten aus "erlaubt.arten", höchstens "max_minuten" und "max_rpe"; Haupteinheiten (gym, run_intervals oder RPE über 4) nur, wenn "haupteinheit": true.
+- Unterkörper-Kraftübungen (Bibliothek, unterkoerper: true) nur, wenn "unterkoerper": true.
+- Inhalte aus "behalten" (z. B. sprint, prevention) müssen in der Alternative vorkommen und in "focus" stehen.
+- Deutlich andere Übungen als bisher, ähnlicher Trainingszweck (Ziel, Abschnitt der Off-Season beachten).
+- Nur die angegebenen Trainingsmittel. Schmerzende Regionen aussparen.
+- Begründe nur über Schlüssel aus "grundlagen" (Feld "basis"), erfinde keine Studien.
+- Jede Übung: kurze Vorgabe und genau ein Satz zur Ausführung. Deutsch, Du-Form, ohne Emojis, keine Diagnosen.`;
+
+/** „Lieber etwas anderes“: eine Alternative im gleichen Tagesrahmen. */
+export async function aiAlternative(context: unknown, library: LibraryExercise[]): Promise<AiUnit | null> {
+  const client = new Anthropic();
+  const message = await client.beta.messages.parse({
+    model: PLAN_MODEL,
+    max_tokens: 6000,
+    betas: ["server-side-fallback-2026-07-01"],
+    fallbacks: "default",
+    output_config: { effort: "low", format: betaZodOutputFormat(unitSchema(library)) },
+    system: ALT_SYSTEM,
+    messages: [{ role: "user", content: JSON.stringify(context) }],
+  });
+  return message.stop_reason === "refusal" ? null : message.parsed_output;
+}

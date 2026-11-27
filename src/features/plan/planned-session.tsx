@@ -3,6 +3,7 @@ import type { SessionRow } from "@/features/sessions/data";
 import { Info } from "@/features/ui/info";
 import type { Translate } from "@/lib/i18n/translate";
 import { isBasisKey } from "./basis";
+import { SessionChoices } from "./session-choices";
 import type { PlannedExercise } from "./types";
 
 /** Übungsliste: Name und Vorgabe, darunter ein Satz zur Ausführung. */
@@ -101,6 +102,7 @@ export function PlannedSessionCard({
           {t("training.start")}
         </Link>
       )}
+      {!done && <SessionChoices sessionId={session.id} />}
     </div>
   );
 }

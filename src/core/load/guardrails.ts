@@ -385,3 +385,27 @@ export function enforcePlan<T extends PlanUnit>(
 
   return kept;
 }
+
+/**
+ * „Heute keine Zeit“: erster Tag aus `candidates`, an den die Einheit verschoben werden kann, ohne
+ * eine Leitplanke zu verletzen (Tagesrahmen, Unterkörper, Einheiten pro Tag, Ruhetage). Verstöße,
+ * die ohne die Einheit schon bestehen, zählen nicht. Kein passender Tag → null.
+ */
+export function findMoveDate(
+  unit: PlanUnit,
+  others: PlanUnit[],
+  ctx: PlanCheckContext,
+  candidates: IsoDate[],
+  config: LoadConfig = LOAD_CONFIG,
+): IsoDate | null {
+  const before = new Set(validatePlan(others, ctx, config).map((v) => v.code));
+  for (const date of candidates) {
+    const units = [...others, { ...unit, date }];
+    const moved = units.length - 1;
+    const violations = validatePlan(units, ctx, config);
+    if (violations.some((v) => "index" in v && v.index === moved)) continue;
+    if (violations.some((v) => !("index" in v) && !before.has(v.code) && v.code !== "missing_focus")) continue;
+    return date;
+  }
+  return null;
+}

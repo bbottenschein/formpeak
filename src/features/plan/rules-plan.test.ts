@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { dayAllowances, type Session } from "@/core/load";
-import { rulesPlan } from "./rules-plan";
+import { rulesAlternative, rulesPlan } from "./rules-plan";
 
 const fixture = (date: string, type: "training" | "match", extra: Partial<Session> = {}): Session => ({
   id: `${type}-${date}`,
@@ -91,5 +91,25 @@ describe("rulesPlan – Off-Season", () => {
   it("Erholen: nur locker (ohne draußen: Regeneration)", () => {
     const plan = rulesPlan(free, { goalType: "strength", equipment: ["gym"], maxMainUnits: 2, offseason: week("recover") });
     expect(plan.map((p) => p.routine)).toEqual(["recovery_flush", "recovery_flush"]);
+  });
+});
+
+describe("rulesAlternative", () => {
+  const free = dayAllowances({ weekStart: "2026-11-30", today: "2026-11-30", sessions: [], availableWeekdays: [1], timeBudgetMin: 60 })[0];
+  const title = (k: string) => k;
+
+  it("Kraft → eine andere passende Routine, die die Prävention behält", () => {
+    const alt = rulesAlternative(free, { routineKey: "strength_full", title: "strength_full", focus: ["strength", "prevention"] }, ["gym", "outdoor"], title);
+    expect(alt).toBe("prevention_core");
+  });
+
+  it("Sprint-Einheit: Alternative muss Sprint enthalten", () => {
+    const alt = rulesAlternative(free, { routineKey: "acceleration", title: "acceleration", focus: ["sprint", "power"] }, ["outdoor"], title);
+    expect(alt).toBe("activation_md1");
+  });
+
+  it("nichts Passendes → null", () => {
+    const md = { ...free, kinds: [] as never[], main: false };
+    expect(rulesAlternative(md, { routineKey: null, title: "x", focus: [] }, [], title)).toBeNull();
   });
 });

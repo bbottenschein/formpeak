@@ -70,3 +70,30 @@ export function suggestNext(lastSets: GymSet[], light?: TrafficLight): Suggestio
 export function setsFromSuggestion(s: Suggestion): GymSet[] {
   return Array.from({ length: s.sets }, () => ({ weightKg: s.weightKg, reps: s.reps, rir: null, setType: "working" as const }));
 }
+
+/**
+ * Gewichtsvorschlag im Training ohne RIR-Angaben: Wurden beim letzten Mal in allen Arbeitssätzen
+ * die Ziel-Wiederholungen geschafft → +2,5 kg, sonst gleiches Gewicht. Ohne Verlauf null.
+ */
+export function suggestWeight(lastSets: GymSet[], targetReps: number | null): { weightKg: number; progressed: boolean } | null {
+  const working = lastSets.filter((s) => s.setType === "working" && s.weightKg > 0);
+  if (working.length === 0) return null;
+  const top = Math.max(...working.map((s) => s.weightKg));
+  const target = targetReps ?? Math.max(...working.map((s) => s.reps));
+  const allDone = working.every((s) => s.reps >= target);
+  return allDone ? { weightKg: top + PROGRESSION_STEP_KG, progressed: true } : { weightKg: top, progressed: false };
+}
+
+/** Pause nach einem Satz: schwer (≤ 6 Wdh) 2:30, mittel (≤ 12) 1:30, sonst 1:00. */
+export function restSeconds(reps: number | null): number {
+  if (reps == null) return 90;
+  if (reps <= 6) return 150;
+  if (reps <= 12) return 90;
+  return 60;
+}
+
+/** Neuer Bestwert: geschätztes 1RM des Satzes über dem bisherigen besten. */
+export function isPersonalBest(set: Pick<GymSet, "weightKg" | "reps">, previousBest: number | null): boolean {
+  if (previousBest == null || previousBest <= 0) return false;
+  return epley1rm(set.weightKg, set.reps) > previousBest + 0.25;
+}

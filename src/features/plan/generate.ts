@@ -372,6 +372,7 @@ export async function planWeek(input: PlanWeekInput): Promise<boolean> {
           rationale: s.reason,
           title: s.title,
           basis: s.basis,
+          focus: s.focus ?? [],
         })
         .select("id")
         .single();

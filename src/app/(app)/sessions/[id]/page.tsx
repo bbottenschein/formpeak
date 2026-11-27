@@ -7,6 +7,7 @@ import { SESSION_COLUMNS, toCoreSession, type SessionRow } from "@/features/sess
 import { FeedbackForm } from "@/features/sessions/feedback-form";
 import { GymLog } from "@/features/gym/gym-log";
 import { AdjustedBadge, BasisList, ExerciseList } from "@/features/plan/planned-session";
+import { SessionChoices } from "@/features/plan/session-choices";
 import { Info } from "@/features/ui/info";
 import { getPlannedExercises } from "@/features/plan/queries";
 import { lastPerformances, listExercises, loadGymLog } from "@/features/gym/queries";
@@ -17,6 +18,8 @@ import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Einheit" };
+// „Lieber etwas anderes“ fragt die KI – die Server Action darf länger laufen.
+export const maxDuration = 120;
 
 export default async function SessionPage({ params }: PageProps<"/sessions/[id]">) {
   const { id } = await params;
@@ -107,6 +110,7 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
           {t("training.start")}
         </Link>
       )}
+      {session.status === "planned" && suggested && <SessionChoices sessionId={session.id} />}
       <AdjustedBadge session={session} today={today} t={t} />
       {session.status !== "cancelled" && <ExerciseList exercises={planned} t={t} label={t("plan.howTo")} />}
 

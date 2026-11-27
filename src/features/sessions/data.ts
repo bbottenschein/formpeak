@@ -7,7 +7,7 @@ import type { createClient } from "@/lib/supabase/server";
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
 export const SESSION_COLUMNS =
-  "id, date, start_time, type, status, series_id, is_fixture, expected_intensity, gym_focus, duration_min, target_rpe, default_rpe, rpe, fatigue, match_minutes, planned_by, rationale, against_recommendation, notes, title, adjustment, adjusted_on, basis";
+  "id, date, start_time, type, status, series_id, is_fixture, expected_intensity, gym_focus, duration_min, target_rpe, default_rpe, rpe, fatigue, match_minutes, planned_by, rationale, against_recommendation, notes, title, adjustment, adjusted_on, basis, focus";
 
 export interface SessionRow {
   id: string;
@@ -36,6 +36,8 @@ export interface SessionRow {
   adjusted_on: string | null;
   /** Wissenschaftliche Grundlage einer vorgeschlagenen Einheit (Schlüssel aus plan/basis.ts). */
   basis: string[];
+  /** Inhalte einer vorgeschlagenen Einheit (z. B. sprint, prevention). */
+  focus: string[];
 }
 
 export function toCoreSession(s: SessionRow): Session {

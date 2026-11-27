@@ -86,3 +86,25 @@ export function dueFeedback(
     return now >= end + (s.startTime ? FEEDBACK_DELAY_MIN : 0);
   });
 }
+
+export interface TodayItem {
+  type: string;
+  /** Titel einer vorgeschlagenen Einheit, sonst null. */
+  title: string | null;
+  durationMin: number;
+  startTime: string | null;
+}
+
+/**
+ * Was heute ansteht, für den Morgen-Push: feste Termine mit Uhrzeit zuerst, dann Vorschläge.
+ * Liefert höchstens `max` Einträge als { label, detail } („Kraft Unterkörper“, „50 min“ bzw. „19:00“).
+ */
+export function todayLine(items: TodayItem[], typeLabel: (type: string) => string, max = 2) {
+  return [...items]
+    .sort((a, b) => (a.startTime ?? "99").localeCompare(b.startTime ?? "99"))
+    .slice(0, max)
+    .map((i) => ({
+      label: i.title ?? typeLabel(i.type),
+      detail: i.startTime ? i.startTime.slice(0, 5) : `${i.durationMin} min`,
+    }));
+}

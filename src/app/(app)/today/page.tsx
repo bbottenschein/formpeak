@@ -62,7 +62,7 @@ export default async function TodayPage() {
   const isPlan = (s: { planned_by: string }) => s.planned_by === "ai" || s.planned_by === "rules";
   const dayRows = week.days.find((d) => d.date === today)?.sessions ?? [];
   // Nach dem Check-in gestrichene Vorschläge (tägliche Anpassung).
-  const removedToday = dayRows.filter((s) => s.status === "cancelled" && isPlan(s) && s.adjusted_on === today);
+  const removedToday = dayRows.filter((s) => s.status === "cancelled" && isPlan(s));
   const dayAll = dayRows
     .filter((s) => s.status !== "cancelled")
     .sort((a, b) => (a.start_time ?? "99").localeCompare(b.start_time ?? "99"));
@@ -147,8 +147,8 @@ export default async function TodayPage() {
           {removedToday.map((s) => (
             <div key={s.id} className="flex items-center gap-1.5 text-sm text-muted">
               <span className="line-through">{s.title ?? t(`sessionTypes.${s.type}`)}</span>
-              <Info title={t("plan.adjust.removed")}>
-                <p>{t(`plan.adjust.why.${s.adjustment ?? "rules"}`)}</p>
+              <Info title={t("plan.adjust.removedShort")}>
+                <p>{s.adjustment && s.adjusted_on === today ? t(`plan.adjust.why.${s.adjustment}`) : t("plan.choices.dropped")}</p>
               </Info>
             </div>
           ))}
