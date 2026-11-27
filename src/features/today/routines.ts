@@ -22,6 +22,8 @@ export interface RoutineExercise {
   /** Dauer in Sekunden oder Wiederholungen als Text-Schlüssel. */
   seconds?: number;
   reps?: string;
+  /** Name in der Gym-Bibliothek – dann landet die Übung im Gym-Log. */
+  library?: string;
 }
 
 export interface Routine {
@@ -143,11 +145,11 @@ export const ROUTINES: Record<RoutineKey, Routine> = {
     intense: true,
     needs: ["gym"],
     exercises: [
-      { key: "squat", reps: "4x5" },
-      { key: "rdl", reps: "3x6" },
-      { key: "split_squat", reps: "3x8_per_side" },
-      { key: "pull_up_row", reps: "3x8" },
-      { key: "nordic_curl", reps: "3x5" },
+      { key: "squat", reps: "4x5", library: "Kniebeuge (Back Squat)" },
+      { key: "rdl", reps: "3x6", library: "Rumänisches Kreuzheben (RDL)" },
+      { key: "split_squat", reps: "3x8_per_side", library: "Bulgarian Split Squat" },
+      { key: "pull_up_row", reps: "3x8", library: "Klimmzug" },
+      { key: "nordic_curl", reps: "3x5", library: "Nordic Curl" },
     ],
   },
 };

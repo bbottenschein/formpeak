@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/features/auth/session";
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
-import { userToday } from "@/lib/date";
+import { mondayOf, userToday } from "@/lib/date";
 import { summarizeGoal, type GoalContext, type GoalSummaryResult } from "./ai";
 import { nextTestDate } from "./progress";
 import { goalSaveSchema } from "./schema";
@@ -68,6 +68,9 @@ export async function saveGoal(_prev: GoalState, formData: FormData): Promise<Go
   }
 
   if (g.testKey) await planReferenceTests(saved.id, g.testKey, g.baselineValue, user.id, userToday(user.timezone));
+  // Neues Ziel oder neuer Rahmen: Wochenpläne ab dieser Woche neu erstellen lassen
+  // (beim nächsten Öffnen von Heute/Kalender; offene Vorschläge werden dabei ersetzt).
+  await supabase.from("week_plans").delete().eq("user_id", user.id).gte("week_start", mondayOf(userToday(user.timezone)));
   revalidatePath("/", "layout");
   redirect("/goals");
 }

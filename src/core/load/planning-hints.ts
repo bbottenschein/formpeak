@@ -2,8 +2,8 @@ import { LOAD_CONFIG, type LoadConfig } from "./config";
 import { addDays, dateRange, mondayOf, type IsoDate } from "./dates";
 import { matchdayContext } from "./matchday";
 import type { PainSpotStatus } from "./pain";
-import { plannedLoad, sessionLoad } from "./session-load";
 import type { Session, TrafficLight } from "./types";
+import { weeklyLoad } from "./weekly-load";
 
 /**
  * Hinweise für selbst geplante Einheiten in Phase 1 (SPEC 4.6 / 4.7).
@@ -103,7 +103,7 @@ export function sessionHints(
 
 /**
  * Hinweise zur Woche (Mo–So), in der `date` liegt.
- * Wochenlast = geplante Last dieser Woche gegenüber der tatsächlichen Last der Vorwoche.
+ * Wochenlast wie beim Wochenplan (`weeklyLoad`): ohne leichte Zusatzeinheiten, Vergleich mit der Vorwoche.
  */
 export function weekHints(
   date: IsoDate,
@@ -114,21 +114,15 @@ export function weekHints(
   const hints: WeekHint[] = [];
   const monday = mondayOf(date);
   const week = dateRange(monday, addDays(monday, 6));
-  const prevWeek = dateRange(addDays(monday, -7), addDays(monday, -1));
   const active = sessions.filter((s) => s.status !== "cancelled");
 
   const busyDays = new Set(active.map((s) => s.date));
   if (week.every((d) => busyDays.has(d))) hints.push({ code: "no_rest_day" });
 
-  const inWeek = (days: IsoDate[]) => (s: Session) => days.includes(s.date);
-  const planned = active.filter(inWeek(week)).reduce((sum, s) => sum + plannedLoad(s), 0);
-  const previous = sessions
-    .filter(inWeek(prevWeek))
-    .reduce((sum, s) => sum + sessionLoad(s, today).load, 0);
-
-  if (previous > 0) {
-    const increase = planned / previous - 1;
-    if (increase > config.planning.maxWeeklyIncrease) {
+  const { planned, reference } = weeklyLoad(monday, sessions, today, config);
+  if (reference > 0) {
+    const increase = planned / reference - 1;
+    if (increase > config.planning.maxWeeklyIncrease + 1e-9) {
       hints.push({ code: "weekly_load_increase", percent: Math.round(increase * 100) });
     }
   }

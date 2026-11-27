@@ -35,7 +35,9 @@ export function SessionCard({
 }) {
   const cancelled = session.status === "cancelled";
   const done = session.status === "done";
+  const suggested = (session.planned_by === "ai" || session.planned_by === "rules") && session.title;
   const meta = [
+    suggested ? t(`sessionTypes.${session.type}`) : null,
     session.start_time?.slice(0, 5),
     t("common.minutes", { value: session.duration_min }),
     done && session.rpe != null ? `RPE ${session.rpe}` : null,
@@ -51,7 +53,7 @@ export function SessionCard({
     >
       <div className="flex items-center justify-between gap-2">
         <span className={`font-display text-lg font-semibold uppercase tracking-wide ${cancelled ? "line-through" : ""}`}>
-          {t(`sessionTypes.${session.type}`)}
+          {suggested ? session.title : t(`sessionTypes.${session.type}`)}
         </span>
         <span className="text-xs text-muted">
           {feedbackDue ? (

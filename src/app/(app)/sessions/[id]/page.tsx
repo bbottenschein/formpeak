@@ -6,6 +6,8 @@ import { cancelSession, deleteSession, moveSession, restoreSession } from "@/fea
 import { SESSION_COLUMNS, toCoreSession, type SessionRow } from "@/features/sessions/data";
 import { FeedbackForm } from "@/features/sessions/feedback-form";
 import { GymLog } from "@/features/gym/gym-log";
+import { ExerciseList } from "@/features/plan/planned-session";
+import { getPlannedExercises } from "@/features/plan/queries";
 import { lastPerformances, listExercises, loadGymLog } from "@/features/gym/queries";
 import { computeMetricsFor } from "@/features/today/metrics";
 import type { FeedbackInput } from "@/features/sessions/schema";
@@ -41,6 +43,8 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
     .eq("session_id", id);
 
   const load = sessionLoad(toCoreSession(session), today);
+  const planned = (await getPlannedExercises([session.id]))[session.id] ?? [];
+  const suggested = session.planned_by === "ai" || session.planned_by === "rules";
 
   let gym: React.ReactNode = null;
   if (session.type === "gym" && session.status !== "cancelled") {
@@ -71,19 +75,24 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
           {formatLongDate(session.date)}
           {session.start_time && ` · ${session.start_time.slice(0, 5)}`}
         </p>
-        <h1 className="text-4xl font-bold">{t(`sessionTypes.${session.type}`)}</h1>
+        <h1 className="text-4xl font-bold">{(suggested && session.title) || t(`sessionTypes.${session.type}`)}</h1>
         <p className="mt-1 text-sm text-muted">
           {[
+            suggested && session.title ? t(`sessionTypes.${session.type}`) : null,
             session.series_id ? t("session.fromSeries") : null,
+            session.target_rpe != null && session.status === "planned" ? t("plan.targetRpe", { value: session.target_rpe }) : null,
             t(`sessionStatus.${session.status}`),
             load.counts ? `${t("session.load", { value: load.load })}${load.estimated ? ` (${t("week.estimated")})` : ""}` : null,
           ]
             .filter(Boolean)
             .join(" · ")}
         </p>
+        {suggested && session.rationale && planned.length > 0 && <p className="mt-2 text-sm">{session.rationale}</p>}
         {session.notes && <p className="mt-2 text-sm">{session.notes}</p>}
         {session.against_recommendation && <p className="mt-2 text-sm text-light-yellow">{t("session.againstRecommendation")}</p>}
       </div>
+
+      {session.status !== "cancelled" && <ExerciseList exercises={planned} t={t} label={t("plan.howTo")} />}
 
       {gym}
 

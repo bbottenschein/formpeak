@@ -325,7 +325,9 @@ schreibt. Zeitstempel `created_at`/`updated_at`. Tagesbezug als `date` in der Nu
 | `body_measurements` | Körpergewicht und Taillenumfang (für Muskelaufbau und Gewichtsabnahme) |
 | `team_members` | Rolle `player` / `coach` (Trainer); Vorbereitung Trainer-Modus |
 | `sharing_settings` | Freigaben pro Spieler und Team: Ampel und Verfügbarkeit immer, Schmerzdetails und Notizen nur mit Zustimmung |
-| `ai_plans` | Phase 2: Kontext-JSON, Antwort-JSON, Prompt-Version, Modell, Validierungsergebnis |
+| `ai_plans` | Jede KI-Anfrage: Kontext-JSON, Antwort-JSON, Prompt-Version, Modell, Validierungsergebnis |
+| `week_plans` | Wochenplan pro Nutzer und Montag: Status (`pending`/`ready`/`failed`), Quelle (`ai`/`rules`), Wochenfokus, `adjusted` |
+| `planned_exercises` | Übungen einer vorgeschlagenen Einheit: Name, Vorgabe, ein Satz Ausführung, optional Bibliotheks-Übung. Vorgeschlagene Einheiten selbst sind `sessions` mit `planned_by` = `ai`/`rules` und `title` |
 
 `daily_metrics` wird nach jedem Check-in und jedem Feedback für die betroffenen Tage neu berechnet
 (Berechnung in TypeScript mit `src/core/load`, nicht in SQL).
@@ -351,7 +353,7 @@ Weitere Seiten: `/score` (Aufschlüsselung), `/sources` (Quellen), `/history` (a
 
 ---
 
-## 7. Phase 2: KI-Coach (zur Orientierung, noch nicht bauen)
+## 7. Phase 2: KI-Coach (7.1 und 7.2 umgesetzt)
 
 ### 7.1 Ziele und Referenztests (umgesetzt, siehe Bereich Ziel)
 
@@ -370,15 +372,32 @@ Ein aktives Ziel. Erster Referenztest zum Start, Wiederholung automatisch nach 5
 
 Die App plant Training, keine Ernährung und keine Therapie.
 
-### 7.2 Wochenplanung (Sonntagabend oder nach dem Spiel)
+### 7.2 Wochenplanung (umgesetzt, `src/features/plan`, Leitplanken in `src/core/load/guardrails.ts`)
+
+Ausgelöst automatisch beim Öffnen von Heute oder Kalender für eine Woche ohne Plan (also auch
+Sonntagabend für die neue Woche) und per „Woche neu planen“. Ein neues Ziel verwirft die Pläne ab
+dieser Woche. Ersetzt werden nur offene Vorschläge ab heute; Erledigtes und Selbstgeplantes bleibt.
+Ohne API-Schlüssel oder bei Ausfall plant die App nach Regeln aus der Routinen-Bibliothek.
+
+**Leitplanken pro Tag** (`dayAllowances`): Spieltag nichts · MD+1 oder Ampel rot nur Regeneration
+(≤ 30 min, RPE ≤ 3) · MD−1 nur Aktivierung (≤ 20 min, RPE ≤ 4) · Teamtraining nur Mobilität
+(≤ 15 min) · gewählte freie Tage Haupteinheit bis zum Zeitbudget · andere freie Tage nur leichte
+Einheit (≤ 15 min, RPE ≤ 4) · Unterkörperkraft MD+2 bis MD−3 · nicht intensiv (RPE ≥ 7) am Tag vor
+oder nach intensivem Training · Ampel gelb −30 % Umfang. **Für die Woche:** höchstens die gewählte
+Zahl Haupteinheiten (Gym, Lauf oder RPE > 4), höchstens 2 Einheiten pro Tag, ein Ruhetag, Wochenlast
+ohne leichte Einheiten höchstens +15 % gegenüber Vorwoche bzw. Vierwochenschnitt (kommende Termine
+der Vorwoche zählen geplant). Verstöße → eine Rückfrage an die KI, danach korrigiert der Code
+(`enforcePlan`: Einheit streichen, Dauer/RPE kappen, Wochenlast kürzen, unter 20 min streichen).
 
 1. Code berechnet Kennzahlen, Ampel und Sperren (MD-Regeln, Schmerz-Sperren).
 2. KI erhält JSON-Kontext: Fußballtermine der nächsten 7 Tage, Kennzahlen, Feedback der letzten
    14 Tage, Ziele, Zeitbudget, Trainingsmittel, Sperren. **Ohne Namen.**
 3. KI antwortet in festem JSON-Schema: pro Tag Einheitstyp, Dauer, Ziel-RPE, Übungen mit
-   Zielgewicht und Wiederholungen (aus dem Gym-Log), ein Satz Begründung.
+   Zielgewicht und Wiederholungen (aus dem Gym-Log), ein Satz Begründung. Jede Übung mit Vorgabe und
+   genau einem Satz zur Ausführung; Gym-Übungen aus der Bibliothek landen direkt im Gym-Log.
 4. Code prüft gegen die Leitplanken (Wochenlast, MD-Regeln, Sperren); bei Verstoß Neuanfrage mit Fehlermeldung.
-5. Jeden Morgen passt die KI nur den heutigen Tag an Ampel und Check-in an.
+5. Jeden Morgen passt die KI nur den heutigen Tag an Ampel und Check-in an. *(noch offen; bis dahin
+   zeigen die Hinweise aus 4.7 an, wenn ein Vorschlag nicht zur heutigen Ampel passt)*
 
 Prompt: System-Prompt mit Rolle (Athletiktrainer für Amateurfußball), Regeln, Verboten (keine
 Diagnosen, Ampel nie überstimmen) und Schema; Nutzer-Nachricht nur JSON-Kontext. Kleines Modell

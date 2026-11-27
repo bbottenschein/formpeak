@@ -49,3 +49,12 @@ export function dailyLoads(sessions: Session[], today: IsoDate): Map<IsoDate, nu
   }
   return out;
 }
+
+/**
+ * Last für Wochenvergleiche: Vergangenes zählt tatsächlich, Kommendes (ab heute) mit der geplanten
+ * Last. So enthält z. B. die laufende Vorwoche auch das Spiel am Samstag, das erst noch kommt.
+ */
+export function expectedLoad(session: Session, today: IsoDate): number {
+  if (session.status === "cancelled") return 0;
+  return session.date < today || session.status === "done" ? sessionLoad(session, today).load : plannedLoad(session);
+}

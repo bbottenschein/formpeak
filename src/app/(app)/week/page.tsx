@@ -3,12 +3,18 @@ import { mondayOf } from "@/core/load";
 import { getCurrentUser } from "@/features/auth/session";
 import { computeMetricsFor } from "@/features/today/metrics";
 import { getGoal } from "@/features/goals/queries";
+import { replanWeek } from "@/features/plan/actions";
+import { PlanAutoStart } from "@/features/plan/plan-auto-start";
+import { autoStartStatus, getWeekPlan } from "@/features/plan/queries";
+import { ReplanButton } from "@/features/plan/replan-button";
 import { getWeek } from "@/features/week/queries";
 import { WeekView } from "@/features/week/week-view";
-import { userToday } from "@/lib/date";
+import { addDays, userToday } from "@/lib/date";
 import { getT } from "@/lib/i18n/server";
 
 export const metadata: Metadata = { title: "Woche" };
+// Server Actions dieser Seite (Wochenplan mit KI) dürfen länger laufen.
+export const maxDuration = 300;
 
 export default async function WeekPage({ searchParams }: PageProps<"/week">) {
   const user = await getCurrentUser();
@@ -20,10 +26,15 @@ export default async function WeekPage({ searchParams }: PageProps<"/week">) {
 
   const isThisWeek = monday === mondayOf(today);
   const todayMetrics = isThisWeek ? await computeMetricsFor(user.id, today, today) : null;
-  const [week, { frame }] = await Promise.all([getWeek(user.id, monday, today, todayMetrics), getGoal(user.id)]);
+  const [week, { goal, frame }, plan] = await Promise.all([
+    getWeek(user.id, monday, today, todayMetrics),
+    getGoal(user.id),
+    getWeekPlan(user.id, monday),
+  ]);
   const extraPlanned = week.days
     .flatMap((d) => d.sessions)
-    .filter((s) => !s.is_fixture && s.status !== "cancelled").length;
+    .filter((s) => !s.is_fixture && s.status !== "cancelled" && s.type !== "mobility" && s.type !== "recovery").length;
+  const plannable = Boolean(goal) && addDays(monday, 6) >= today;
 
   return (
     <section className="flex flex-col gap-4">
@@ -33,7 +44,28 @@ export default async function WeekPage({ searchParams }: PageProps<"/week">) {
           {t("goal.planCounter", { planned: extraPlanned, target: frame.extraSessionsPerWeek })}
         </p>
       )}
+      {plannable &&
+        (!plan || plan.status !== "ready" ? (
+          <PlanAutoStart key={monday} weekStart={monday} status={autoStartStatus(plan)} />
+        ) : (
+          plan.focus && (
+            <div className="card flex flex-col gap-1.5">
+              <p className="eyebrow">{t("plan.focus")}</p>
+              <p>{plan.focus}</p>
+              <p className="text-xs text-muted">
+                {t(plan.source === "ai" ? "plan.byAi" : "plan.byRules")}
+                {plan.adjusted && ` · ${t("plan.adjusted")}`}
+              </p>
+            </div>
+          )
+        ))}
       <WeekView week={week} today={today} t={t} />
+      {plannable && plan?.status === "ready" && (
+        <form action={replanWeek.bind(null, monday)} className="flex flex-col gap-2">
+          <ReplanButton />
+          <p className="text-xs text-muted">{t("plan.replanHint")}</p>
+        </form>
+      )}
     </section>
   );
 }
