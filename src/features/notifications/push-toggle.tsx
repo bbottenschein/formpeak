@@ -93,9 +93,9 @@ export function PushToggle({ publicKey }: { publicKey: string | null }) {
     <div className="card flex flex-col gap-2">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="font-medium">{t("settings.device")}</p>
+          <p>{t("settings.device")}</p>
           {(status === "on" || status === "off") && (
-            <p className={`text-sm ${status === "on" ? "text-primary" : "text-muted"}`}>
+            <p className={`text-sm ${status === "on" ? "text-foreground" : "text-muted"}`}>
               {status === "on" ? t("settings.on") : t("settings.off")}
             </p>
           )}

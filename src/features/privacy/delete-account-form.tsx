@@ -8,8 +8,8 @@ export function DeleteAccountForm() {
   const t = useT();
   const [state, action, pending] = useActionState<PrivacyState, FormData>(deleteAccount, {});
   return (
-    <details className="card">
-      <summary className="cursor-pointer font-medium text-danger">{t("privacy.deleteTitle")}</summary>
+    <details className="px-4 py-3.5">
+      <summary className="cursor-pointer text-danger">{t("privacy.deleteTitle")}</summary>
       <form action={action} className="mt-3 flex flex-col gap-3">
         <p className="text-sm text-muted">{t("privacy.deleteText")}</p>
         <label className="flex flex-col gap-1.5">

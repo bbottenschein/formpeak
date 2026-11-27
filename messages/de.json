@@ -150,8 +150,8 @@
     "restingHrOptional": "optional",
     "restingHrHint": "Finger an Hals oder Handgelenk, Timer starten und 10 Sekunden lang zählen.",
     "restingHrStart": "10 Sekunden messen",
-    "restingHrRunning": "Zählen …",
-    "restingHrCountLabel": "Gezählte Schläge in 10 Sekunden",
+    "restingHrRunning": "Puls fühlen und zählen …",
+    "restingHrCountLabel": "Schläge in 10 Sekunden",
     "restingHrResult": "= {bpm} Schläge pro Minute",
     "restingHrReset": "Neu messen",
     "pain": "Schmerzen",
@@ -177,7 +177,8 @@
     "summaryTitle": "Passt das so?",
     "summaryEdit": "Ändern",
     "summaryNotMeasured": "nicht gemessen",
-    "summaryNoPain": "keine"
+    "summaryNoPain": "keine",
+    "editing": "ändern"
   },
   "bodymap": {
     "chooseRegion": "Wo tut es weh?",
@@ -470,7 +471,7 @@
     "title": "Einstellungen",
     "notifications": "Erinnerungen",
     "notificationsIntro": "Die App erinnert dich an deine Check-ins – nur wenn du noch nicht eingecheckt hast.",
-    "device": "Benachrichtigungen auf diesem Gerät",
+    "device": "Auf diesem Gerät",
     "on": "An",
     "off": "Aus",
     "enable": "Einschalten",
@@ -617,7 +618,7 @@
     "step3Count": "{selected} von {count} gewählt",
     "step4Title": "Wie lange darf eine Einheit dauern?",
     "step5Title": "Was kannst du nutzen?",
-    "step5Hint": "Mehrfachauswahl.",
+    "step5Hint": "Mehrere möglich",
     "summaryTitle": "Dein Plan auf einen Blick",
     "summaryGoal": "Dein Ziel",
     "summaryLoading": "Die KI formuliert dein Ziel …",
@@ -718,7 +719,9 @@
     "resultInvalid": "Bitte einen gültigen Wert eintragen.",
     "stepDateTitle": "Bis wann willst du es schaffen?",
     "stepDateHint": "Ein Datum hilft, den Plan realistisch zu takten. Optional.",
-    "noDate": "Ohne festes Datum"
+    "noDate": "Ohne festes Datum",
+    "step3TitleCount": "An welchen {count} Tagen?",
+    "step3TitleOne": "An welchem Tag?"
   },
   "history": {
     "title": "Verlauf",

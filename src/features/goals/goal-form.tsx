@@ -184,8 +184,7 @@ export function GoalForm({ initial }: { initial: GoalInput }) {
       {step === "days" && (
         <>
           <WizardQuestion
-            title={t("goal.step3Title")}
-            hint={g.extraSessionsPerWeek === 1 ? t("goal.step3HintOne") : t("goal.step3Hint", { count: g.extraSessionsPerWeek })}
+            title={g.extraSessionsPerWeek === 1 ? t("goal.step3TitleOne") : t("goal.step3TitleCount", { count: g.extraSessionsPerWeek })}
           />
           <div className="grid grid-cols-7 gap-1">
             {WEEKDAY_ORDER.map((d) => {
@@ -234,7 +233,7 @@ export function GoalForm({ initial }: { initial: GoalInput }) {
 
       {step === "equipment" && (
         <>
-          <WizardQuestion title={t("goal.step5Title")} hint={t("goal.step5Hint")} />
+          <WizardQuestion title={t("goal.step5Title")} note={t("goal.step5Hint")} />
           <div className="flex flex-col gap-2">
             {EQUIPMENT_OPTIONS.map((e) => (
               <button

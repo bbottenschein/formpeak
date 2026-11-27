@@ -13,10 +13,10 @@ export default async function EveningCheckinPage() {
   const { values, existing } = await getEveningFormData(user.id, userToday(user.timezone));
   return (
     <section className="flex flex-col gap-6">
-      <div>
-        <p className="eyebrow">{t("evening.title")}</p>
-        {existing && <p className="mt-1 text-sm text-muted">{t("evening.editIntro")}</p>}
-      </div>
+      <p className="eyebrow">
+        {t("evening.title")}
+        {existing && ` · ${t("checkin.editing")}`}
+      </p>
       <EveningForm initial={values} />
     </section>
   );

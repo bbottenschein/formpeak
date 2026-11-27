@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { Info } from "@/features/ui/info";
 import { useT } from "@/lib/i18n/client";
 
 /**
@@ -69,12 +70,20 @@ export function Wizard({
   );
 }
 
-/** Große Frage oben im Schritt. */
-export function WizardQuestion({ title, hint }: { title: string; hint?: string }) {
+/** Große Frage oben im Schritt; ein Hinweis steht hinter dem Info-Symbol statt als Text. */
+export function WizardQuestion({ title, hint, note }: { title: string; hint?: string; note?: string }) {
   return (
-    <div>
-      <h2 className="text-3xl font-bold leading-tight">{title}</h2>
-      {hint && <p className="mt-2 text-sm text-muted">{hint}</p>}
+    <div className="flex items-start justify-between gap-3">
+      <div>
+        <h2 className="text-3xl font-bold leading-tight">{title}</h2>
+        {/* Kurze Bedienhilfe (wenige Wörter) bleibt sichtbar. */}
+        {note && <p className="mt-1 text-sm text-muted">{note}</p>}
+      </div>
+      {hint && (
+        <Info title={title} className="mt-1.5">
+          <p>{hint}</p>
+        </Info>
+      )}
     </div>
   );
 }
