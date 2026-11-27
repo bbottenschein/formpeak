@@ -10,14 +10,14 @@ export function PeakMark({ className = "" }: { className?: string }) {
 }
 
 /**
- * Logo „FormPeak“: „Form“ in gebrochenem Weiß, „Peak“ in Limette mit Berggipfel darüber
+ * Logo „FormPeak.“: „Form“ in gebrochenem Weiß, „Peak.“ in Limette mit Berggipfel darüber
  * (Barlow ExtraBold kursiv). Größe über die Schriftgröße (`className`, z. B. text-2xl).
  */
 export function Wordmark({ className = "" }: { className?: string }) {
   return (
     <span
       className={`inline-block font-sans font-extrabold italic leading-none tracking-[-0.02em] ${className}`}
-      aria-label="FormPeak"
+      aria-label="FormPeak."
       role="img"
     >
       Form
@@ -25,6 +25,7 @@ export function Wordmark({ className = "" }: { className?: string }) {
         Peak
         <PeakMark className="absolute bottom-[0.6em] left-[-0.2em] h-[0.72em] w-[1.95em] overflow-visible" />
       </span>
+      <span className="text-primary">.</span>
     </span>
   );
 }

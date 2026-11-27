@@ -41,8 +41,8 @@ offen benennen.
 ## Design (CI)
 
 - **Name und Logo:** Als Logo nur die Komponente `Wordmark` (`src/features/shell/wordmark.tsx`):
-  „Form“ in gebrochenem Weiß, „Peak“ in Limettengrün mit Berggipfel darüber, Barlow ExtraBold
-  kursiv. App-Symbole (Gipfel über „FP“) erzeugt `scripts/generate-icons.mjs`. Im Fließtext lieber
+  „Form“ in gebrochenem Weiß, „Peak.“ in Limettengrün (mit Punkt) und Berggipfel darüber, Barlow
+  ExtraBold kursiv. App-Symbole (Gipfel über „FP“) erzeugt `scripts/generate-icons.mjs`. Im Fließtext lieber
   „die App“; Seitentitel und Manifest heißen „FormPeak.“.
 - **Dunkel als Standard** (`color-scheme: dark`). Warmes Graphit statt Schwarz, gebrochenes Weiß
   statt Reinweiß. Farben nur über die Tokens in `src/app/globals.css`, keine Hex-Werte in Komponenten.
