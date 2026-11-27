@@ -2,6 +2,7 @@
 
 import { useActionState, useMemo, useState, useTransition } from "react";
 import { Wizard, WizardQuestion } from "@/features/shell/wizard";
+import { Info } from "@/features/ui/info";
 import { useT } from "@/lib/i18n/client";
 import { previewGoal, saveGoal, type GoalState } from "./actions";
 import type { GoalSummaryResult } from "./ai";
@@ -305,15 +306,20 @@ export function GoalForm({ initial }: { initial: GoalInput }) {
           </section>
 
           <section className="card flex flex-col gap-4">
-            <h3 className="font-display text-xl font-semibold uppercase tracking-wide">{t("goal.target")}</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="font-display text-xl font-semibold uppercase tracking-wide">{t("goal.target")}</h3>
+              {g.type === "weight_loss" && (
+                <Info title={t("goal.target")}>
+                  <p>{t("goal.weightLossNote")}</p>
+                </Info>
+              )}
+            </div>
             <div className="flex items-baseline justify-between gap-2">
               <span className="text-sm text-muted">{t("goal.targetDateHint")}</span>
               <button type="button" onClick={() => go("date")} className="text-sm underline underline-offset-4">
                 {g.targetDate ? formatDate(g.targetDate) : t("goal.noDate")}
               </button>
             </div>
-            {g.type === "weight_loss" && <p className="text-sm text-muted">{t("goal.weightLossNote")}</p>}
-
             {g.testKey && (
               <TestCard
                 testKey={g.testKey}
@@ -325,7 +331,12 @@ export function GoalForm({ initial }: { initial: GoalInput }) {
             {g.testKey && (
               <div className="grid grid-cols-2 items-end gap-3">
                 <label className="flex flex-col gap-1.5">
-                  <span className="label">{t("goal.baselineHint")}</span>
+                  <span className="label flex items-center gap-1">
+                    {t("goal.baselineHint")}
+                    <Info title={t("goal.baselineHint")} className="-my-1">
+                      <p>{t("goal.valuesOptional")}</p>
+                    </Info>
+                  </span>
                   <div className="flex items-center gap-2">
                     <input inputMode="decimal" defaultValue={g.baselineValue ?? ""} key={`b-${g.testKey}`} onChange={(e) => setG({ ...g, baselineValue: toNumber(e.target.value) })} className="input" />
                     <span className="text-sm text-muted">{SELF_TESTS[g.testKey].unit}</span>
@@ -338,7 +349,6 @@ export function GoalForm({ initial }: { initial: GoalInput }) {
                     <span className="text-sm text-muted">{SELF_TESTS[g.testKey].unit}</span>
                   </div>
                 </label>
-                <p className="col-span-2 text-xs text-muted">{t("goal.valuesOptional")}</p>
               </div>
             )}
           </section>
@@ -372,21 +382,19 @@ function TestCard({
     <div className="flex flex-col gap-3">
       <div>
         <p className="text-sm text-muted">{t("goal.testIntro")}</p>
-        <p className="mt-1 font-display text-xl font-semibold">{t(`goal.tests.${testKey}.name`)}</p>
+        <div className="mt-1 flex items-center justify-between gap-2">
+          <p className="font-display text-xl font-semibold">{t(`goal.tests.${testKey}.name`)}</p>
+          <Info title={t(`goal.tests.${testKey}.name`)}>
+            <p className="eyebrow text-xs">{t("goal.testHow")}</p>
+            <p className="text-foreground">{t(`goal.tests.${testKey}.how`)}</p>
+            <p className="eyebrow mt-2 text-xs">{t("goal.testWhy")}</p>
+            <p>{t(`goal.tests.${testKey}.why`)}</p>
+            {test.needs.length > 0 && (
+              <p>{t("goal.testNeeds", { needs: test.needs.map((n) => t(`goal.equipmentTypes.${n}`)).join(", ") })}</p>
+            )}
+          </Info>
+        </div>
       </div>
-      <div className="flex flex-col gap-1 text-sm">
-        <p className="eyebrow text-xs">{t("goal.testHow")}</p>
-        <p>{t(`goal.tests.${testKey}.how`)}</p>
-      </div>
-      <div className="flex flex-col gap-1 text-sm">
-        <p className="eyebrow text-xs">{t("goal.testWhy")}</p>
-        <p className="text-muted">{t(`goal.tests.${testKey}.why`)}</p>
-      </div>
-      {test.needs.length > 0 && (
-        <p className="text-xs text-muted">
-          {t("goal.testNeeds", { needs: test.needs.map((n) => t(`goal.equipmentTypes.${n}`)).join(", ") })}
-        </p>
-      )}
       {alternatives.length > 0 && (
         <div className="flex flex-col gap-1.5">
           <p className="text-xs text-muted">{t("goal.testAlternatives")}</p>

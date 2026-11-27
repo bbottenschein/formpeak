@@ -6,7 +6,7 @@ import { cancelSession, deleteSession, moveSession, restoreSession } from "@/fea
 import { SESSION_COLUMNS, toCoreSession, type SessionRow } from "@/features/sessions/data";
 import { FeedbackForm } from "@/features/sessions/feedback-form";
 import { GymLog } from "@/features/gym/gym-log";
-import { ExerciseList } from "@/features/plan/planned-session";
+import { AdjustedBadge, ExerciseList } from "@/features/plan/planned-session";
 import { getPlannedExercises } from "@/features/plan/queries";
 import { lastPerformances, listExercises, loadGymLog } from "@/features/gym/queries";
 import { computeMetricsFor } from "@/features/today/metrics";
@@ -92,16 +92,19 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
         {session.against_recommendation && <p className="mt-2 text-sm text-light-yellow">{t("session.againstRecommendation")}</p>}
       </div>
 
+      {session.status === "planned" && planned.length > 0 && (
+        <Link href={`/sessions/${session.id}/train`} className="btn-primary text-center">
+          {t("training.start")}
+        </Link>
+      )}
+      <AdjustedBadge session={session} today={today} t={t} />
       {session.status !== "cancelled" && <ExerciseList exercises={planned} t={t} label={t("plan.howTo")} />}
 
       {gym}
 
       {canGiveFeedback ? (
         <div className="flex flex-col gap-3">
-          <div>
-            <h2 className="text-2xl font-bold">{t("session.feedbackTitle")}</h2>
-            <p className="text-sm text-muted">{t("session.feedbackIntro")}</p>
-          </div>
+          <h2 className="text-2xl font-bold">{t("session.feedbackTitle")}</h2>
           <FeedbackForm sessionId={session.id} isMatch={session.type === "match"} initial={initial} />
         </div>
       ) : (

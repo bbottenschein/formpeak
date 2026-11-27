@@ -10,6 +10,7 @@ import { userToday } from "@/lib/date";
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { SESSION_COLUMNS, toCoreSession, type SessionRow } from "./data";
+import { applyFeedback } from "./feedback-write";
 import { feedbackSchema, newSessionSchema, parseJsonField } from "./schema";
 
 export type SessionFormState = { error?: string };
@@ -84,49 +85,7 @@ export async function saveFeedback(
   const today = userToday(user.timezone);
   if (session.date > today) return { error: t("session.futureFeedback") };
 
-  // Protokollieren, wenn an einem roten Tag intensiv trainiert wurde.
-  let against = false;
-  if (session.date === today) {
-    const metrics = await computeMetricsFor(user.id, today, today);
-    against =
-      metrics.light === "red" &&
-      isIntense({ ...toCoreSession(session), status: "done", rpe: input.rpe });
-  }
-
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("sessions")
-    .update({
-      status: "done",
-      duration_min: input.durationMin,
-      rpe: input.rpe,
-      fatigue: input.fatigue,
-      match_minutes: session.type === "match" ? input.matchMinutes : null,
-      against_recommendation: against,
-    })
-    .eq("id", sessionId)
-    .eq("user_id", user.id);
-  if (error) {
-    console.error("[sessions] Feedback nicht gespeichert", error.message);
-    return { error: t("session.errorSave") };
-  }
-
-  const { error: delError } = await supabase.from("pain_entries").delete().eq("session_id", sessionId);
-  if (!delError && input.pains.length) {
-    const { error: painError } = await supabase.from("pain_entries").insert(
-      input.pains.map((p) => ({
-        user_id: user.id,
-        date: session.date,
-        session_id: sessionId,
-        region: p.region,
-        side: p.side,
-        intensity: p.intensity,
-        kind: p.kind,
-        swollen: p.swollen,
-      })),
-    );
-    if (painError) console.error("[sessions] Schmerzstellen nicht gespeichert", painError.message);
-  }
+  if (!(await applyFeedback(user.id, session, input, today))) return { error: t("session.errorSave") };
 
   await recomputeDailyMetrics(user.id, today, today);
   refresh();

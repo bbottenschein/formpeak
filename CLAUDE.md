@@ -54,6 +54,9 @@ offen benennen.
   (Buttons und Kleinüberschriften in Großbuchstaben, `.eyebrow`).
 - **iPhone-Homescreen:** Die App läuft unter die Statusleiste (`black-translucent`). Oben und unten
   immer `env(safe-area-inset-top/bottom)` als Abstand einrechnen, sonst sind Bedienelemente verdeckt.
+- **Selbsterklärend mit wenig Text:** pro Karte ein Titel, eine Zeile Eckdaten, ein Knopf.
+  Erklärungen (warum, wie, Quelle) gehören hinter das Info-Symbol (`Info` aus `src/features/ui`),
+  nicht als Fließtext auf die Seite. Abläufe mit mehreren Eingaben als Klick-Through.
 - **Kein „KI-Look“:** keine Verläufe, kein Glow, keine Glas-Effekte, keine Emojis als Icons,
   keine bunten Karten. Flache Flächen, feine Linien, klare Hierarchie über Größe und Gewicht.
 
@@ -66,8 +69,8 @@ offen benennen.
   - `(app)/` – alles hinter dem Login, mit Tab-Leiste (Home · Heute · + · Ziel · Kalender),
     Profil oben rechts.
   - `login/`, `invite/` – öffentlich.
-- `src/features/<modul>/` – ein Ordner pro Feature (`overview`, `today`, `plan`, `goals`, `week`, `log`, `checkin`,
-  `bodymap`, `gym`, `calendar`, `history`, `settings`, `notifications`, `auth`, `admin`, `shell`).
+- `src/features/<modul>/` – ein Ordner pro Feature (`overview`, `today`, `plan`, `training`, `goals`, `week`, `log`, `checkin`,
+  `bodymap`, `gym`, `calendar`, `history`, `settings`, `notifications`, `auth`, `admin`, `shell`, `ui`).
   Komponenten, Server Actions, Queries und reine Logik des Moduls liegen dort.
 - `src/lib/` – modulübergreifende Helfer (Supabase-Clients, Datum/Zeitzone, Env, i18n).
 - `messages/` – UI-Texte (i18n), zuerst `de`.

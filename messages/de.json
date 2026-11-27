@@ -20,7 +20,9 @@
     "delete": "Löschen",
     "back": "Zurück",
     "minutes": "{value} min",
-    "optional": "optional"
+    "optional": "optional",
+    "info": "Info",
+    "gotIt": "Verstanden"
   },
   "auth": {
     "loginTitle": "Anmelden",
@@ -323,7 +325,9 @@
       "no_rest_day": "Diese Woche fehlt ein kompletter Ruhetag.",
       "weekly_load_increase": "Geplante Last {percent} % über der Vorwoche – empfohlen sind höchstens 10–15 %."
     },
-    "goalTest": "Referenztest: {name}"
+    "goalTest": "Referenztest: {name}",
+    "loadInfoTitle": "Geplante Last",
+    "loadInfo": "Last = Anstrengung (RPE 0–10) × Minuten, gemessen in AU. Steigt sie mehr als 15 % über die Vorwoche, steigt das Verletzungsrisiko – dann warnt die App."
   },
   "session": {
     "newTitle": "Einheit planen",
@@ -747,8 +751,8 @@
   "home": {
     "scoreLabel": "Performance",
     "mood": {
-      "good": "gut erholt",
-      "medium": "etwas angeschlagen",
+      "good": "Gut erholt",
+      "medium": "Etwas angeschlagen",
       "low": "Erholung zuerst"
     },
     "noCheckin": "Noch kein Check-in heute",
@@ -765,7 +769,10 @@
     "trendLoad": "Belastung · 4 Wochen",
     "allTrends": "Alle Verläufe",
     "above": "über",
-    "below": "unter"
+    "below": "unter",
+    "details": "Woraus sich das ergibt",
+    "loadInfo": "Deine Trainingslast der letzten 7 Tage im Vergleich zu deinem Schnitt der letzten 4 Wochen. Deutlich darüber heißt: Verletzungsrisiko steigt – lieber dosieren.",
+    "stressInfo": "Dein Stress aus den Check-ins der letzten 7 Tage im Vergleich zu den Wochen davor. Viel Stress bremst die Erholung, auch ohne Training."
   },
   "score": {
     "title": "So entsteht dein Score",
@@ -1029,7 +1036,8 @@
     "history": "Bisherige Tests",
     "e1rm": "≈ 1RM {value} kg",
     "noTestPlanned": "Kein Test geplant.",
-    "calendarHint": "Der Termin steht auch in deinem Kalender."
+    "calendarHint": "Der Termin steht auch in deinem Kalender.",
+    "inYourWords": "Dein Ziel in Worten"
   },
   "log": {
     "title": "Erfassen",
@@ -1123,6 +1131,53 @@
       "split_squat": "Hinteren Fuß auf eine Bank, vorderes Knie über dem Fuß, senkrecht nach unten absenken.",
       "pull_up_row": "Schulterblätter zuerst zusammenziehen, dann die Ellbogen eng am Körper nach hinten ziehen."
     },
-    "howTo": "So geht's"
+    "howTo": "So geht's",
+    "adjust": {
+      "badge": "Heute angepasst",
+      "removed": "Heute gestrichen",
+      "why": {
+        "light_red": "Deine Ampel ist heute rot – statt der geplanten Einheit steht Erholung an.",
+        "light_yellow": "Deine Ampel ist heute gelb – kürzer und weniger intensiv, mit weniger Sätzen.",
+        "pain": "Du hast Schmerzen angegeben – die Übungen sparen die Stelle aus. Lass alles weg, was dort zieht; hält der Schmerz an, lass ihn ärztlich oder physiotherapeutisch abklären.",
+        "rules": "Die Einheit passt heute nicht mehr in deinen Plan und wurde angepasst."
+      }
+    },
+    "exerciseCount": "{count} Übungen",
+    "targetRpeInfo": "Ziel-Anstrengung: {value} von 10.",
+    "removedInfo": "Gestrichen nach deinem Check-in.",
+    "week": "Woche",
+    "byAiInfo": "Die KI hat diese Woche aus deinem Ziel, deinen Terminen und deinem Verlauf geplant. Ob und wie stark belastet werden darf, entscheiden feste Regeln (Spieltag, Ampel, Wochenlast) – die KI wählt nur, was trainiert wird.",
+    "byRulesInfo": "Diese Woche hat die App nach festen Regeln aus ihrer Übungsbibliothek geplant – passend zu Ziel, Spieltagen und Wochenlast."
+  },
+  "training": {
+    "start": "Training starten",
+    "minutesExercises": "{minutes} min · {count} Übungen",
+    "go": "Los geht's",
+    "step": "Übung {n} von {total}",
+    "next": "Weiter",
+    "back": "Zurück",
+    "toFeedback": "Fertig",
+    "close": "Training abbrechen",
+    "timerStart": "Start",
+    "pause": "Pause",
+    "resume": "Weiter",
+    "again": "Nochmal",
+    "timeUp": "Zeit!",
+    "sets": "Sätze",
+    "kg": "kg",
+    "reps": "Wdh",
+    "addSet": "Satz",
+    "last": "Letztes Mal: {value}",
+    "feedbackTitle": "Wie war's?",
+    "rpeQuestion": "Wie anstrengend?",
+    "rpeInfoTitle": "Anstrengung (RPE)",
+    "rpeInfo": "0 = gar nicht, 10 = maximal. Aus Anstrengung × Minuten berechnet die App deine Belastung – sie ist die Grundlage für Ampel und Wochenplan.",
+    "painQuestion": "Irgendwo Schmerzen?",
+    "yes": "Ja",
+    "no": "Nein",
+    "duration": "Dauer (min)",
+    "save": "Training speichern",
+    "saving": "Wird gespeichert …",
+    "error": "Speichern hat nicht geklappt. Bitte nochmal versuchen."
   }
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { addDays, weekdayOf, type WeekHint } from "@/core/load";
 import { SessionCard } from "@/features/sessions/session-card";
+import { Info } from "@/features/ui/info";
 import type { Translate } from "@/lib/i18n/translate";
 import type { WeekData } from "./queries";
 
@@ -94,7 +95,12 @@ export function WeekView({ week, today, t }: { week: WeekData; today: string; t:
       </ol>
 
       <div className="flex flex-col gap-2 border-t border-line pt-4 text-sm">
-        <p className="text-muted">{t("week.plannedLoad", { value: Math.round(week.plannedLoad) })}</p>
+        <div className="flex items-center gap-1.5 text-muted">
+          {t("week.plannedLoad", { value: Math.round(week.plannedLoad) })}
+          <Info title={t("week.loadInfoTitle")}>
+            <p>{t("week.loadInfo")}</p>
+          </Info>
+        </div>
         <Link href={`/sessions/new?date=${week.monday < today && today <= sunday ? today : week.monday}&fixture=1`} className="text-muted underline underline-offset-4">
           + {t("week.addFixture")}
         </Link>

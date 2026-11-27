@@ -1,8 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { getCurrentUser } from "@/features/auth/session";
-import { recomputeDailyMetrics } from "@/features/today/metrics";
+import { getGoal } from "@/features/goals/queries";
+import { adjustTodayPlan, runSpareJobs } from "@/features/plan/daily";
+import { computeMetricsFor, recomputeDailyMetrics } from "@/features/today/metrics";
 import { userToday } from "@/lib/date";
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
@@ -71,6 +74,16 @@ export async function saveMorningCheckin(
   }
 
   await recomputeDailyMetrics(user.id, today, today);
+
+  // Tägliche Anpassung: heutige Vorschläge an Ampel und Schmerz anpassen (Regeln sofort,
+  // Umstellung der Übungen wegen Schmerz durch die KI danach im Hintergrund).
+  try {
+    const [metrics, goal] = await Promise.all([computeMetricsFor(user.id, today, today), getGoal(user.id)]);
+    const jobs = await adjustTodayPlan({ supabase, userId: user.id, today, metrics, goal, t });
+    if (jobs.length > 0) after(() => runSpareJobs(supabase, user.id, today, jobs));
+  } catch (error) {
+    console.error("[checkin] Tagesanpassung fehlgeschlagen", error instanceof Error ? error.message : error);
+  }
   redirect("/");
 }
 

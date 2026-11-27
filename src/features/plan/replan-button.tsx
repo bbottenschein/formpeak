@@ -7,7 +7,7 @@ export function ReplanButton() {
   const t = useT();
   const { pending } = useFormStatus();
   return (
-    <button className="btn-secondary w-full" disabled={pending}>
+    <button className="btn-secondary flex-1" disabled={pending}>
       {pending ? t("plan.replanning") : t("plan.replan")}
     </button>
   );

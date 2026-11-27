@@ -342,11 +342,17 @@ Profil als Symbol oben rechts.
 | Bereich | Frage | Inhalt |
 | --- | --- | --- |
 | **Home** (`/`) | Wie geht es mir gerade? | Performance-Ring mit Satz, Tipp → Aufschlüsselung (`/score`); Kacheln Belastung und Stress vs. Normalwert; Wochenleiste Mo–So mit festen Terminen; aktive Schmerzstellen; Verlauf von Score und Belastung über 4 Wochen |
-| **Heute** (`/today`) | Was mache ich heute? | Ohne Check-in zuerst „Check-in starten“. Termine mit Uhrzeit, eine passende Ergänzung zum Ziel aus der Routinen-Bibliothek (Start-Button, Übungen), höchstens ein Tipp, offenes Feedback |
+| **Heute** (`/today`) | Was mache ich heute? | Ohne Check-in zuerst „Check-in starten“. Termine mit Uhrzeit, der Plan für heute (Einheit mit „Training starten“), höchstens ein Tipp, offenes Feedback |
 | **Ziel** (`/goals`) | Komme ich voran? | Ohne Ziel: Onboarding (Click-Through). Mit Ziel: Ziel-Übersicht, Referenztest mit Anleitung, nächster Termin mit Countdown, Ergebnis eintragen, Vorher-nachher |
 | **Kalender** (`/week`) | Wann ist was? | Woche mit festen Terminen und geplanten Einheiten, Hinweisen zur Belastung, Einheit planen, Einzeltermin, Serien verwalten, Referenztest-Termine |
 | **+ Erfassen** (`/log`) | Schnell eintragen | Morgen-Check-in, Abend-Check-in, offenes Feedback, Gym-Einheit, Körpermaße |
 | Profil (oben rechts, `/settings`) | – | Erinnerungen, Name, Zeitzone, Datenschutz, Admin, Abmelden, Quellen |
+
+**Training** (`/sessions/[id]/train`): Klick-Through Start → Übung 1 → Übung 2 → … → Feedback.
+Jede Übung mit Vorgabe und einem Satz Ausführung, Timer bei Zeitvorgaben, Satz-Felder (kg × Wdh) bei
+Gym-Übungen, am Ende Anstrengung, Müdigkeit, Schmerz, Dauer – alles in einem Schritt gespeichert.
+
+**Wenig Text:** Erklärungen stehen hinter einem Info-Symbol (Blatt von unten), nicht dauerhaft im Bild.
 
 Weitere Seiten: `/score` (Aufschlüsselung), `/sources` (Quellen), `/history` (alle Verläufe),
 `/checkin`, `/checkin/evening`, `/sessions/*`, `/calendar` (Serien).
@@ -396,8 +402,12 @@ der Vorwoche zählen geplant). Verstöße → eine Rückfrage an die KI, danach 
    Zielgewicht und Wiederholungen (aus dem Gym-Log), ein Satz Begründung. Jede Übung mit Vorgabe und
    genau einem Satz zur Ausführung; Gym-Übungen aus der Bibliothek landen direkt im Gym-Log.
 4. Code prüft gegen die Leitplanken (Wochenlast, MD-Regeln, Sperren); bei Verstoß Neuanfrage mit Fehlermeldung.
-5. Jeden Morgen passt die KI nur den heutigen Tag an Ampel und Check-in an. *(noch offen; bis dahin
-   zeigen die Hinweise aus 4.7 an, wenn ein Vorschlag nicht zur heutigen Ampel passt)*
+5. **Tägliche Anpassung** (umgesetzt, `adjustToday` in `src/core/load/daily-adjust.ts`): Nach dem
+   Morgen-Check-in prüft der Code die heutigen Vorschläge gegen den Rahmen von heute. Ampel rot →
+   Haupteinheit wird Regeneration (25 min) oder fällt weg, wenn schon eine leichte Einheit bleibt;
+   Ampel gelb → kürzer (−30 %), RPE gekappt, weniger Sätze; Schmerz mit Einschränkung → die KI stellt
+   die Übungen so um, dass die Region ausgespart wird (im Hintergrund, protokolliert in `ai_plans`
+   mit `kind = 'day'`). Markiert in `sessions.adjustment` / `adjusted_on`, sichtbar als „Heute angepasst“.
 
 Prompt: System-Prompt mit Rolle (Athletiktrainer für Amateurfußball), Regeln, Verboten (keine
 Diagnosen, Ampel nie überstimmen) und Schema; Nutzer-Nachricht nur JSON-Kontext. Kleines Modell

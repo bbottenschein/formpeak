@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Info } from "@/features/ui/info";
 import type { Translate } from "@/lib/i18n/translate";
 import { estimated1rmFrom5rm, progress, testSchedule, type TestEntry } from "./progress";
 import type { GoalInput } from "./schema";
@@ -32,11 +33,15 @@ export function GoalOverview({ goal, tests, today, t }: { goal: GoalInput; tests
             ? t("goalView.frame", { sessions: goal.extraSessionsPerWeek, minutes: goal.timeBudgetMin })
             : t("goalView.frameNone")}
         </p>
-        <p className="text-sm text-muted">{goal.aiSummary || goal.description}</p>
-        {goal.type === "weight_loss" && <p className="text-xs text-muted">{t("goal.weightLossNote")}</p>}
-        <Link href="/goals/edit" className="self-start text-sm text-muted underline underline-offset-4">
-          {t("goalView.edit")}
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/goals/edit" className="text-sm text-muted underline underline-offset-4">
+            {t("goalView.edit")}
+          </Link>
+          <Info title={t("goalView.inYourWords")}>
+            <p className="text-foreground">{goal.aiSummary || goal.description}</p>
+            {goal.type === "weight_loss" && <p>{t("goal.weightLossNote")}</p>}
+          </Info>
+        </div>
       </div>
 
       {testKey && (
@@ -53,20 +58,19 @@ export function GoalOverview({ goal, tests, today, t }: { goal: GoalInput; tests
               </span>
             )}
           </div>
-          <p className="font-display text-2xl font-semibold">{t(`goal.tests.${testKey}.name`)}</p>
-          {schedule.done.length === 0 && <p className="text-sm">{t("goalView.firstTest")}</p>}
+          <div className="flex items-center justify-between gap-2">
+            <p className="font-display text-2xl font-semibold">{t(`goal.tests.${testKey}.name`)}</p>
+            <Info title={t(`goal.tests.${testKey}.name`)}>
+              <p className="text-foreground">{t(`goal.tests.${testKey}.how`)}</p>
+              <p>{t(`goal.tests.${testKey}.why`)}</p>
+              {schedule.done.length === 0 && <p>{t("goalView.firstTest")}</p>}
+              <p>{t("goalView.calendarHint")}</p>
+            </Info>
+          </div>
           {schedule.next && schedule.daysUntil != null && schedule.daysUntil <= 3 && (
             <TestResultForm testId={schedule.next.id} unit={unit} />
           )}
-          {schedule.next && schedule.daysUntil != null && schedule.daysUntil > 3 && (
-            <p className="text-xs text-muted">{t("goalView.calendarHint")}</p>
-          )}
           {!schedule.next && <p className="text-sm text-muted">{t("goalView.noTestPlanned")}</p>}
-          <details>
-            <summary className="cursor-pointer text-sm underline underline-offset-4">{t("goalView.howTo")}</summary>
-            <p className="mt-2 text-sm">{t(`goal.tests.${testKey}.how`)}</p>
-            <p className="mt-2 text-sm text-muted">{t(`goal.tests.${testKey}.why`)}</p>
-          </details>
         </div>
       )}
 

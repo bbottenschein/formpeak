@@ -7,6 +7,7 @@ import { replanWeek } from "@/features/plan/actions";
 import { PlanAutoStart } from "@/features/plan/plan-auto-start";
 import { autoStartStatus, getWeekPlan } from "@/features/plan/queries";
 import { ReplanButton } from "@/features/plan/replan-button";
+import { Info } from "@/features/ui/info";
 import { getWeek } from "@/features/week/queries";
 import { WeekView } from "@/features/week/week-view";
 import { addDays, userToday } from "@/lib/date";
@@ -49,21 +50,22 @@ export default async function WeekPage({ searchParams }: PageProps<"/week">) {
           <PlanAutoStart key={monday} weekStart={monday} status={autoStartStatus(plan)} />
         ) : (
           plan.focus && (
-            <div className="card flex flex-col gap-1.5">
-              <p className="eyebrow">{t("plan.focus")}</p>
-              <p>{plan.focus}</p>
-              <p className="text-xs text-muted">
-                {t(plan.source === "ai" ? "plan.byAi" : "plan.byRules")}
-                {plan.adjusted && ` · ${t("plan.adjusted")}`}
-              </p>
+            <div className="flex items-start gap-2 border-l-2 border-primary pl-3">
+              <p className="flex-1">{plan.focus}</p>
+              <Info title={t("plan.focus")}>
+                <p>{t(plan.source === "ai" ? "plan.byAiInfo" : "plan.byRulesInfo")}</p>
+                {plan.adjusted && <p>{t("plan.adjusted")}</p>}
+              </Info>
             </div>
           )
         ))}
       <WeekView week={week} today={today} t={t} />
       {plannable && plan?.status === "ready" && (
-        <form action={replanWeek.bind(null, monday)} className="flex flex-col gap-2">
+        <form action={replanWeek.bind(null, monday)} className="flex items-center gap-2">
           <ReplanButton />
-          <p className="text-xs text-muted">{t("plan.replanHint")}</p>
+          <Info title={t("plan.replan")}>
+            <p>{t("plan.replanHint")}</p>
+          </Info>
         </form>
       )}
     </section>

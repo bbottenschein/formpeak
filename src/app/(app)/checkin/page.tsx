@@ -6,6 +6,8 @@ import { userToday } from "@/lib/date";
 import { getT } from "@/lib/i18n/server";
 
 export const metadata: Metadata = { title: "Check-in" };
+// Nach dem Speichern passt die App den heutigen Plan an (KI im Hintergrund).
+export const maxDuration = 120;
 
 export default async function CheckinPage() {
   const user = await getCurrentUser();

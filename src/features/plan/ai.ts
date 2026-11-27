@@ -15,7 +15,7 @@ export interface LibraryExercise {
   lowerBody: boolean;
 }
 
-function schema(library: LibraryExercise[]) {
+function unitSchema(library: LibraryExercise[]) {
   const names = library.map((e) => e.name) as [string, ...string[]];
   const Exercise = z.object({
     name: z.string().describe("Kurzer deutscher Übungsname, wie ein Trainer ihn sagt"),
@@ -36,6 +36,11 @@ function schema(library: LibraryExercise[]) {
     reason: z.string().describe("Ein Satz, warum diese Einheit an diesem Tag sinnvoll ist"),
     exercises: z.array(Exercise).describe("3–7 Übungen in Reihenfolge, inkl. kurzem Aufwärmen"),
   });
+  return Unit;
+}
+
+function schema(library: LibraryExercise[]) {
+  const Unit = unitSchema(library);
   return z.object({
     focus: z.string().describe("Wochenfokus in einem Satz, Du-Form"),
     sessions: z.array(Unit),
@@ -127,4 +132,29 @@ export async function aiWeekPlan(
     );
   }
   return last;
+}
+
+export type AiUnit = z.infer<ReturnType<typeof unitSchema>>;
+
+const ADJUST_SYSTEM = `Du bist Athletiktrainer für Amateurfußballer. Der Spieler hat heute Schmerzen angegeben. Passe die geplante Einheit so an, dass die schmerzenden Regionen nicht belastet werden.
+
+Regeln:
+- Gleiches Datum, gleiche Art ("kind"), Dauer höchstens "max_minuten", RPE höchstens "max_rpe".
+- Ersetze oder streiche Übungen, die die schmerzenden Regionen belasten. Unterkörper-Kraftübungen nur, wenn "unterkoerper": true und die Region nicht betroffen ist.
+- "reason": ein Satz, was du wegen der Schmerzen geändert hast. Rate nie zum Weitertrainieren trotz Schmerz; bei anhaltenden Schmerzen auf ärztliche oder physiotherapeutische Abklärung verweisen.
+- Jede Übung mit kurzer Vorgabe und genau einem Satz zur Ausführung. Deutsch, Du-Form, ohne Emojis, keine Diagnosen.`;
+
+/** Formuliert eine heutige Einheit um, damit schmerzende Regionen ausgespart werden. */
+export async function aiSpareUnit(context: unknown, library: LibraryExercise[]): Promise<AiUnit | null> {
+  const client = new Anthropic();
+  const message = await client.beta.messages.parse({
+    model: PLAN_MODEL,
+    max_tokens: 6000,
+    betas: ["server-side-fallback-2026-07-01"],
+    fallbacks: "default",
+    output_config: { effort: "low", format: betaZodOutputFormat(unitSchema(library)) },
+    system: ADJUST_SYSTEM,
+    messages: [{ role: "user", content: JSON.stringify(context) }],
+  });
+  return message.stop_reason === "refusal" ? null : message.parsed_output;
 }

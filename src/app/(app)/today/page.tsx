@@ -8,6 +8,7 @@ import { testSchedule } from "@/features/goals/progress";
 import { QuickFeedback } from "@/features/overview/quick-feedback";
 import { PlanAutoStart } from "@/features/plan/plan-auto-start";
 import { PlannedSessionCard } from "@/features/plan/planned-session";
+import { Info } from "@/features/ui/info";
 import { autoStartStatus, getPlannedExercises, getWeekPlan } from "@/features/plan/queries";
 import { SessionCard, hintText } from "@/features/sessions/session-card";
 import { computeMetricsFor } from "@/features/today/metrics";
@@ -54,7 +55,10 @@ export default async function TodayPage() {
   ]);
 
   const isPlan = (s: { planned_by: string }) => s.planned_by === "ai" || s.planned_by === "rules";
-  const dayAll = (week.days.find((d) => d.date === today)?.sessions ?? [])
+  const dayRows = week.days.find((d) => d.date === today)?.sessions ?? [];
+  // Nach dem Check-in gestrichene Vorschläge (tägliche Anpassung).
+  const removedToday = dayRows.filter((s) => s.status === "cancelled" && isPlan(s) && s.adjusted_on === today);
+  const dayAll = dayRows
     .filter((s) => s.status !== "cancelled")
     .sort((a, b) => (a.start_time ?? "99").localeCompare(b.start_time ?? "99"));
   // Vorschläge aus dem Wochenplan stehen in eigenen Karten mit Übungen.
@@ -93,80 +97,100 @@ export default async function TodayPage() {
       </div>
 
       {!status.morning && (
-        <div className="card flex flex-col gap-3">
-          <p>{t("today2.checkinFirst")}</p>
-          <Link href="/checkin" className="btn-primary text-center">
-            {t("home.checkinCta")}
-          </Link>
+        <Link href="/checkin" className="btn-primary text-center">
+          {t("home.checkinCta")}
+        </Link>
+      )}
+
+      {todaySessions.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h2 className="eyebrow">{t("today2.schedule")}</h2>
+          {todaySessions
+            .filter((s) => !openIds.has(s.id))
+            .map((s) => (
+              <SessionCard key={s.id} session={s} hints={s.hints} feedbackDue={s.feedbackDue} t={t} />
+            ))}
+          {openToday.map((s) => (
+            <QuickFeedback
+              key={s.id}
+              sessionId={s.id}
+              title={t(`sessionTypes.${s.type}`)}
+              meta={[s.start_time?.slice(0, 5), t("common.minutes", { value: s.duration_min })].filter(Boolean).join(" · ")}
+            />
+          ))}
         </div>
       )}
 
-      <div className="flex flex-col gap-2">
-        <h2 className="eyebrow">{t("today2.schedule")}</h2>
-        {todaySessions.length === 0 && <p className="text-sm text-muted">{t("today2.nothingFixed")}</p>}
-        {todaySessions
-          .filter((s) => !openIds.has(s.id))
-          .map((s) => (
-            <SessionCard key={s.id} session={s} hints={s.hints} feedbackDue={s.feedbackDue} t={t} />
-          ))}
-        {openToday.map((s) => (
-          <QuickFeedback
-            key={s.id}
-            sessionId={s.id}
-            title={t(`sessionTypes.${s.type}`)}
-            meta={[s.start_time?.slice(0, 5), t("common.minutes", { value: s.duration_min })].filter(Boolean).join(" · ")}
-          />
-        ))}
-      </div>
-
       {goal && (
         <div className="flex flex-col gap-2">
-          <h2 className="eyebrow">{t("plan.today")}</h2>
+          <div className="flex items-baseline justify-between">
+            <h2 className="eyebrow">{t("plan.today")}</h2>
+            {plan?.status === "ready" && (
+              <Link href="/week" className="text-sm text-muted hover:text-foreground">
+                {t("plan.week")} →
+              </Link>
+            )}
+          </div>
           {!plan || plan.status !== "ready" ? (
             <PlanAutoStart weekStart={monday} status={autoStartStatus(plan)} />
           ) : planToday.length > 0 ? (
-            planToday.map((s) => <PlannedSessionCard key={s.id} session={s} exercises={exercises[s.id] ?? []} t={t} />)
+            planToday.map((s) => <PlannedSessionCard key={s.id} session={s} exercises={exercises[s.id] ?? []} today={today} t={t} />)
           ) : (
             <p className="text-sm text-muted">{t("plan.todayNone")}</p>
           )}
-          {plan?.status === "ready" && (
-            <Link href="/week" className="self-start text-sm text-muted underline underline-offset-4">
-              {t("plan.title")} →
-            </Link>
-          )}
+          {removedToday.map((s) => (
+            <div key={s.id} className="flex items-center gap-1.5 text-sm text-muted">
+              <span className="line-through">{s.title ?? t(`sessionTypes.${s.type}`)}</span>
+              <Info title={t("plan.adjust.removed")}>
+                <p>{t(`plan.adjust.why.${s.adjustment ?? "rules"}`)}</p>
+              </Info>
+            </div>
+          ))}
         </div>
       )}
 
       {!goal && routine && (
-        <div className="card flex flex-col gap-3">
-          <p className="eyebrow">{goal ? t("today2.suggestion") : t("today2.suggestionNoGoal")}</p>
-          <div className="flex items-baseline justify-between gap-2">
-            <p className="font-display text-2xl font-semibold">{t(`routines.titles.${routine.key}`)}</p>
-            <span className="text-sm text-muted">{t("today2.minutes", { value: routine.minutes })}</span>
+        <div className="flex flex-col gap-2">
+          <h2 className="eyebrow">{t("today2.suggestionNoGoal")}</h2>
+          <div className="card flex flex-col gap-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex flex-col gap-1">
+                <p className="font-display text-2xl font-semibold leading-tight">{t(`routines.titles.${routine.key}`)}</p>
+                <p className="text-sm text-muted">{t("today2.minutes", { value: routine.minutes })}</p>
+              </div>
+              <Info title={t(`routines.titles.${routine.key}`)}>
+                <p>{t(`today2.routineWhy.${routine.key}`)}</p>
+              </Info>
+            </div>
+            <Link href={`/today/routine/${routine.key}`} className="btn-primary text-center">
+              {t("training.start")}
+            </Link>
           </div>
-          <p className="text-sm text-muted">{t(`today2.routineWhy.${routine.key}`)}</p>
-          <Link href={`/today/routine/${routine.key}`} className="btn-primary text-center">
-            {t("today2.start")}
-          </Link>
-          <p className="text-sm text-muted">{t("plan.noGoal")}</p>
-          <Link href="/goals" className="btn-secondary text-center">
-            {t("plan.goalCta")}
-          </Link>
+          <div className="flex items-center gap-1.5">
+            <Link href="/goals" className="text-sm underline underline-offset-4">
+              {t("plan.goalCta")}
+            </Link>
+            <Info title={t("plan.goalCta")}>
+              <p>{t("plan.noGoal")}</p>
+            </Info>
+          </div>
         </div>
       )}
 
-      <div className="flex flex-col gap-2">
-        <h2 className="eyebrow">{t("today2.tip")}</h2>
-        <p className={`text-sm ${tip ? "" : "text-muted"}`}>{tip ? tipText(tip, t) : t("today2.noTip")}</p>
-        {tip?.code === "feedback_open" && (
-          <Link href="/log" className="self-start text-sm underline underline-offset-4">
-            {t("today2.toLog")}
-          </Link>
-        )}
-        {todaySessions.flatMap((s) => s.hints).length > 0 && (
-          <p className="text-xs text-muted">{hintText(todaySessions.flatMap((s) => s.hints)[0], t)}</p>
-        )}
-      </div>
+      {(tip || todaySessions.some((s) => s.hints.length > 0)) && (
+        <div className="flex flex-col gap-2 border-l-2 border-line pl-3">
+          <h2 className="eyebrow">{t("today2.tip")}</h2>
+          {tip && <p className="text-sm">{tipText(tip, t)}</p>}
+          {tip?.code === "feedback_open" && (
+            <Link href="/log" className="self-start text-sm underline underline-offset-4">
+              {t("today2.toLog")}
+            </Link>
+          )}
+          {todaySessions.flatMap((s) => s.hints).length > 0 && (
+            <p className="text-xs text-muted">{hintText(todaySessions.flatMap((s) => s.hints)[0], t)}</p>
+          )}
+        </div>
+      )}
 
       {evening && !status.evening && (
         <Link href="/checkin/evening" className="btn-secondary text-center">

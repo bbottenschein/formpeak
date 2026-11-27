@@ -16,7 +16,7 @@ import { ROUTINES } from "@/features/today/routines";
 import { hasAnthropicKey } from "@/lib/env.server";
 import type { Translate } from "@/lib/i18n/translate";
 import type { createClient } from "@/lib/supabase/server";
-import { aiWeekPlan, PLAN_MODEL, PROMPT_VERSION, type AiWeekPlan, type LibraryExercise } from "./ai";
+import { aiWeekPlan, PLAN_MODEL, PROMPT_VERSION, type AiUnit, type AiWeekPlan, type LibraryExercise } from "./ai";
 import { STALE_PENDING_MS } from "./queries";
 import { rulesPlan } from "./rules-plan";
 import type { PlannedSession, WeekPlanResult } from "./types";
@@ -72,7 +72,7 @@ async function claimWeek(supabase: Supabase, userId: string, weekStart: string, 
   return Boolean(claimed && claimed.length > 0);
 }
 
-async function loadLibrary(supabase: Supabase): Promise<LibraryExercise[]> {
+export async function loadLibrary(supabase: Supabase): Promise<LibraryExercise[]> {
   const { data } = await supabase.from("exercises").select("id, name, equipment, lower_body").order("name");
   return (data ?? []).map((e) => ({ id: e.id, name: e.name, equipment: e.equipment, lowerBody: Boolean(e.lower_body) }));
 }
@@ -104,7 +104,7 @@ async function gymHistory(supabase: Supabase, userId: string, today: string) {
 }
 
 /** Übersetzt den Regel-Plan in Einheiten mit Titeln und erklärten Übungen. */
-function rulesToSessions(items: ReturnType<typeof rulesPlan>, t: Translate, library: LibraryExercise[]): PlannedSession[] {
+export function rulesToSessions(items: ReturnType<typeof rulesPlan>, t: Translate, library: LibraryExercise[]): PlannedSession[] {
   const byName = new Map(library.map((e) => [e.name, e.id]));
   return items.map((item) => {
     const r = ROUTINES[item.routine];
@@ -131,32 +131,63 @@ function rulesToSessions(items: ReturnType<typeof rulesPlan>, t: Translate, libr
   });
 }
 
-/** KI-Antwort in Einheiten übersetzen; Unterkörper ergibt sich aus der Bibliothek. */
-function aiToSessions(plan: AiWeekPlan, library: LibraryExercise[]): PlannedSession[] {
+/** Eine Einheit der KI-Antwort übersetzen; Unterkörper ergibt sich aus der Bibliothek. */
+export function aiUnitToSession(s: AiUnit, library: LibraryExercise[]): PlannedSession {
   const byName = new Map(library.map((e) => [e.name, e]));
-  return plan.sessions.map((s) => {
-    const exercises = s.exercises.slice(0, 10).map((e) => {
-      const lib = e.libraryName ? byName.get(e.libraryName) : undefined;
-      return {
-        name: e.name.slice(0, 80),
-        prescription: e.prescription.slice(0, 60),
-        how: e.how.slice(0, 300),
-        exerciseId: lib?.id ?? null,
-      };
-    });
-    const lowerBody = s.exercises.some((e) => e.libraryName && byName.get(e.libraryName)?.lowerBody);
+  const exercises = s.exercises.slice(0, 10).map((e) => {
+    const lib = e.libraryName ? byName.get(e.libraryName) : undefined;
     return {
-      date: s.date,
-      kind: s.kind,
-      title: s.title.slice(0, 60),
-      durationMin: Math.max(5, Math.round(s.durationMin)),
-      targetRpe: Math.min(10, Math.max(1, Math.round(s.targetRpe))),
-      gymFocus: s.kind === "gym" ? (s.gymFocus ?? (lowerBody ? "full" : "upper")) : null,
-      lowerBody,
-      reason: s.reason.slice(0, 300),
-      exercises,
+      name: e.name.slice(0, 80),
+      prescription: e.prescription.slice(0, 60),
+      how: e.how.slice(0, 300),
+      exerciseId: lib?.id ?? null,
     };
   });
+  const lowerBody = s.exercises.some((e) => e.libraryName && byName.get(e.libraryName)?.lowerBody);
+  return {
+    date: s.date,
+    kind: s.kind,
+    title: s.title.slice(0, 60),
+    durationMin: Math.max(5, Math.round(s.durationMin)),
+    targetRpe: Math.min(10, Math.max(1, Math.round(s.targetRpe))),
+    gymFocus: s.kind === "gym" ? (s.gymFocus ?? (lowerBody ? "full" : "upper")) : null,
+    lowerBody,
+    reason: s.reason.slice(0, 300),
+    exercises,
+  };
+}
+
+const aiToSessions = (plan: AiWeekPlan, library: LibraryExercise[]) => plan.sessions.map((s) => aiUnitToSession(s, library));
+
+/** Übungen einer Einheit speichern (ersetzt vorhandene); Gym-Übungen auch ins Gym-Log. */
+export async function writeExercises(
+  supabase: Supabase,
+  userId: string,
+  sessionId: string,
+  kind: PlannedSession["kind"],
+  exercises: PlannedSession["exercises"],
+) {
+  await supabase.from("planned_exercises").delete().eq("session_id", sessionId);
+  await supabase.from("session_exercises").delete().eq("session_id", sessionId);
+  if (exercises.length > 0) {
+    await supabase.from("planned_exercises").insert(
+      exercises.map((e, position) => ({
+        user_id: userId,
+        session_id: sessionId,
+        position,
+        name: e.name,
+        prescription: e.prescription,
+        how: e.how,
+        exercise_id: e.exerciseId,
+      })),
+    );
+  }
+  const gym = kind === "gym" ? exercises.filter((e) => e.exerciseId) : [];
+  if (gym.length > 0) {
+    await supabase.from("session_exercises").insert(
+      gym.map((e, position) => ({ user_id: userId, session_id: sessionId, exercise_id: e.exerciseId, position, note: e.prescription })),
+    );
+  }
 }
 
 /**
@@ -300,32 +331,7 @@ export async function planWeek(input: PlanWeekInput): Promise<boolean> {
         .select("id")
         .single();
       if (error || !row) throw new Error(`Einheit nicht gespeichert: ${error?.message}`);
-      if (s.exercises.length > 0) {
-        await supabase.from("planned_exercises").insert(
-          s.exercises.map((e, position) => ({
-            user_id: userId,
-            session_id: row.id,
-            position,
-            name: e.name,
-            prescription: e.prescription,
-            how: e.how,
-            exercise_id: e.exerciseId,
-          })),
-        );
-      }
-      // Gym: Übungen ins Gym-Log übernehmen, damit nur noch Gewichte eingetragen werden.
-      const gymExercises = s.kind === "gym" ? s.exercises.filter((e) => e.exerciseId) : [];
-      if (gymExercises.length > 0) {
-        await supabase.from("session_exercises").insert(
-          gymExercises.map((e, position) => ({
-            user_id: userId,
-            session_id: row.id,
-            exercise_id: e.exerciseId,
-            position,
-            note: e.prescription,
-          })),
-        );
-      }
+      await writeExercises(supabase, userId, row.id, s.kind, s.exercises);
     }
 
     if (log) {

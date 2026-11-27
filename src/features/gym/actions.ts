@@ -6,6 +6,7 @@ import { userToday } from "@/lib/date";
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { lastPerformances, type LastPerformance } from "./queries";
+import { writeGymLog } from "./write";
 import { customExerciseSchema, gymLogSchema } from "./schema";
 
 export type GymLogState = { error?: string; savedAt?: number };
@@ -31,37 +32,7 @@ export async function saveGymLog(sessionId: string, _prev: GymLogState, formData
     .maybeSingle();
   if (!session || session.type !== "gym") return { error: t("gym.errorSave") };
 
-  const { error: delError } = await supabase.from("session_exercises").delete().eq("session_id", sessionId);
-  if (delError) return { error: t("gym.errorSave") };
-
-  for (const [position, ex] of parsed.data.exercises.entries()) {
-    const { data: row, error } = await supabase
-      .from("session_exercises")
-      .insert({ user_id: user.id, session_id: sessionId, exercise_id: ex.exerciseId, position, note: ex.note })
-      .select("id")
-      .single();
-    if (error || !row) {
-      console.error("[gym] Übung nicht gespeichert", error?.message);
-      return { error: t("gym.errorSave") };
-    }
-    if (ex.sets.length) {
-      const { error: setError } = await supabase.from("exercise_sets").insert(
-        ex.sets.map((s, i) => ({
-          user_id: user.id,
-          session_exercise_id: row.id,
-          position: i,
-          weight_kg: s.weightKg,
-          reps: s.reps,
-          rir: s.rir,
-          set_type: s.setType,
-        })),
-      );
-      if (setError) {
-        console.error("[gym] Sätze nicht gespeichert", setError.message);
-        return { error: t("gym.errorSave") };
-      }
-    }
-  }
+  if (!(await writeGymLog(supabase, user.id, sessionId, parsed.data))) return { error: t("gym.errorSave") };
 
   revalidatePath(`/sessions/${sessionId}`);
   return { savedAt: Date.now() };

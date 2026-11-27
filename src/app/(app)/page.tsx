@@ -32,10 +32,8 @@ export default async function HomePage() {
         {perf ? (
           <Link href="/score" className="flex flex-col items-center gap-2" aria-label={t("home.tapForDetails")}>
             <ReadinessRing value={perf.score} light={metrics.light} label={t("home.scoreLabel")} emptyLabel="" />
-            <p className="font-display text-2xl font-semibold">
-              {perf.score} – {t(`home.mood.${perf.mood}`)}
-            </p>
-            <span className="text-xs text-muted underline underline-offset-4">{t("home.tapForDetails")}</span>
+            <p className="font-display text-2xl font-semibold">{t(`home.mood.${perf.mood}`)}</p>
+            <span className="text-sm text-muted">{t("home.details")} →</span>
           </Link>
         ) : (
           <>
