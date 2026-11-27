@@ -1161,7 +1161,8 @@
     "removedInfo": "Gestrichen nach deinem Check-in.",
     "week": "Woche",
     "byAiInfo": "Die KI hat diese Woche aus deinem Ziel, deinen Terminen und deinem Verlauf geplant. Ob und wie stark belastet werden darf, entscheiden feste Regeln (Spieltag, Ampel, Wochenlast) – die KI wählt nur, was trainiert wird.",
-    "byRulesInfo": "Diese Woche hat die App nach festen Regeln aus ihrer Übungsbibliothek geplant – passend zu Ziel, Spieltagen und Wochenlast."
+    "byRulesInfo": "Diese Woche hat die App nach festen Regeln aus ihrer Übungsbibliothek geplant – passend zu Ziel, Spieltagen und Wochenlast.",
+    "exerciseCountOne": "1 Übung"
   },
   "training": {
     "start": "Training starten",
@@ -1193,5 +1194,78 @@
     "save": "Training speichern",
     "saving": "Wird gespeichert …",
     "error": "Speichern hat nicht geklappt. Bitte nochmal versuchen."
+  },
+  "basis": {
+    "title": "Wissenschaftliche Grundlage",
+    "strength_speed": "Maximalkraft in Kniebeuge und Co. hängt eng mit Sprint- und Sprungleistung von Fußballern zusammen (Wisløff et al. 2004).",
+    "hypertrophy_volume": "Muskelaufbau: mehr Sätze pro Muskel und Woche bringen mehr Zuwachs, sinnvoll sind etwa 10 oder mehr (Schoenfeld et al. 2017).",
+    "hiit_4x4": "Intervalle 4 × 4 min bei 90–95 % der maximalen Herzfrequenz verbessern die Ausdauer (VO2max) und Laufleistung im Spiel deutlich (Helgerud et al. 2001).",
+    "aerobic_base": "Lockere, längere Läufe bauen die Grundlagenausdauer auf und ergänzen harte Intervalle (Seiler 2010).",
+    "sprint_exposure": "Regelmäßige Sprints mit nahezu maximaler Geschwindigkeit gingen bei Feldsportlern mit weniger Verletzungen einher; lange Sprint-Pausen erhöhen das Risiko beim Wiedereinstieg (Malone et al. 2017).",
+    "nordic": "Nordic Hamstring Curls senken Verletzungen des hinteren Oberschenkels um etwa die Hälfte (Petersen et al. 2011; van der Horst et al. 2015).",
+    "copenhagen": "Das Copenhagen-Adduktorenprogramm senkt Leistenprobleme bei Fußballern deutlich (Harøy et al. 2019).",
+    "warmup_11plus": "Das Aufwärmprogramm FIFA 11+ senkt Verletzungen im Fußball um etwa ein Drittel (Soligard et al. 2008; Meta-Analyse Thorborg et al. 2017).",
+    "load_progression": "Belastung schrittweise steigern und Spitzen vermeiden senkt das Verletzungsrisiko; ACWR ist dabei nur ein Richtwert (Gabbett 2016; kritisch: Impellizzeri et al. 2020).",
+    "deload": "Umfang deutlich senken bei gleicher Intensität erhält die Leistungsfähigkeit und lässt Ermüdung abklingen (Bosquet et al. 2007, Meta-Analyse zum Tapering).",
+    "detraining": "Ohne Ausdauerreiz sinkt die Ausdauer schon nach 2–4 Wochen spürbar, Kraft hält länger (Mujika & Padilla 2000).",
+    "recovery_light": "Lockere Bewegung tut subjektiv gut; dass sie die Erholung messbar beschleunigt, ist kaum belegt (Van Hooren & Peake 2018)."
+  },
+  "offseason": {
+    "season": "Season",
+    "off": "Off-Season",
+    "toggleLabel": "Modus",
+    "blocks": {
+      "recover": "Erholen",
+      "build": "Aufbauen",
+      "return": "Zurück zum Fußball"
+    },
+    "deload": "Entlastungswoche",
+    "status": "Woche {week}",
+    "statusOf": "Woche {week} von {total}",
+    "toPreseason": "noch {weeks} Wo. bis zur Vorbereitung",
+    "openEnd": "Ende offen",
+    "blockInfo": {
+      "recover": "Locker bewegen, Kopf frei bekommen. Höchstens leichte Anstrengung – die Form leidet in 1–2 Wochen nicht.",
+      "build": "Mehr Kraft und Ausdauer, jede Woche Sprints und Prävention. Die Last steigt schrittweise, jede 4. Woche wird entlastet.",
+      "return": "Fußballspezifisch: Sprints, Richtungswechsel, harte Intervalle. Die Last nähert sich einer normalen Fußballwoche, damit der Start der Vorbereitung keine Lastspitze ist.",
+      "deload": "Diese Woche bewusst weniger Umfang (etwa −30 %) bei gleicher Intensität – so baut sich Ermüdung ab und die Form bleibt."
+    },
+    "rulesFocus": {
+      "recover": "Diese Woche erholst du dich – locker bewegen, nichts erzwingen.",
+      "build": "Diese Woche baust du auf: Kraft, Ausdauer, dazu Sprints und Prävention.",
+      "return": "Diese Woche geht es zurück Richtung Fußball: Sprints, Intervalle, Kraft erhalten.",
+      "deload": "Entlastungswoche: weniger Umfang, gleiche Intensität – die Form bleibt, die Müdigkeit geht."
+    },
+    "wizard": {
+      "title": "Off-Season",
+      "endTitle": "Wann startet die Vorbereitung?",
+      "endHint": "Mit Datum plant die App die letzten Wochen gezielt zurück zum Fußball. Ohne Datum plant sie Woche für Woche – du kannst es später eintragen.",
+      "endOpen": "Noch offen",
+      "recoveryTitle": "Erst erholen?",
+      "recoveryHint": "Nach einer langen Hinrunde tun 1–2 lockere Wochen Kopf und Körper gut. Die Form leidet in dieser Zeit nicht spürbar.",
+      "recovery0": "Nein, direkt los",
+      "recovery1": "1 Woche",
+      "recovery2": "2 Wochen",
+      "frequencyTitle": "Wie oft pro Woche?",
+      "frequencyHint": "Ohne Teamtraining ist Platz für mehr Einheiten. Mindestens 2 Ruhetage pro Woche plant die App immer ein (bei 6 Einheiten einen).",
+      "daysTitleCount": "An welchen {count} Tagen?",
+      "daysTitleOne": "An welchem Tag?",
+      "durationTitle": "Wie lange pro Einheit?",
+      "equipmentTitle": "Was kannst du nutzen?",
+      "summaryTitle": "Deine Off-Season",
+      "summaryFrame": "{count} × pro Woche · bis {minutes} min",
+      "untilDate": "Vorbereitung ab {date}",
+      "weeks": "{count} Wo.",
+      "start": "Off-Season starten",
+      "save": "Speichern",
+      "saving": "Wird gespeichert …",
+      "error": "Konnte nicht gespeichert werden.",
+      "pauseNote": "Training und Spiele aus deinen festen Terminen pausieren in dieser Zeit."
+    },
+    "endTitle": "Off-Season beenden?",
+    "endText": "Deine festen Trainings- und Spieltermine gelten ab heute wieder, der Wochenplan wird neu erstellt.",
+    "endConfirm": "Beenden",
+    "edit": "Off-Season anpassen",
+    "unitCounter": "Einheiten diese Woche: {planned} von {target}"
   }
 }

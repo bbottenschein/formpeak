@@ -10,6 +10,7 @@ import {
   type PlanCheckContext,
   type PlanUnit,
 } from "./guardrails";
+import type { OffseasonWeek } from "./offseason";
 import { match, session, training } from "./test-helpers";
 import type { Session } from "./types";
 
@@ -275,5 +276,81 @@ describe("enforcePlan", () => {
   it("ein regelkonformer Plan bleibt unverändert", () => {
     const plan = [unit("2026-11-30", { lowerBody: true }), unit("2026-12-01", { kind: "mobility", durationMin: 15, targetRpe: 2 })];
     expect(enforcePlan(plan, ctx())).toEqual(plan);
+  });
+});
+
+describe("Off-Season-Leitplanken", () => {
+  // Keine Fußballtermine, freie Tage Mo, Mi, Fr, Sa; Vorwoche 4 × 60 min RPE 6 = 1440 AU.
+  const prev = ["2026-11-23", "2026-11-25", "2026-11-27", "2026-11-28"].map((date) =>
+    session({ date, durationMin: 60, rpe: 6 }),
+  );
+  const build: OffseasonWeek = { week: 3, totalWeeks: 7, block: "build", deload: false, weeksToPreseason: 5 };
+  const oc = (offseason: OffseasonWeek, extra: Partial<PlanCheckContext> = {}): PlanCheckContext => ({
+    allowances: dayAllowances({ ...input({ sessions: prev, availableWeekdays: [1, 3, 5, 6] }), offseason }),
+    sessions: prev,
+    maxMainUnits: 4,
+    today: MONDAY,
+    offseason,
+    ...extra,
+  });
+  const gymF = (date: string, focus: PlanUnit["focus"]) => unit(date, { durationMin: 60, targetRpe: 6, focus });
+  const full = [
+    gymF("2026-11-30", ["strength", "prevention"]),
+    gymF("2026-12-02", ["sprint", "endurance_hiit"]),
+    gymF("2026-12-04", ["strength"]),
+    gymF("2026-12-05", ["endurance_base"]),
+  ];
+
+  it("Erholen: Intensität höchstens RPE 4", () => {
+    const a = dayAllowances({ ...input({ sessions: [], availableWeekdays: [1] }), offseason: { ...build, block: "recover" } });
+    expect(a[0]).toMatchObject({ main: true, maxRpe: 4 });
+    expect(a[0].reasons).toContain("offseason_recover");
+  });
+
+  it("Aufbau mit Sprint und Prävention, 3 Ruhetage: regelkonform", () => {
+    expect(validatePlan(full, oc(build)).map((v) => v.code)).toEqual([]);
+  });
+
+  it("Aufbau ohne Sprint: Pflichtinhalt fehlt", () => {
+    const noSprint = full.map((u) => ({ ...u, focus: u.focus?.filter((f) => f !== "sprint") }));
+    expect(validatePlan(noSprint, oc(build))).toContainEqual({ code: "missing_focus", focus: "sprint" });
+  });
+
+  it("Erholen: keine Pflichtinhalte", () => {
+    const easy = [unit("2026-11-30", { kind: "mobility", durationMin: 30, targetRpe: 3 })];
+    expect(validatePlan(easy, oc({ ...build, block: "recover" })).map((v) => v.code)).toEqual([]);
+  });
+
+  it("2 Ruhetage Pflicht; bei 6 gewählten Einheiten reicht 1", () => {
+    const six = ["2026-11-30", "2026-12-01", "2026-12-02", "2026-12-03", "2026-12-04", "2026-12-05"].map((d, i) =>
+      gymF(d, i === 0 ? ["sprint", "prevention"] : ["strength"]),
+    );
+    const c6 = oc(build, {
+      maxMainUnits: 6,
+      allowances: dayAllowances({ ...input({ sessions: prev, availableWeekdays: [0, 1, 2, 3, 4, 5, 6], timeBudgetMin: 60 }), offseason: build }),
+    });
+    expect(validatePlan(six, c6).map((v) => v.code)).not.toContain("too_few_rest_days");
+    const c5 = { ...c6, maxMainUnits: 5 };
+    expect(validatePlan(six.slice(0, 5).concat(gymF("2026-12-06", ["strength"])), c5).map((v) => v.code)).toContain("too_few_rest_days");
+  });
+
+  it("Entlastungswoche: höchstens 70 % der Vergleichswoche", () => {
+    const deload = { ...build, deload: true };
+    // 1440 × 0,7 = 1008 AU. 4 × 60 × 6 = 1440 → zu viel; 4 × 40 × 6 = 960 → ok.
+    expect(validatePlan(full, oc(deload)).map((v) => v.code)).toEqual(["deload_too_high"]);
+    const light = full.map((u) => ({ ...u, durationMin: 40 }));
+    expect(validatePlan(light, oc(deload)).map((v) => v.code)).toEqual([]);
+  });
+
+  it("enforcePlan räumt in der Off-Season 2 Ruhetage frei und hält die Entlastung ein", () => {
+    const five = [...full, gymF("2026-12-06", ["mobility"])].map((u) => ({ ...u }));
+    const c = oc({ ...build, deload: true }, {
+      maxMainUnits: 5,
+      allowances: dayAllowances({ ...input({ sessions: prev, availableWeekdays: [0, 1, 3, 5, 6] }), offseason: { ...build, deload: true } }),
+    });
+    const kept = enforcePlan(five, c);
+    const codes = validatePlan(kept, c).map((v) => v.code);
+    expect(codes).not.toContain("too_few_rest_days");
+    expect(codes).not.toContain("deload_too_high");
   });
 });

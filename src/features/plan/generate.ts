@@ -5,6 +5,10 @@ import {
   enforcePlan,
   matchdayContext,
   matchdayLabel,
+  LOAD_CONFIG,
+  offseasonWeek,
+  requiredFocus,
+  requiredRestDays,
   validatePlan,
   weekLoads,
   type DailyMetrics,
@@ -17,6 +21,8 @@ import { hasAnthropicKey } from "@/lib/env.server";
 import type { Translate } from "@/lib/i18n/translate";
 import type { createClient } from "@/lib/supabase/server";
 import { aiWeekPlan, PLAN_MODEL, PROMPT_VERSION, type AiUnit, type AiWeekPlan, type LibraryExercise } from "./ai";
+import { getOffseason } from "@/features/offseason/queries";
+import { BASIS_KEYS } from "./basis";
 import { STALE_PENDING_MS } from "./queries";
 import { rulesPlan } from "./rules-plan";
 import type { PlannedSession, WeekPlanResult } from "./types";
@@ -117,6 +123,8 @@ export function rulesToSessions(items: ReturnType<typeof rulesPlan>, t: Translat
       title: t(`routines.titles.${item.routine}`),
       gymFocus: r.sessionType === "gym" ? "full" : null,
       reason: t(`plan.rulesWhy.${item.routine}`),
+      focus: r.focus,
+      basis: r.basis,
       exercises: r.exercises.map((e) => ({
         name: t(`routines.exercises.${e.key as "squat"}`),
         prescription: e.reps
@@ -153,6 +161,8 @@ export function aiUnitToSession(s: AiUnit, library: LibraryExercise[]): PlannedS
     gymFocus: s.kind === "gym" ? (s.gymFocus ?? (lowerBody ? "full" : "upper")) : null,
     lowerBody,
     reason: s.reason.slice(0, 300),
+    focus: [...new Set(s.focus)],
+    basis: [...new Set(s.basis)].slice(0, 3),
     exercises,
   };
 }
@@ -190,6 +200,13 @@ export async function writeExercises(
   }
 }
 
+/** Typische Last einer Fußballwoche aus den festen Serien (Ziel für „Zurück zum Fußball“). */
+async function seasonWeekLoad(supabase: Supabase, userId: string): Promise<number | null> {
+  const { data } = await supabase.from("fixture_series").select("weekdays, duration_min, default_rpe").eq("user_id", userId);
+  if (!data?.length) return null;
+  return data.reduce((sum, r) => sum + r.weekdays.length * r.duration_min * r.default_rpe, 0);
+}
+
 /**
  * Plant eine Woche (Mo–So) ab heute: Leitplanken berechnen, KI fragen (oder Regel-Plan),
  * Verstöße korrigieren, alte Vorschläge ersetzen und die Einheiten mit Übungen speichern.
@@ -198,8 +215,13 @@ export async function writeExercises(
 export async function planWeek(input: PlanWeekInput): Promise<boolean> {
   const { supabase, userId, weekStart, today, goal, t } = input;
   const sunday = addDays(weekStart, 6);
-  const frame = goal.frame;
-  if (!goal.goal || !frame || sunday < today) return false;
+  if (sunday < today) return false;
+  // Off-Season: eigener Rahmen und Abschnitt der Woche; geplant wird auch ohne Ziel.
+  const firstDay = weekStart > today ? weekStart : today;
+  const off = await getOffseason(supabase, userId, firstDay);
+  const offWeek = off ? offseasonWeek(off.phase, firstDay) : undefined;
+  const frame = off?.frame ?? goal.frame;
+  if ((!goal.goal && !off) || !frame) return false;
   if (!(await claimWeek(supabase, userId, weekStart, Boolean(input.force)))) return false;
 
   try {
@@ -219,10 +241,12 @@ export async function planWeek(input: PlanWeekInput): Promise<boolean> {
       availableWeekdays: frame.availableWeekdays,
       timeBudgetMin: frame.timeBudgetMin,
       todayLight: today >= weekStart && today <= sunday ? light : undefined,
+      offseason: offWeek,
     });
-    const ctx: PlanCheckContext = { allowances, sessions, maxMainUnits: frame.extraSessionsPerWeek, today };
+    const ctx: PlanCheckContext = { allowances, sessions, maxMainUnits: frame.extraSessionsPerWeek, today, offseason: offWeek };
     const { existing, reference } = weekLoads([], ctx);
-    const budget = reference > 0 ? Math.max(0, Math.round(reference * 1.15 - existing)) : null;
+    const factor = offWeek?.deload ? LOAD_CONFIG.offseason.deloadFactor : 1 + LOAD_CONFIG.planning.maxWeeklyIncrease;
+    const budget = reference > 0 ? Math.max(0, Math.round(reference * factor - existing)) : null;
 
     let result: WeekPlanResult | null = null;
     let log: { context: unknown; response: unknown; validation: unknown } | null = null;
@@ -254,17 +278,32 @@ export async function planWeek(input: PlanWeekInput): Promise<boolean> {
             gruende: a.reasons,
           },
         })),
-        ziel: {
-          typ: goal.goal.type,
-          beschreibung: goal.goal.aiSummary || goal.goal.description,
-          zieldatum: goal.goal.targetDate,
-          referenztest: goal.goal.testKey,
-        },
+        ziel: goal.goal
+          ? {
+              typ: goal.goal.type,
+              beschreibung: goal.goal.aiSummary || goal.goal.description,
+              zieldatum: goal.goal.targetDate,
+              referenztest: goal.goal.testKey,
+            }
+          : null,
         rahmen: {
           haupteinheiten_pro_woche: frame.extraSessionsPerWeek,
           max_minuten_pro_einheit: frame.timeBudgetMin,
           trainingsmittel: frame.equipment,
         },
+        modus: off ? "off_season" : "saison",
+        off_season: offWeek
+          ? {
+              abschnitt: offWeek.block,
+              woche: offWeek.week,
+              wochen_gesamt: offWeek.totalWeeks,
+              entlastungswoche: offWeek.deload,
+              wochen_bis_vorbereitung: offWeek.weeksToPreseason,
+            }
+          : null,
+        saison_wochenlast_au: off ? await seasonWeekLoad(supabase, userId) : null,
+        ruhetage: requiredRestDays(ctx),
+        pflichtinhalte: requiredFocus(ctx),
         wochenlast_budget_au: budget,
         kennzahlen_heute: input.todayMetrics
           ? {
@@ -281,6 +320,7 @@ export async function planWeek(input: PlanWeekInput): Promise<boolean> {
           .map((r) => ({ datum: r.date, art: r.type, dauer_min: r.duration_min, rpe: r.rpe, muedigkeit: r.fatigue })),
         gym_verlauf: await gymHistory(supabase, userId, today),
         bibliothek: library.map((e) => ({ name: e.name, geraet: e.equipment, unterkoerper: e.lowerBody })),
+        grundlagen: Object.fromEntries(BASIS_KEYS.map((k) => [k, t(`basis.${k}`)])),
       };
       try {
         const ai = await aiWeekPlan(context, library, (plan) => validatePlan(aiToSessions(plan, library), ctx));
@@ -294,11 +334,15 @@ export async function planWeek(input: PlanWeekInput): Promise<boolean> {
     }
     if (!result) {
       const items = rulesPlan(allowances, {
-        goalType: goal.goal.type,
+        goalType: goal.goal?.type ?? null,
         equipment: frame.equipment,
         maxMainUnits: frame.extraSessionsPerWeek,
+        offseason: offWeek,
       });
-      result = { source: "rules", focus: t(`plan.rulesFocus.${goal.goal.type}`), sessions: rulesToSessions(items, t, library) };
+      const focus = offWeek
+        ? t(`offseason.rulesFocus.${offWeek.deload ? "deload" : offWeek.block}`)
+        : t(`plan.rulesFocus.${goal.goal!.type}`);
+      result = { source: "rules", focus, sessions: rulesToSessions(items, t, library) };
     }
 
     const enforced = enforcePlan(result.sessions, ctx);
@@ -327,6 +371,7 @@ export async function planWeek(input: PlanWeekInput): Promise<boolean> {
           planned_by: result.source,
           rationale: s.reason,
           title: s.title,
+          basis: s.basis,
         })
         .select("id")
         .single();

@@ -62,3 +62,34 @@ describe("rulesPlan – Referenzwoche", () => {
     expect(plan.find((p) => p.date === "2026-12-02")?.routine).toBe("easy_run");
   });
 });
+
+describe("rulesPlan – Off-Season", () => {
+  const free = dayAllowances({
+    weekStart: "2026-11-30",
+    today: "2026-11-30",
+    sessions: [],
+    availableWeekdays: [1, 3, 5, 6],
+    timeBudgetMin: 60,
+  });
+  const week = (block: "recover" | "build" | "return") => ({ week: 2, totalWeeks: 7, block, deload: false, weeksToPreseason: 5 });
+
+  it("Aufbau (Kraftziel, Gym): Kraft, Sprint, Ziel-Rotation – Sprint und Prävention sind dabei, freie Tage bleiben frei", () => {
+    const plan = rulesPlan(free, { goalType: "strength", equipment: ["gym"], maxMainUnits: 4, offseason: week("build") });
+    expect(plan.map((p) => [p.date, p.routine])).toEqual([
+      ["2026-11-30", "strength_full"],
+      ["2026-12-02", "acceleration"],
+      ["2026-12-04", "prevention_core"],
+      ["2026-12-05", "strength_full"],
+    ]);
+  });
+
+  it("Zurück zum Fußball: Sprint, Intervalle, Kraft, Prävention", () => {
+    const plan = rulesPlan(free, { goalType: "endurance", equipment: ["gym", "outdoor"], maxMainUnits: 4, offseason: week("return") });
+    expect(plan.map((p) => p.routine)).toEqual(["acceleration", "intervals_4x4", "strength_full", "prevention_core"]);
+  });
+
+  it("Erholen: nur locker (ohne draußen: Regeneration)", () => {
+    const plan = rulesPlan(free, { goalType: "strength", equipment: ["gym"], maxMainUnits: 2, offseason: week("recover") });
+    expect(plan.map((p) => p.routine)).toEqual(["recovery_flush", "recovery_flush"]);
+  });
+});

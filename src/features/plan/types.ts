@@ -1,4 +1,5 @@
 import type { GymFocus, PlanKind, PlanUnit } from "@/core/load";
+import type { BasisKey } from "./basis";
 
 /** Eine Übung im Plan: Vorgabe und genau ein Satz, wie sie geht. */
 export interface PlannedExercise {
@@ -16,6 +17,8 @@ export interface PlannedSession extends PlanUnit {
   gymFocus: GymFocus | null;
   /** Ein Satz, warum diese Einheit an diesem Tag. */
   reason: string;
+  /** Wissenschaftliche Grundlage (Schlüssel aus basis.ts). */
+  basis: BasisKey[];
   exercises: PlannedExercise[];
 }
 

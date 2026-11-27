@@ -60,6 +60,23 @@ export const LOAD_CONFIG = {
     lowerBodyLatestBeforeMatch: 3,
     yellowReduction: 0.3,
   },
+  /** Off-Season (Pause ohne Teamtraining/Spiele), SPEC 7.3. */
+  offseason: {
+    /** Abschnitt „Erholen“: nur locker. */
+    recoverMaxRpe: 4,
+    /** Entlastung jede n-te Aufbauwoche … */
+    deloadEvery: 4,
+    /** … auf höchstens diesen Anteil der Vergleichswoche (Umfang −30 %). */
+    deloadFactor: 0.7,
+    /** Ruhetage pro Woche (höchstens 7 − gewählte Einheiten). */
+    minRestDays: 2,
+    /** „Zurück zum Fußball“: Dauer abhängig von den Wochen nach der Erholung (absteigend). */
+    returnWeeks: [
+      { minWeeks: 6, weeks: 3 },
+      { minWeeks: 4, weeks: 2 },
+      { minWeeks: 2, weeks: 1 },
+    ],
+  },
   /** Leitplanken für den Wochenplan (KI oder Regeln), SPEC 4.6 / 7.2. */
   guardrails: {
     /** Kurze Zusatzeinheit (Mobilität/Regeneration) an Tagen ohne Haupteinheit. */

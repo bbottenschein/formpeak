@@ -1,4 +1,5 @@
-import type { MatchdayContext, SessionType, TrafficLight } from "@/core/load";
+import type { MatchdayContext, PlanFocus, SessionType, TrafficLight } from "@/core/load";
+import type { BasisKey } from "@/features/plan/basis";
 
 /**
  * Kuratierte Routinen für „Heute“ (docs/AENDERUNGEN.md › Heute): eine passende Ergänzung zum Ziel
@@ -36,6 +37,9 @@ export interface Routine {
   exercises: RoutineExercise[];
   /** Braucht diese Trainingsmittel (leer = überall). */
   needs: string[];
+  /** Inhalte (Pflichtinhalte der Off-Season) und wissenschaftliche Grundlage. */
+  focus: PlanFocus[];
+  basis: BasisKey[];
 }
 
 export const ROUTINES: Record<RoutineKey, Routine> = {
@@ -46,6 +50,8 @@ export const ROUTINES: Record<RoutineKey, Routine> = {
     rpe: 2,
     intense: false,
     needs: [],
+    focus: ["mobility"],
+    basis: [],
     exercises: [
       { key: "hip_flexor_stretch", seconds: 60 },
       { key: "adductor_rock", seconds: 60 },
@@ -62,6 +68,8 @@ export const ROUTINES: Record<RoutineKey, Routine> = {
     rpe: 2,
     intense: false,
     needs: [],
+    focus: ["recovery"],
+    basis: ["recovery_light"],
     exercises: [
       { key: "easy_bike_or_walk", seconds: 900 },
       { key: "hip_flexor_stretch", seconds: 60 },
@@ -77,6 +85,8 @@ export const ROUTINES: Record<RoutineKey, Routine> = {
     rpe: 3,
     intense: false,
     needs: [],
+    focus: ["mobility", "sprint"],
+    basis: ["warmup_11plus"],
     exercises: [
       { key: "leg_swings", reps: "10_per_side" },
       { key: "worlds_greatest", reps: "3_per_side" },
@@ -91,7 +101,9 @@ export const ROUTINES: Record<RoutineKey, Routine> = {
     sessionType: "run_intervals",
     rpe: 7,
     intense: true,
-    needs: ["pitch"],
+    needs: [],
+    focus: ["sprint", "power"],
+    basis: ["sprint_exposure"],
     exercises: [
       { key: "warmup_jog", seconds: 480 },
       { key: "a_skips", reps: "2x15m" },
@@ -107,6 +119,8 @@ export const ROUTINES: Record<RoutineKey, Routine> = {
     rpe: 8,
     intense: true,
     needs: ["outdoor"],
+    focus: ["endurance_hiit"],
+    basis: ["hiit_4x4"],
     exercises: [
       { key: "warmup_jog", seconds: 600 },
       { key: "interval_4min", reps: "4x" },
@@ -120,6 +134,8 @@ export const ROUTINES: Record<RoutineKey, Routine> = {
     rpe: 4,
     intense: false,
     needs: ["outdoor"],
+    focus: ["endurance_base"],
+    basis: ["aerobic_base"],
     exercises: [{ key: "easy_run_30", seconds: 1800 }],
   },
   prevention_core: {
@@ -129,6 +145,8 @@ export const ROUTINES: Record<RoutineKey, Routine> = {
     rpe: 5,
     intense: false,
     needs: [],
+    focus: ["prevention"],
+    basis: ["nordic", "copenhagen"],
     exercises: [
       { key: "nordic_curl", reps: "3x5" },
       { key: "copenhagen_plank", reps: "3x20s_per_side" },
@@ -144,6 +162,8 @@ export const ROUTINES: Record<RoutineKey, Routine> = {
     rpe: 7,
     intense: true,
     needs: ["gym"],
+    focus: ["strength", "prevention"],
+    basis: ["strength_speed", "nordic"],
     exercises: [
       { key: "squat", reps: "4x5", library: "Kniebeuge (Back Squat)" },
       { key: "rdl", reps: "3x6", library: "Rumänisches Kreuzheben (RDL)" },

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { SessionRow } from "@/features/sessions/data";
 import { Info } from "@/features/ui/info";
 import type { Translate } from "@/lib/i18n/translate";
+import { isBasisKey } from "./basis";
 import type { PlannedExercise } from "./types";
 
 /** Übungsliste: Name und Vorgabe, darunter ein Satz zur Ausführung. */
@@ -22,6 +23,20 @@ export function ExerciseList({ exercises, t, label }: { exercises: PlannedExerci
         ))}
       </ol>
     </div>
+  );
+}
+
+/** Wissenschaftliche Grundlage(n) einer Einheit – feste, geprüfte Texte (plan/basis.ts). */
+export function BasisList({ basis, t }: { basis: string[]; t: Translate }) {
+  const keys = basis.filter(isBasisKey);
+  if (keys.length === 0) return null;
+  return (
+    <>
+      <p className="eyebrow mt-2 text-xs">{t("basis.title")}</p>
+      {keys.map((k) => (
+        <p key={k}>{t(`basis.${k}`)}</p>
+      ))}
+    </>
   );
 }
 
@@ -55,7 +70,11 @@ export function PlannedSessionCard({
   const meta = [
     t("today2.minutes", { value: session.duration_min }),
     t(`sessionTypes.${session.type}`),
-    exercises.length > 0 ? t("plan.exerciseCount", { count: exercises.length }) : null,
+    exercises.length === 1
+      ? t("plan.exerciseCountOne")
+      : exercises.length > 1
+        ? t("plan.exerciseCount", { count: exercises.length })
+        : null,
   ].filter(Boolean);
 
   return (
@@ -69,6 +88,7 @@ export function PlannedSessionCard({
           <Info title={title}>
             <p className="text-foreground">{session.rationale}</p>
             {session.target_rpe != null && <p>{t("plan.targetRpeInfo", { value: session.target_rpe })}</p>}
+            <BasisList basis={session.basis} t={t} />
           </Info>
         )}
       </div>

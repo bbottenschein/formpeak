@@ -409,6 +409,26 @@ der Vorwoche zählen geplant). Verstöße → eine Rückfrage an die KI, danach 
    die Übungen so um, dass die Region ausgespart wird (im Hintergrund, protokolliert in `ai_plans`
    mit `kind = 'day'`). Markiert in `sessions.adjustment` / `adjusted_on`, sichtbar als „Heute angepasst“.
 
+### 7.3 Off-Season (umgesetzt, `src/core/load/offseason.ts`, `src/features/offseason`)
+
+Umschalter **Season / Off-Season** auf Home. Off-Season = Pause ohne Teamtraining und Spiele
+(Saisonphase `break`). Der Nutzer legt im Klick-Through selbst fest: Start der Vorbereitung (oder
+offen), Erholungswochen (0–2), Einheiten pro Woche (1–6), Tage, Dauer, Trainingsmittel. Dieser Rahmen
+ersetzt während der Pause den Saison-Rahmen. Feste Termine pausieren im Zeitraum; nach der Pause
+(oder beim Beenden) entstehen sie wieder. Referenztests: zum Start des Aufbaus und in der letzten
+Woche vor der Vorbereitung.
+
+**Abschnitte:** Erholen (RPE ≤ 4, keine Pflichtinhalte) → Aufbauen (Entlastungswoche jede 4.
+Aufbauwoche: Wochenlast ≤ 70 % der Vergleichswoche) → Zurück zum Fußball (letzte 3/2/1 Wochen bei
+≥ 6/4/2 Wochen nach der Erholung; Last nähert sich einer typischen Fußballwoche). **Regeln:** keine
+Spieltag-Regeln, 2 Ruhetage (bei 6 Einheiten 1), ab dem Aufbau jede Woche Sprint und Prävention
+(`focus` der Einheiten), sonst Wochenlast +15 %. Unterlast-Hinweis im Abschnitt Erholen aus.
+
+**Wissenschaftliche Grundlage:** Die KI plant nach festen Grundsätzen im System-Prompt (Kraft,
+Ausdauer, Sprint, Prävention, Reihenfolge, Progression) und begründet jede Einheit nur mit Schlüsseln
+aus einer festen Liste geprüfter Quellen (`src/features/plan/basis.ts`, Texte unter `basis.*`) –
+sie kann keine Studien erfinden. Sichtbar im Info-Symbol der Einheit.
+
 Prompt: System-Prompt mit Rolle (Athletiktrainer für Amateurfußball), Regeln, Verboten (keine
 Diagnosen, Ampel nie überstimmen) und Schema; Nutzer-Nachricht nur JSON-Kontext. Kleines Modell
 für die tägliche Anpassung, stärkeres für Wochenplan und Monatsrückblick. Alle Anfragen und

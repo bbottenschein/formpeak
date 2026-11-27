@@ -36,7 +36,9 @@ describe("suggestRoutine", () => {
 
   it("keine intensive Zielroutine 2 Tage vor dem Spiel, fehlende Mittel → Prävention", () => {
     expect(suggestRoutine(ctx({ md: { daysToNext: 2, daysSinceLast: 5 } }))?.key).toBe("prevention_core");
-    expect(suggestRoutine(ctx({ equipment: [] }))?.key).toBe("prevention_core");
+    // Sprints brauchen nur Platz; Kraft ohne Gym → Prävention.
+    expect(suggestRoutine(ctx({ equipment: [] }))?.key).toBe("acceleration");
+    expect(suggestRoutine(ctx({ goalType: "strength", equipment: [] }))?.key).toBe("prevention_core");
   });
 
   it("ohne Ziel → Prävention", () => {

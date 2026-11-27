@@ -20,12 +20,14 @@ export interface TipInput {
   weekHints: WeekHint[];
   /** Tage bis zum nächsten Referenztest (null = keiner geplant). */
   testDueInDays: number | null;
+  /** Off-Season „Erholen“: wenig Belastung ist gewollt – kein Unterlast-Hinweis. */
+  restPhase?: boolean;
 }
 
 /** Ab dieser Abweichung vom Normalwert wird ein Trend erwähnt. */
 const TREND_THRESHOLD_PCT = 20;
 
-export function pickTip({ metrics, openFeedback, weekHints, testDueInDays }: TipInput): Tip | null {
+export function pickTip({ metrics, openFeedback, weekHints, testDueInDays, restPhase = false }: TipInput): Tip | null {
   if (metrics.painSpots.some((s) => s.level === "red")) return { code: "pain_red" };
   if (metrics.light === "red") return { code: "light_red" };
   if (openFeedback > 0) return { code: "feedback_open", count: openFeedback };
@@ -37,6 +39,6 @@ export function pickTip({ metrics, openFeedback, weekHints, testDueInDays }: Tip
   if (metrics.loadDelta != null && metrics.loadDelta >= TREND_THRESHOLD_PCT) {
     return { code: "load_high", percent: metrics.loadDelta };
   }
-  if (metrics.underload) return { code: "underload" };
+  if (metrics.underload && !restPhase) return { code: "underload" };
   return null;
 }

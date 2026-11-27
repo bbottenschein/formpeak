@@ -1,6 +1,7 @@
 import { LOAD_CONFIG, type LoadConfig } from "./config";
 import { addDays, dateRange, weekdayOf, type IsoDate } from "./dates";
 import { matchdayContext } from "./matchday";
+import type { OffseasonWeek } from "./offseason";
 import { plannedLoad } from "./session-load";
 import { weeklyLoad } from "./weekly-load";
 import type { Session, TrafficLight } from "./types";
@@ -24,7 +25,8 @@ export type AllowanceReason =
   | "light_yellow"
   | "not_available"
   | "lower_body_blocked"
-  | "intense_blocked";
+  | "intense_blocked"
+  | "offseason_recover";
 
 export interface DayAllowance {
   date: IsoDate;
@@ -48,6 +50,8 @@ export interface AllowanceInput {
   timeBudgetMin: number;
   /** Ampel von heute (für andere Tage unbekannt). */
   todayLight?: TrafficLight;
+  /** Off-Season: Abschnitt der geplanten Woche (Erholen begrenzt die Intensität). */
+  offseason?: OffseasonWeek;
 }
 
 const NONE: Pick<DayAllowance, "main" | "kinds" | "maxMinutes" | "maxRpe" | "lowerBody"> = {
@@ -135,6 +139,11 @@ export function dayAllowances(input: AllowanceInput, config: LoadConfig = LOAD_C
       maxRpe = Math.min(maxRpe, p.intenseRpe - 1);
     }
 
+    if (input.offseason?.block === "recover") {
+      reasons.push("offseason_recover");
+      maxRpe = Math.min(maxRpe, config.offseason.recoverMaxRpe);
+    }
+
     return {
       date,
       main: available,
@@ -155,7 +164,12 @@ export interface PlanUnit {
   targetRpe: number;
   /** Belastet den Unterkörper mit Kraftübungen. */
   lowerBody: boolean;
+  /** Inhalte der Einheit (z. B. Sprint, Prävention) – für Pflichtinhalte der Off-Season. */
+  focus?: PlanFocus[];
 }
+
+export const PLAN_FOCUS = ["strength", "hypertrophy", "power", "sprint", "endurance_hiit", "endurance_base", "prevention", "mobility", "recovery"] as const;
+export type PlanFocus = (typeof PLAN_FOCUS)[number];
 
 /**
  * Haupteinheit = Gym, Lauf oder eine Einheit über dem RPE leichter Zusatzeinheiten.
@@ -174,6 +188,9 @@ export type PlanViolation =
   | { code: "too_many_main"; index: number; max: number }
   | { code: "too_many_per_day"; index: number; max: number }
   | { code: "no_rest_day" }
+  | { code: "too_few_rest_days"; min: number }
+  | { code: "missing_focus"; focus: "sprint" | "prevention" }
+  | { code: "deload_too_high"; maxPercent: number }
   | { code: "weekly_load_increase"; percent: number; maxPercent: number };
 
 export interface PlanCheckContext {
@@ -182,6 +199,24 @@ export interface PlanCheckContext {
   sessions: Session[];
   maxMainUnits: number;
   today: IsoDate;
+  /** Off-Season: Abschnitt der Woche (Ruhetage, Entlastung, Pflichtinhalte). */
+  offseason?: OffseasonWeek;
+}
+
+/** Benötigte Ruhetage: 1, in der Off-Season 2 (höchstens 7 − gewählte Einheiten). */
+export function requiredRestDays(ctx: Pick<PlanCheckContext, "offseason" | "maxMainUnits">, config: LoadConfig = LOAD_CONFIG): number {
+  return ctx.offseason ? Math.max(1, Math.min(config.offseason.minRestDays, 7 - ctx.maxMainUnits)) : 1;
+}
+
+/** Pflichtinhalte der Woche: in der Off-Season ab dem Aufbau Sprint und Prävention. */
+export function requiredFocus(ctx: Pick<PlanCheckContext, "offseason" | "maxMainUnits">): ("sprint" | "prevention")[] {
+  if (!ctx.offseason || ctx.offseason.block === "recover" || ctx.maxMainUnits < 1) return [];
+  return ["sprint", "prevention"];
+}
+
+/** Obergrenze der Wochenlast relativ zum Vergleichswert (Entlastungswoche: −30 %). */
+function loadFactor(ctx: PlanCheckContext, config: LoadConfig): number {
+  return ctx.offseason?.deload ? config.offseason.deloadFactor : 1 + config.planning.maxWeeklyIncrease;
 }
 
 function unitAsSession(u: PlanUnit, i: number): Session {
@@ -245,29 +280,39 @@ export function validatePlan(units: PlanUnit[], ctx: PlanCheckContext, config: L
     }
   });
 
-  if (!hasRestDay(units, ctx)) out.push({ code: "no_rest_day" });
+  const restNeeded = Math.min(requiredRestDays(ctx, config), restDays([], ctx));
+  if (restDays(units, ctx) < restNeeded) {
+    out.push(restNeeded > 1 ? { code: "too_few_rest_days", min: restNeeded } : { code: "no_rest_day" });
+  }
+
+  for (const focus of requiredFocus(ctx)) {
+    if (!units.some((u) => u.focus?.includes(focus))) out.push({ code: "missing_focus", focus });
+  }
 
   const { existing, plan, reference } = weekLoads(units, ctx, config);
-  const max = config.planning.maxWeeklyIncrease;
-  const increase = reference > 0 ? (existing + plan) / reference - 1 : 0;
-  if (plan > 0 && increase > max + 1e-9) {
-    out.push({ code: "weekly_load_increase", percent: Math.round(increase * 100), maxPercent: Math.round(max * 100) });
+  const ratio = reference > 0 ? (existing + plan) / reference : 0;
+  if (plan > 0 && reference > 0 && ratio > loadFactor(ctx, config) + 1e-9) {
+    out.push(
+      ctx.offseason?.deload
+        ? { code: "deload_too_high", maxPercent: Math.round(config.offseason.deloadFactor * 100) }
+        : {
+            code: "weekly_load_increase",
+            percent: Math.round((ratio - 1) * 100),
+            maxPercent: Math.round(config.planning.maxWeeklyIncrease * 100),
+          },
+    );
   }
   return out;
 }
 
 /** Mindestens ein Tag der Woche ganz ohne Einheit (Fußball eingeschlossen). */
-function hasRestDay(units: PlanUnit[], ctx: PlanCheckContext): boolean {
+/** Tage der Woche ganz ohne Einheit (Fußball eingeschlossen). */
+function restDays(units: PlanUnit[], ctx: PlanCheckContext): number {
   const busy = new Set([
     ...ctx.sessions.filter((s) => s.status !== "cancelled").map((s) => s.date),
     ...units.map((u) => u.date),
   ]);
-  return ctx.allowances.some((a) => !busy.has(a.date));
-}
-
-/** Ob die Woche ohne den Plan überhaupt einen Ruhetag hätte (sonst ist die Regel nicht erfüllbar). */
-function restDayPossible(ctx: PlanCheckContext): boolean {
-  return hasRestDay([], ctx);
+  return ctx.allowances.filter((a) => !busy.has(a.date)).length;
 }
 
 /**
@@ -306,7 +351,7 @@ export function enforcePlan<T extends PlanUnit>(
   // Wochenlast: erst überzählige Haupteinheiten (die spätesten) streichen, dann kürzen.
   const { existing, reference } = weekLoads(kept, ctx, config);
   if (reference > 0) {
-    const budget = reference * (1 + config.planning.maxWeeklyIncrease) - existing;
+    const budget = reference * loadFactor(ctx, config) - existing;
     const planOf = (list: T[]) => weekLoads(list, ctx, config).plan;
     const mainsOf = (list: T[]) => list.filter((u) => isMainUnit(u, config));
     while (planOf(kept) > budget && mainsOf(kept).length > 1) {
@@ -324,16 +369,18 @@ export function enforcePlan<T extends PlanUnit>(
         .filter((u) => !isMainUnit(u, config) || u.durationMin >= config.guardrails.minMainMinutes);
     }
   }
-  // Ruhetag: Den Tag mit der kleinsten Plan-Last ohne andere Einheiten freiräumen.
-  if (!hasRestDay(kept, ctx) && restDayPossible(ctx)) {
-    const othersBusy = new Set(ctx.sessions.filter((s) => s.status !== "cancelled").map((s) => s.date));
+  // Ruhetage: Tage mit der kleinsten Plan-Last ohne andere Einheiten freiräumen.
+  const restNeeded = Math.min(requiredRestDays(ctx, config), restDays([], ctx));
+  const othersBusy = new Set(ctx.sessions.filter((s) => s.status !== "cancelled").map((s) => s.date));
+  while (restDays(kept, ctx) < restNeeded) {
     const loadOf = (d: IsoDate) =>
       kept.filter((u) => u.date === d).reduce((sum, u) => sum + u.durationMin * u.targetRpe, 0);
     const candidate = ctx.allowances
       .map((a) => a.date)
-      .filter((d) => !othersBusy.has(d))
+      .filter((d) => !othersBusy.has(d) && kept.some((u) => u.date === d))
       .sort((x, y) => loadOf(x) - loadOf(y))[0];
-    if (candidate) kept = kept.filter((u) => u.date !== candidate);
+    if (!candidate) break;
+    kept = kept.filter((u) => u.date !== candidate);
   }
 
   return kept;

@@ -1,4 +1,4 @@
-import { isMainUnit, type DayAllowance } from "@/core/load";
+import type { DayAllowance, OffseasonWeek } from "@/core/load";
 import { ROUTINES, type Routine, type RoutineKey } from "@/features/today/routines";
 
 /**
@@ -39,11 +39,26 @@ function fits(r: Routine, a: DayAllowance, equipment: string[]): boolean {
   );
 }
 
+/**
+ * Off-Season: Erholen nur locker; Aufbauen = Ziel-Rotation mit Pflicht-Sprint und -Prävention;
+ * Zurück zum Fußball = Sprint, Intervalle, Kraft erhalten, Prävention.
+ */
+export function offseasonRotation(goalType: string | null, block: OffseasonWeek["block"]): RoutineKey[] {
+  if (block === "recover") return ["easy_run", "recovery_flush"];
+  if (block === "return") return ["acceleration", "intervals_4x4", "strength_full", "prevention_core"];
+  const goal = GOAL_ROTATION[goalType ?? ""] ?? ["strength_full", "intervals_4x4"];
+  const out: RoutineKey[] = [goal[0], "acceleration", ...goal.slice(1)];
+  if (!out.some((k) => ROUTINES[k].focus.includes("prevention"))) out.push("prevention_core");
+  return [...new Set(out)];
+}
+
 export function rulesPlan(
   allowances: DayAllowance[],
-  opts: { goalType: string | null; equipment: string[]; maxMainUnits: number },
+  opts: { goalType: string | null; equipment: string[]; maxMainUnits: number; offseason?: OffseasonWeek },
 ): RulesPlanItem[] {
-  const rotation = GOAL_ROTATION[opts.goalType ?? ""] ?? ["prevention_core"];
+  const rotation = opts.offseason
+    ? offseasonRotation(opts.goalType, opts.offseason.block)
+    : (GOAL_ROTATION[opts.goalType ?? ""] ?? ["prevention_core"]);
   const items: RulesPlanItem[] = [];
   let mains = 0;
   let next = 0;
@@ -75,10 +90,12 @@ export function rulesPlan(
           next = (next + i + 1) % rotation.length;
         }
       }
-      const r = chosen ?? ROUTINES.prevention_core;
+      const r = chosen ?? (opts.offseason?.block === "recover" ? ROUTINES.recovery_flush : ROUTINES.prevention_core);
       add(a.date, r, a.maxMinutes);
-      if (isMainUnit({ kind: r.sessionType as DayAllowance["kinds"][number], targetRpe: r.rpe })) mains++;
-    } else {
+      // Jede Einheit an einem gewählten Tag zählt zur gewünschten Anzahl (auch leichte).
+      mains++;
+    } else if (!opts.offseason) {
+      // Saison: freie Tage ohne Haupteinheit bekommen kurze Mobilität. Off-Season: Ruhe.
       add(a.date, ROUTINES.mobility_hip_groin, a.maxMinutes);
     }
   }

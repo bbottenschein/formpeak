@@ -1,12 +1,13 @@
 import "server-only";
-import type { ExpectedIntensity, GymFocus, Session, SessionStatus, SessionType } from "@/core/load";
+import { inOffseason, type ExpectedIntensity, type GymFocus, type Session, type SessionStatus, type SessionType } from "@/core/load";
 import { missingFixtures, type FixtureSeries } from "@/features/calendar/series";
+import { breakPhases } from "@/features/offseason/queries";
 import type { createClient } from "@/lib/supabase/server";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
 export const SESSION_COLUMNS =
-  "id, date, start_time, type, status, series_id, is_fixture, expected_intensity, gym_focus, duration_min, target_rpe, default_rpe, rpe, fatigue, match_minutes, planned_by, rationale, against_recommendation, notes, title, adjustment, adjusted_on";
+  "id, date, start_time, type, status, series_id, is_fixture, expected_intensity, gym_focus, duration_min, target_rpe, default_rpe, rpe, fatigue, match_minutes, planned_by, rationale, against_recommendation, notes, title, adjustment, adjusted_on, basis";
 
 export interface SessionRow {
   id: string;
@@ -33,6 +34,8 @@ export interface SessionRow {
   /** Warum die Einheit heute nach dem Check-in angepasst wurde (tägliche Anpassung). */
   adjustment: "light_red" | "light_yellow" | "pain" | "rules" | null;
   adjusted_on: string | null;
+  /** Wissenschaftliche Grundlage einer vorgeschlagenen Einheit (Schlüssel aus plan/basis.ts). */
+  basis: string[];
 }
 
 export function toCoreSession(s: SessionRow): Session {
@@ -102,7 +105,11 @@ export async function ensureFixtures(supabase: Supabase, userId: string, from: s
     .lte("series_date", to);
   const keys = new Set((existing ?? []).map((s) => `${s.series_id}|${s.series_date}`));
 
-  const rows = missingFixtures((series as SeriesRow[]).map(toSeries), keys, from, to);
+  // In der Off-Season (Pause) entstehen keine Trainings und Spiele aus Serien.
+  const breaks = await breakPhases(supabase, userId, from, to);
+  const rows = missingFixtures((series as SeriesRow[]).map(toSeries), keys, from, to).filter(
+    (r) => !breaks.some((b) => inOffseason(b, r.date)),
+  );
   if (!rows.length) return;
   const { error } = await supabase
     .from("sessions")

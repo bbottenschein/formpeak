@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { matchdayContext, mondayOf } from "@/core/load";
+import { matchdayContext, mondayOf, offseasonWeek } from "@/core/load";
 import { getCurrentUser } from "@/features/auth/session";
 import { getCheckinStatus } from "@/features/checkin/queries";
 import { getGoal, getGoalWithTests } from "@/features/goals/queries";
 import { testSchedule } from "@/features/goals/progress";
+import { getOffseason } from "@/features/offseason/queries";
 import { QuickFeedback } from "@/features/overview/quick-feedback";
 import { PlanAutoStart } from "@/features/plan/plan-auto-start";
 import { PlannedSessionCard } from "@/features/plan/planned-session";
@@ -17,6 +18,7 @@ import { pickTip, type Tip } from "@/features/today/tip";
 import { getWeek } from "@/features/week/queries";
 import { formatLongDate, userToday, zonedParts } from "@/lib/date";
 import { getT } from "@/lib/i18n/server";
+import { createClient } from "@/lib/supabase/server";
 import type { Translate } from "@/lib/i18n/translate";
 
 export const metadata: Metadata = { title: "Heute" };
@@ -46,13 +48,16 @@ export default async function TodayPage() {
   const today = userToday(user.timezone);
   const metrics = await computeMetricsFor(user.id, today, today);
   const monday = mondayOf(today);
-  const [week, status, { goal, frame }, { tests }, plan] = await Promise.all([
+  const [week, status, { goal, frame }, { tests }, plan, off] = await Promise.all([
     getWeek(user.id, monday, today, metrics),
     getCheckinStatus(user.id, today),
     getGoal(user.id),
     getGoalWithTests(user.id),
     getWeekPlan(user.id, monday),
+    createClient().then((sb) => getOffseason(sb, user.id, today)),
   ]);
+  // Wochenplan gibt es mit Ziel – in der Off-Season auch ohne.
+  const planned = Boolean(goal || off);
 
   const isPlan = (s: { planned_by: string }) => s.planned_by === "ai" || s.planned_by === "rules";
   const dayRows = week.days.find((d) => d.date === today)?.sessions ?? [];
@@ -62,7 +67,7 @@ export default async function TodayPage() {
     .filter((s) => s.status !== "cancelled")
     .sort((a, b) => (a.start_time ?? "99").localeCompare(b.start_time ?? "99"));
   // Vorschläge aus dem Wochenplan stehen in eigenen Karten mit Übungen.
-  const planToday = goal ? dayAll.filter(isPlan) : [];
+  const planToday = planned ? dayAll.filter(isPlan) : [];
   const todaySessions = dayAll.filter((s) => !planToday.includes(s));
   const exercises = await getPlannedExercises(planToday.map((s) => s.id));
   const nowTime = zonedParts(new Date(), user.timezone).time;
@@ -86,6 +91,7 @@ export default async function TodayPage() {
     openFeedback: openFeedback.length,
     weekHints: week.hints,
     testDueInDays: testSchedule(tests, today).daysUntil,
+    restPhase: off ? offseasonWeek(off.phase, today).block === "recover" : false,
   });
   const evening = zonedParts(new Date(), user.timezone).hour >= 17;
 
@@ -121,7 +127,7 @@ export default async function TodayPage() {
         </div>
       )}
 
-      {goal && (
+      {planned && (
         <div className="flex flex-col gap-2">
           <div className="flex items-baseline justify-between">
             <h2 className="eyebrow">{t("plan.today")}</h2>
@@ -149,7 +155,7 @@ export default async function TodayPage() {
         </div>
       )}
 
-      {!goal && routine && (
+      {!planned && routine && (
         <div className="flex flex-col gap-2">
           <h2 className="eyebrow">{t("today2.suggestionNoGoal")}</h2>
           <div className="card flex flex-col gap-3">

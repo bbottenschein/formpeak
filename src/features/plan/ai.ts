@@ -2,10 +2,11 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
-import { PLAN_KINDS, type PlanViolation } from "@/core/load";
+import { PLAN_FOCUS, PLAN_KINDS, type PlanViolation } from "@/core/load";
+import { BASIS_KEYS } from "./basis";
 
 export const PLAN_MODEL = "claude-opus-5-5";
-export const PROMPT_VERSION = "week-v1";
+export const PROMPT_VERSION = "week-v2";
 
 /** Bibliothek für Gym-Übungen (Name → Unterkörper), damit die Regeln greifen können. */
 export interface LibraryExercise {
@@ -34,6 +35,10 @@ function unitSchema(library: LibraryExercise[]) {
     targetRpe: z.number().describe("Ziel-Anstrengung als ganze Zahl 1–10 (RPE)"),
     gymFocus: z.enum(["lower", "upper", "full"]).nullable().describe("Nur bei kind=gym, sonst null"),
     reason: z.string().describe("Ein Satz, warum diese Einheit an diesem Tag sinnvoll ist"),
+    focus: z.array(z.enum(PLAN_FOCUS)).describe("Inhalte der Einheit, z. B. strength, sprint, prevention"),
+    basis: z
+      .array(z.enum(BASIS_KEYS))
+      .describe("1–2 Schlüssel der wissenschaftlichen Grundlage aus der Liste, auf die sich die Einheit stützt"),
     exercises: z.array(Exercise).describe("3–7 Übungen in Reihenfolge, inkl. kurzem Aufwärmen"),
   });
   return Unit;
@@ -49,21 +54,35 @@ function schema(library: LibraryExercise[]) {
 
 export type AiWeekPlan = z.infer<ReturnType<typeof schema>>;
 
-const SYSTEM = `Du bist Athletiktrainer für ambitionierte Amateurfußballer. Du planst die Zusatzeinheiten einer Woche rund um das feste Teamtraining und die Spiele.
+const SYSTEM = `Du bist Athletiktrainer für ambitionierte Amateurfußballer und planst evidenzbasiert. Du planst die Zusatzeinheiten einer Woche – in der Saison rund um Teamtraining und Spiele, in der Off-Season (Pause ohne Teamtraining und Spiele) als Hauptprogramm.
 
-Harte Regeln (der Code prüft sie und streicht Verstöße):
+Harte Regeln (der Code prüft sie, fragt einmal nach und streicht danach Verstöße):
 - Plane nur an Tagen, deren "erlaubt.arten" nicht leer ist, nur mit diesen Arten, höchstens "max_minuten" und "max_rpe".
 - Haupteinheiten (gym, run_intervals oder RPE über 4) nur an Tagen mit "haupteinheit": true und insgesamt höchstens "haupteinheiten_pro_woche".
 - Unterkörper-Kraftübungen aus der Bibliothek (unterkoerper: true) nur an Tagen mit "unterkoerper": true.
-- Höchstens 2 Einheiten pro Tag. Mindestens ein Tag der Woche bleibt ganz frei.
+- Höchstens 2 Einheiten pro Tag. Mindestens "ruhetage" Tage der Woche bleiben ganz frei.
 - Die Last der Haupteinheiten (Dauer × RPE) bleibt unter "wochenlast_budget_au", falls angegeben.
+- "pflichtinhalte" müssen in mindestens einer Einheit vorkommen und im Feld "focus" stehen.
 - Spare schmerzende Regionen aus "schmerz_sperren" aus. Bei Schmerz nie zum Weitertrainieren raten.
 - Nutze nur die angegebenen Trainingsmittel.
 
-So planst du:
-- Haupteinheiten passend zum Ziel, an freien Tagen ohne Fußball kurze Mobilität (10–15 min), am Tag vor dem Spiel kurz aktivieren, am Tag nach dem Spiel Regeneration.
-- Gym: Übungen aus der Bibliothek ("libraryName" exakt setzen). Gewichte aus dem Gym-Verlauf ableiten (leicht steigern, wenn die letzte Einheit sauber war); ohne Verlauf Wiederholungen und "moderates Gewicht" angeben.
-- Jede Übung hat eine kurze Vorgabe und genau einen Satz Erklärung zur Ausführung.
+Trainingswissenschaftliche Grundsätze (halte dich daran, erfinde keine Studien; begründe nur über die Schlüssel in "basis"):
+- Kraft: Grundübungen (Kniebeuge, Kreuzheben-Varianten, Ausfallschritte, Hip Thrust, Zug/Druck Oberkörper). Kraftaufbau 3–5 × 3–6 Wdh mit 2–3 min Pause; Muskelaufbau 3–4 × 6–12 Wdh, 1–3 Wiederholungen vor dem Muskelversagen. Unterkörper schwer höchstens 2–3 × pro Woche, mindestens 48 h dazwischen.
+- Ausdauer: harte Intervalle (z. B. 4 × 4 min bei 90–95 % HFmax mit 3 min locker, oder 15 s/15 s) höchstens 2 × pro Woche, dazu lockere Läufe (Unterhaltungstempo). Nicht am Tag nach schwerem Beintraining hart laufen.
+- Sprint: maximale Sprints über 10–30 m, 4–8 Wiederholungen, volle Pause (mindestens 1 min pro 10 m), frisch und nach gutem Aufwärmen; nicht nach harter Ermüdung.
+- Prävention: Nordic Hamstring Curls (z. B. 2–3 × 5–8) und Copenhagen Plank 1–2 × pro Woche, gerne am Ende einer Kraft-Einheit.
+- Reihenfolge innerhalb einer Einheit: Aufwärmen → Sprint/Sprung → Kraft → Ausdauer bzw. Prävention.
+- Progression: von Woche zu Woche nur moderat steigern (Wiederholungen, Gewicht oder Umfang – nicht alles gleichzeitig).
+- Gym-Gewichte aus "gym_verlauf" ableiten (2,5–5 % mehr, wenn die letzte Einheit sauber war); ohne Verlauf "RIR 2" (zwei Wiederholungen Reserve) statt kg angeben.
+
+Off-Season ("off_season" ist gesetzt):
+- Abschnitt "recover" (Erholen): nur locker – Radfahren, lockeres Laufen, Mobilität, leichte Ganzkörperkraft; keine Pflichtinhalte, RPE höchstens 4.
+- Abschnitt "build" (Aufbauen): Schwerpunkt Kraft (2–3 ×) und Ausdauer (Grundlage + 1–2 × Intervalle), dazu jede Woche Sprints und Prävention. In der Entlastungswoche ("entlastungswoche": true) Umfang um etwa 30–40 % senken, Intensität halten.
+- Abschnitt "return" (Zurück zum Fußball): fußballspezifisch – wiederholte Sprints, Richtungswechsel, harte Intervalle, Kraft erhalten (weniger Sätze, schwer). Die Wochenlast nähert sich "saison_wochenlast_au", damit der Start der Vorbereitung keine Lastspitze ist.
+- Ziel des Spielers einbeziehen, aber Sprint und Prävention nie weglassen (außer im Abschnitt "recover").
+
+Form:
+- Jede Übung hat eine kurze Vorgabe und genau einen Satz zur Ausführung. "reason": ein Satz, warum diese Einheit an diesem Tag – ohne Quellen.
 - Antworte auf Deutsch, in der Du-Form, sachlich und ohne Emojis. Keine Diagnosen, keine Ernährungs- oder Therapieempfehlungen.`;
 
 function violationText(v: PlanViolation, plan: AiWeekPlan): string {
@@ -86,6 +105,14 @@ function violationText(v: PlanViolation, plan: AiWeekPlan): string {
       return `${where}mehr als ${v.max} Einheiten an einem Tag.`;
     case "no_rest_day":
       return "Kein Tag der Woche bleibt frei – lass mindestens einen Tag ganz ohne Einheit.";
+    case "too_few_rest_days":
+      return `Zu wenige Ruhetage – lass mindestens ${v.min} Tage ganz ohne Einheit.`;
+    case "missing_focus":
+      return v.focus === "sprint"
+        ? "Es fehlen Sprints – plane in einer Einheit maximale Sprints (focus: sprint)."
+        : "Es fehlt Prävention – plane Nordic Curls/Copenhagen Plank in einer Einheit (focus: prevention).";
+    case "deload_too_high":
+      return `Entlastungswoche: Die Wochenlast darf höchstens ${v.maxPercent} % der Vergleichswoche betragen – Umfang senken, Intensität halten.`;
     case "weekly_load_increase":
       return `Wochenlast steigt um ${v.percent} %, erlaubt sind ${v.maxPercent} %. Weniger oder kürzere Haupteinheiten.`;
   }

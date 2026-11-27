@@ -5,11 +5,15 @@ import { DeltaTiles } from "@/features/overview/delta-tiles";
 import { ReadinessRing } from "@/features/overview/readiness-ring";
 import { LoadTrend, ReadinessTrend } from "@/features/overview/trend-charts";
 import { WeekStrip } from "@/features/overview/week-strip";
+import { ModeToggle } from "@/features/offseason/mode-toggle";
+import { getOffseason } from "@/features/offseason/queries";
+import { OffseasonStatus } from "@/features/offseason/status";
 import { computeTodayWithTrend } from "@/features/today/metrics";
 import { PainList } from "@/features/today/pain-list";
 import { getWeek } from "@/features/week/queries";
 import { formatLongDate, userToday } from "@/lib/date";
 import { getT } from "@/lib/i18n/server";
+import { createClient } from "@/lib/supabase/server";
 
 /** Home – „Wie geht es mir gerade?“ (docs/KONZEPT.md). */
 export default async function HomePage() {
@@ -17,7 +21,10 @@ export default async function HomePage() {
   const t = getT(user.locale);
   const today = userToday(user.timezone);
   const { metrics, trend } = await computeTodayWithTrend(user.id, today, 28);
-  const week = await getWeek(user.id, mondayOf(today), today, metrics);
+  const [week, off] = await Promise.all([
+    getWeek(user.id, mondayOf(today), today, metrics),
+    getOffseason(await createClient(), user.id, today),
+  ]);
   const perf = metrics.performance;
   const scorePoints = trend.filter((p) => p.score != null).length;
 
@@ -27,6 +34,9 @@ export default async function HomePage() {
         <p className="eyebrow">{formatLongDate(today)}</p>
         <h1 className="text-4xl font-bold">{t("today.greeting", { name: user.name })}</h1>
       </div>
+
+      <ModeToggle offseason={Boolean(off)} />
+      {off && <OffseasonStatus off={off} date={today} t={t} editable />}
 
       <div className="card flex flex-col items-center gap-3">
         {perf ? (

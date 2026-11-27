@@ -4,11 +4,13 @@ import {
   adjustToday,
   dayAllowances,
   mondayOf,
+  offseasonWeek,
   reducePrescription,
   type DailyMetrics,
   type TodayUnit,
 } from "@/core/load";
 import type { GoalData } from "@/features/goals/queries";
+import { getOffseason } from "@/features/offseason/queries";
 import { loadSessions, toCoreSession } from "@/features/sessions/data";
 import { hasAnthropicKey } from "@/lib/env.server";
 import type { Translate } from "@/lib/i18n/translate";
@@ -37,7 +39,8 @@ export async function adjustTodayPlan(input: {
   t: Translate;
 }): Promise<SpareJob[]> {
   const { supabase, userId, today, metrics, goal, t } = input;
-  const frame = goal.frame;
+  const off = await getOffseason(supabase, userId, today);
+  const frame = off?.frame ?? goal.frame;
   if (!frame) return [];
   const monday = mondayOf(today);
   const rows = await loadSessions(supabase, userId, addDays(monday, -7), addDays(monday, 13));
@@ -54,6 +57,7 @@ export async function adjustTodayPlan(input: {
     availableWeekdays: frame.availableWeekdays,
     timeBudgetMin: frame.timeBudgetMin,
     todayLight: metrics.light,
+    offseason: off ? offseasonWeek(off.phase, today) : undefined,
   }).find((a) => a.date === today)!;
 
   const { data: exRows } = await supabase

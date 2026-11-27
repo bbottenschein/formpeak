@@ -6,7 +6,8 @@ import { cancelSession, deleteSession, moveSession, restoreSession } from "@/fea
 import { SESSION_COLUMNS, toCoreSession, type SessionRow } from "@/features/sessions/data";
 import { FeedbackForm } from "@/features/sessions/feedback-form";
 import { GymLog } from "@/features/gym/gym-log";
-import { AdjustedBadge, ExerciseList } from "@/features/plan/planned-session";
+import { AdjustedBadge, BasisList, ExerciseList } from "@/features/plan/planned-session";
+import { Info } from "@/features/ui/info";
 import { getPlannedExercises } from "@/features/plan/queries";
 import { lastPerformances, listExercises, loadGymLog } from "@/features/gym/queries";
 import { computeMetricsFor } from "@/features/today/metrics";
@@ -87,7 +88,16 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
             .filter(Boolean)
             .join(" · ")}
         </p>
-        {suggested && session.rationale && planned.length > 0 && <p className="mt-2 text-sm">{session.rationale}</p>}
+        {suggested && session.rationale && planned.length > 0 && (
+          <div className="mt-2 flex items-start gap-2">
+            <p className="flex-1 text-sm">{session.rationale}</p>
+            {session.basis.length > 0 && (
+              <Info title={t("basis.title")}>
+                <BasisList basis={session.basis} t={t} />
+              </Info>
+            )}
+          </div>
+        )}
         {session.notes && <p className="mt-2 text-sm">{session.notes}</p>}
         {session.against_recommendation && <p className="mt-2 text-sm text-light-yellow">{t("session.againstRecommendation")}</p>}
       </div>
