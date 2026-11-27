@@ -6,7 +6,7 @@ export function Brand({ className = "" }: { className?: string }) {
   const t = getT();
   return (
     <div className={`text-center ${className}`}>
-      <h1>
+      <h1 className="pt-8">
         <Wordmark className="text-5xl" />
       </h1>
       <p className="eyebrow mt-2">{t("app.tagline")}</p>

@@ -5,11 +5,12 @@ import { I18nProvider } from "@/lib/i18n/client";
 import { DEFAULT_LOCALE, messagesFor } from "@/lib/i18n/translate";
 import "./globals.css";
 
-// Barlow für Text, Barlow Condensed für Überschriften und Wortmarke (sportlich, kompakt).
+// Barlow für Text und Logo (ExtraBold kursiv), Barlow Condensed für Überschriften (sportlich, kompakt).
 const barlow = Barlow({
   variable: "--font-barlow",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
+  style: ["normal", "italic"],
 });
 
 const barlowCondensed = Barlow_Condensed({
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
   title: { default: "FormPeak.", template: "%s · FormPeak." },
   description: "Belastungssteuerung für Amateurfußballer – in Form zum Spieltag.",
   appleWebApp: { capable: true, title: "FormPeak.", statusBarStyle: "black-translucent" },
-  icons: { apple: "/icons/apple-touch-icon.png" },
+  icons: { icon: "/icons/favicon-64.png", apple: "/icons/apple-touch-icon.png" },
 };
 
 export const viewport: Viewport = {

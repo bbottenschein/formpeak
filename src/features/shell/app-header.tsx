@@ -7,7 +7,7 @@ export function AppHeader() {
   const t = getT();
   return (
     <header className="flex items-center justify-between border-b border-line px-4 pb-3 pt-[calc(env(safe-area-inset-top)+0.75rem)]">
-      <Link href="/">
+      <Link href="/" className="pt-2">
         <Wordmark className="text-2xl" />
       </Link>
       <Link
