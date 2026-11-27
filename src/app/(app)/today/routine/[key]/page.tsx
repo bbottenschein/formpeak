@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCurrentUser } from "@/features/auth/session";
-import { bestE1rms, lastPerformances } from "@/features/gym/queries";
+import { bestE1rms, lastPerformances, listExercises } from "@/features/gym/queries";
 import { loadLibrary, rulesToSessions } from "@/features/plan/generate";
 import { ROUTINE_KEYS, ROUTINES, type RoutineKey } from "@/features/today/routines";
-import { TrainingFlow } from "@/features/training/training-flow";
+import { TrainingFlowClient } from "@/features/training/training-flow-client";
 import { userToday } from "@/lib/date";
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
@@ -26,13 +26,14 @@ export default async function RoutinePage({ params }: PageProps<"/today/routine/
   );
   const gymIds = session.exercises.map((e) => e.exerciseId).filter((x): x is string => Boolean(x));
   const none = "00000000-0000-0000-0000-000000000000";
-  const [last, best] = await Promise.all([
+  const [last, best, library] = await Promise.all([
     lastPerformances(supabase, user.id, gymIds, none, userToday(user.timezone)),
     bestE1rms(supabase, user.id, gymIds, none),
+    listExercises(supabase),
   ]);
 
   return (
-    <TrainingFlow
+    <TrainingFlowClient
       title={session.title}
       durationMin={routine.minutes}
       exercises={session.exercises.map((e) => ({
@@ -41,6 +42,7 @@ export default async function RoutinePage({ params }: PageProps<"/today/routine/
         best: e.exerciseId ? (best[e.exerciseId] ?? null) : null,
       }))}
       finish={{ kind: "routine", key: routine.key }}
+      library={library.map(({ id, name, muscleGroup, equipment }) => ({ id, name, muscleGroup, equipment }))}
       closeHref="/today"
     />
   );

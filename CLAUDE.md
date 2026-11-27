@@ -70,7 +70,7 @@ offen benennen.
   - `(app)/` – alles hinter dem Login, mit Tab-Leiste (Home · Heute · + · Ziel · Kalender),
     Profil oben rechts.
   - `login/`, `invite/` – öffentlich.
-- `src/features/<modul>/` – ein Ordner pro Feature (`overview`, `today`, `plan`, `training`, `offseason`, `review`, `goals`, `week`, `log`, `checkin`,
+- `src/features/<modul>/` – ein Ordner pro Feature (`overview`, `today`, `plan`, `training`, `offseason`, `review`, `coach`, `goals`, `week`, `log`, `checkin`,
   `bodymap`, `gym`, `calendar`, `history`, `settings`, `notifications`, `auth`, `admin`, `shell`, `ui`).
   Komponenten, Server Actions, Queries und reine Logik des Moduls liegen dort.
 - `src/lib/` – modulübergreifende Helfer (Supabase-Clients, Datum/Zeitzone, Env, i18n).

@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import { inferMeasure, type Measure } from "@/features/training/prescription";
 import type { PlannedExercise } from "./types";
 
 export interface WeekPlanStatus {
@@ -45,7 +46,7 @@ export async function getPlannedExercises(sessionIds: string[]): Promise<Record<
   const supabase = await createClient();
   const { data } = await supabase
     .from("planned_exercises")
-    .select("session_id, position, name, prescription, how, exercise_id")
+    .select("session_id, position, name, prescription, how, exercise_id, measure, exercises(equipment)")
     .in("session_id", sessionIds)
     .order("position");
   const out: Record<string, PlannedExercise[]> = {};
@@ -55,6 +56,9 @@ export async function getPlannedExercises(sessionIds: string[]): Promise<Record<
       prescription: r.prescription ?? "",
       how: r.how ?? "",
       exerciseId: r.exercise_id,
+      measure:
+        (r.measure as Measure | null) ??
+        inferMeasure(r.prescription ?? "", (r.exercises as unknown as { equipment: string } | null)?.equipment ?? null),
     });
   }
   return out;

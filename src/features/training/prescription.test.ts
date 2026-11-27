@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatClock, parsePrescription } from "./prescription";
+import { formatClock, inferMeasure, parsePrescription } from "./prescription";
 
 describe("parsePrescription", () => {
   it("Sätze × Wiederholungen mit Gewicht", () => {
@@ -29,5 +29,26 @@ describe("formatClock", () => {
     expect(formatClock(65)).toBe("1:05");
     expect(formatClock(0)).toBe("0:00");
     expect(formatClock(-3)).toBe("0:00");
+  });
+});
+
+describe("inferMeasure", () => {
+  it("Gym-Übung mit Gerät → Gewicht × Wdh", () => {
+    expect(inferMeasure("4 × 5, 60 kg", "barbell")).toBe("weight_reps");
+    expect(inferMeasure("3 × 10", "machine")).toBe("weight_reps");
+  });
+  it("Körpergewicht → nur Wdh", () => {
+    expect(inferMeasure("3 × 5", "bodyweight")).toBe("reps");
+    expect(inferMeasure("2 × 12 je Seite", null)).toBe("reps");
+  });
+  it("Halten auf Zeit → Zeit (auch Copenhagen Plank aus der Bibliothek)", () => {
+    expect(inferMeasure("3 × 20 s je Seite", "bodyweight")).toBe("time");
+    expect(inferMeasure("60 s", null)).toBe("time");
+    expect(inferMeasure("15 min", null)).toBe("time");
+  });
+  it("Strecken und Freitext → abhaken", () => {
+    expect(inferMeasure("3 × 20 m", null)).toBe("check");
+    expect(inferMeasure("6 × 10 m", null)).toBe("check");
+    expect(inferMeasure("locker", null)).toBe("check");
   });
 });

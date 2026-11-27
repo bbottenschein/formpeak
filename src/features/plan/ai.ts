@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 import { PLAN_FOCUS, PLAN_KINDS, type PlanViolation } from "@/core/load";
+import { MEASURES } from "@/features/training/prescription";
 import { BASIS_KEYS } from "./basis";
 
 export const PLAN_MODEL = "claude-opus-5-5";
@@ -26,6 +27,9 @@ function unitSchema(library: LibraryExercise[]) {
       .describe("Exakter Name aus der Gym-Bibliothek, wenn die Übung dort steht, sonst null"),
     prescription: z.string().describe("Vorgabe kurz, z. B. „3 × 8, 40 kg“, „4 × 4 min“, „60 s je Seite“"),
     how: z.string().describe("Genau ein kurzer Satz in Du-Form: wie die Übung richtig ausgeführt wird"),
+    measure: z
+      .enum(MEASURES)
+      .describe("Eingabe pro Satz: weight_reps (Gewicht × Wdh), reps (Körpergewicht), time (Halten/Dauer in s), check (Sprints, Strecken, Dehnungen)"),
   });
   const Unit = z.object({
     date: z.string().describe("Datum YYYY-MM-DD aus der Woche"),

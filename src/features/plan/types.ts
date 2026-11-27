@@ -1,4 +1,5 @@
 import type { GymFocus, PlanKind, PlanUnit } from "@/core/load";
+import type { Measure } from "@/features/training/prescription";
 import type { BasisKey } from "./basis";
 
 /** Eine Übung im Plan: Vorgabe und genau ein Satz, wie sie geht. */
@@ -8,6 +9,8 @@ export interface PlannedExercise {
   how: string;
   /** Übung aus der Gym-Bibliothek (für das Gym-Log und die Unterkörper-Regel). */
   exerciseId: string | null;
+  /** Was pro Satz eingetragen wird (Gewicht × Wdh, Wdh, Zeit, abhaken). */
+  measure: Measure;
 }
 
 /** Eine vorgeschlagene Einheit, bevor sie als `sessions`-Zeile gespeichert wird. */

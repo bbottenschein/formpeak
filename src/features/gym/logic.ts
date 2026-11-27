@@ -84,13 +84,8 @@ export function suggestWeight(lastSets: GymSet[], targetReps: number | null): { 
   return allDone ? { weightKg: top + PROGRESSION_STEP_KG, progressed: true } : { weightKg: top, progressed: false };
 }
 
-/** Pause nach einem Satz: schwer (≤ 6 Wdh) 2:30, mittel (≤ 12) 1:30, sonst 1:00. */
-export function restSeconds(reps: number | null): number {
-  if (reps == null) return 90;
-  if (reps <= 6) return 150;
-  if (reps <= 12) return 90;
-  return 60;
-}
+/** Satzpause: einheitlich 3 min (im Training per −30 s / +30 s anpassbar). */
+export const REST_SECONDS = 180;
 
 /** Neuer Bestwert: geschätztes 1RM des Satzes über dem bisherigen besten. */
 export function isPersonalBest(set: Pick<GymSet, "weightKg" | "reps">, previousBest: number | null): boolean {

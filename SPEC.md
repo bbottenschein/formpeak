@@ -445,6 +445,19 @@ sie kann keine Studien erfinden. Sichtbar im Info-Symbol der Einheit.
 - **Quellen:** Alle Grundlagen der Trainingsplanung gegen die Originalstudien geprüft und auf der
   Quellenseite verlinkt.
 
+### 7.5 Training im Gym und KI-Chat (umgesetzt)
+
+- **Training:** Bildschirm bleibt an (Wake Lock), der Stand liegt auf dem Gerät (localStorage) und
+  übersteht Bildschirm aus, App-Wechsel und Neuladen. Satzpause 3 min, −30 s / +30 s. In der Übersicht
+  Reihenfolge ändern und Übungen tauschen (ähnliche Übungen derselben Muskelgruppe, Suche, eigene);
+  die tatsächliche Reihenfolge wird beim Speichern übernommen. Felder lassen sich frei leeren.
+- **Eingabe pro Übung** (`planned_exercises.measure`): Gewicht × Wdh, nur Wdh (Körpergewicht), Zeit
+  (Timer pro Satz) oder nur abhaken (Sprints, Strecken). Die KI liefert die Art mit; sonst
+  `inferMeasure` aus Vorgabe und Bibliothek.
+- **KI-Chat** (Knopf unten rechts, nur mit API-Schlüssel): beantwortet Fragen und ändert das heutige
+  Training über Werkzeuge (Übung ersetzen, Reihenfolge, kürzen, Einheit tauschen/verschieben). Jede
+  Änderung prüft der Code (Unterkörper-Sperre, nur kürzen, Leitplanken); keine Namen im Kontext.
+
 Prompt: System-Prompt mit Rolle (Athletiktrainer für Amateurfußball), Regeln, Verboten (keine
 Diagnosen, Ampel nie überstimmen) und Schema; Nutzer-Nachricht nur JSON-Kontext. Kleines Modell
 für die tägliche Anpassung, stärkeres für Wochenplan und Monatsrückblick. Alle Anfragen und

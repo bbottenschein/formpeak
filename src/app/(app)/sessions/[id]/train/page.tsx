@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/features/auth/session";
-import { bestE1rms, lastPerformances } from "@/features/gym/queries";
+import { bestE1rms, lastPerformances, listExercises } from "@/features/gym/queries";
 import { getPlannedExercises } from "@/features/plan/queries";
 import { SESSION_COLUMNS, type SessionRow } from "@/features/sessions/data";
-import { TrainingFlow } from "@/features/training/training-flow";
+import { TrainingFlowClient } from "@/features/training/training-flow-client";
 import { userToday } from "@/lib/date";
 import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
@@ -23,22 +23,23 @@ export default async function TrainPage({ params }: PageProps<"/sessions/[id]/tr
   if (!session || session.status !== "planned" || exercises.length === 0) redirect(`/sessions/${id}`);
 
   const gymIds = exercises.map((e) => e.exerciseId).filter((x): x is string => Boolean(x));
-  const [last, best] = await Promise.all([
+  const [last, best, library] = await Promise.all([
     lastPerformances(supabase, user.id, gymIds, id, userToday(user.timezone)),
     bestE1rms(supabase, user.id, gymIds, id),
+    listExercises(supabase),
   ]);
 
   return (
-    <TrainingFlow
+    <TrainingFlowClient
       title={session.title ?? t(`sessionTypes.${session.type}`)}
       durationMin={session.duration_min}
       exercises={exercises.map((e) => ({
         ...e,
-        exerciseId: session.type === "gym" ? e.exerciseId : null,
         last: e.exerciseId ? (last[e.exerciseId]?.sets ?? null) : null,
         best: e.exerciseId ? (best[e.exerciseId] ?? null) : null,
       }))}
       finish={{ kind: "session", id }}
+      library={library.map(({ id, name, muscleGroup, equipment }) => ({ id, name, muscleGroup, equipment }))}
       closeHref="/today"
     />
   );

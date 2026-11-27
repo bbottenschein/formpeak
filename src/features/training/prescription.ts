@@ -29,3 +29,21 @@ export function formatClock(seconds: number): string {
   const s = Math.max(0, Math.round(seconds));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
+
+/** Was pro Satz eingetragen wird. */
+export const MEASURES = ["weight_reps", "reps", "time", "check"] as const;
+export type Measure = (typeof MEASURES)[number];
+
+/**
+ * Eingabeart aus Vorgabe und Bibliothek ableiten (für Übungen ohne gespeicherte Art):
+ * Zeitvorgabe ohne Wiederholungen → Zeit, Strecke → abhaken, Körpergewicht → nur Wiederholungen,
+ * sonstige Gym-Übung → Gewicht × Wiederholungen.
+ */
+export function inferMeasure(prescription: string, libraryEquipment: string | null): Measure {
+  const p = parsePrescription(prescription);
+  if (p.seconds != null && p.reps == null) return "time";
+  if (/\d\s*m\b/i.test(prescription)) return "check";
+  if (libraryEquipment) return libraryEquipment === "bodyweight" ? "reps" : "weight_reps";
+  if (p.reps != null) return "reps";
+  return "check";
+}

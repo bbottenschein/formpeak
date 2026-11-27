@@ -24,6 +24,7 @@ import { aiWeekPlan, PLAN_MODEL, PROMPT_VERSION, type AiUnit, type AiWeekPlan, t
 import { getOffseason } from "@/features/offseason/queries";
 import { BASIS_KEYS } from "./basis";
 import { STALE_PENDING_MS } from "./queries";
+import { inferMeasure } from "@/features/training/prescription";
 import { rulesPlan } from "./rules-plan";
 import type { PlannedSession, WeekPlanResult } from "./types";
 
@@ -112,6 +113,7 @@ async function gymHistory(supabase: Supabase, userId: string, today: string) {
 /** Übersetzt den Regel-Plan in Einheiten mit Titeln und erklärten Übungen. */
 export function rulesToSessions(items: ReturnType<typeof rulesPlan>, t: Translate, library: LibraryExercise[]): PlannedSession[] {
   const byName = new Map(library.map((e) => [e.name, e.id]));
+  const equipmentOf = new Map(library.map((e) => [e.name, e.equipment]));
   return items.map((item) => {
     const r = ROUTINES[item.routine];
     return {
@@ -134,6 +136,10 @@ export function rulesToSessions(items: ReturnType<typeof rulesPlan>, t: Translat
             : t("routines.seconds", { value: e.seconds ?? 0 }),
         how: t(`plan.how.${e.key as "squat"}`),
         exerciseId: (e.library && byName.get(e.library)) || null,
+        measure: inferMeasure(
+          e.reps ? t(`routines.reps.${e.reps as "12"}`) : t("routines.seconds", { value: e.seconds ?? 0 }),
+          e.library ? (equipmentOf.get(e.library) ?? null) : null,
+        ),
       })),
     };
   });
@@ -149,6 +155,7 @@ export function aiUnitToSession(s: AiUnit, library: LibraryExercise[]): PlannedS
       prescription: e.prescription.slice(0, 60),
       how: e.how.slice(0, 300),
       exerciseId: lib?.id ?? null,
+      measure: e.measure,
     };
   });
   const lowerBody = s.exercises.some((e) => e.libraryName && byName.get(e.libraryName)?.lowerBody);
@@ -189,6 +196,7 @@ export async function writeExercises(
         prescription: e.prescription,
         how: e.how,
         exercise_id: e.exerciseId,
+        measure: e.measure,
       })),
     );
   }

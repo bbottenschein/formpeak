@@ -1323,7 +1323,15 @@
     "rest": "Pause",
     "restOver": "Weiter geht's",
     "skipRest": "Überspringen",
-    "restClose": "OK"
+    "restClose": "OK",
+    "swap": "Tauschen",
+    "swapTitle": "Statt {name}",
+    "swapSearch": "Übung suchen",
+    "swapSimilar": "Ähnlich · {group}",
+    "swapOwn": "eigene Übung",
+    "up": "Nach oben",
+    "down": "Nach unten",
+    "resumeTraining": "Weiter trainieren"
   },
   "basis": {
     "title": "Wissenschaftliche Grundlage",
@@ -1420,5 +1428,18 @@
       "load_drop": "Deine Last ist deutlich gesunken – steig nächste Woche behutsam wieder ein, damit der Anstieg später keine Spitze wird.",
       "steady": "Gute, gleichmäßige Woche – genau so weitermachen."
     }
+  },
+  "coach": {
+    "open": "Trainer-Assistent öffnen",
+    "title": "Trainer-Assistent",
+    "intro": "Frag mich etwas oder sag, was am Training heute nicht passt – ich passe es direkt an.",
+    "example1": "Die Beinpresse ist belegt – was stattdessen?",
+    "example2": "Ich habe heute nur 30 Minuten.",
+    "example3": "Warum steht heute diese Einheit an?",
+    "placeholder": "Nachricht",
+    "send": "Senden",
+    "thinking": "Denkt nach …",
+    "error": "Das hat nicht geklappt. Bitte nochmal versuchen.",
+    "clear": "Neu"
   }
 }

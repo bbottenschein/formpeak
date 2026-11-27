@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { best1rm, epley1rm, isPersonalBest, restSeconds, setsFromSuggestion, suggestNext, suggestWeight, volume, type GymSet } from "./logic";
+import { best1rm, epley1rm, isPersonalBest, setsFromSuggestion, suggestNext, suggestWeight, volume, type GymSet } from "./logic";
 
 const w = (weightKg: number, reps: number, rir: number | null = null): GymSet => ({ weightKg, reps, rir, setType: "working" });
 const warm = (weightKg: number, reps: number): GymSet => ({ weightKg, reps, rir: null, setType: "warmup" });
@@ -86,16 +86,6 @@ describe("suggestWeight – Training ohne RIR", () => {
   it("ohne Verlauf oder nur Körpergewicht → kein Vorschlag", () => {
     expect(suggestWeight([], 5)).toBeNull();
     expect(suggestWeight([w(0, 10)], 10)).toBeNull();
-  });
-});
-
-describe("restSeconds – Grenzen", () => {
-  it("≤ 6 Wdh 150 s, ≤ 12 Wdh 90 s, darüber 60 s, unbekannt 90 s", () => {
-    expect(restSeconds(6)).toBe(150);
-    expect(restSeconds(7)).toBe(90);
-    expect(restSeconds(12)).toBe(90);
-    expect(restSeconds(13)).toBe(60);
-    expect(restSeconds(null)).toBe(90);
   });
 });
 
