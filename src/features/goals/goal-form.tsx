@@ -12,6 +12,17 @@ import { SELF_TESTS, suggestTests, type TestKey } from "./tests";
 const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0] as const;
 type StepKey = "goal" | "date" | "frequency" | "days" | "duration" | "equipment" | "summary";
 
+/** Welche Teile der Assistent abfragt: alles (Onboarding), nur das Ziel oder nur den Saison-Rahmen. */
+export type GoalFormPart = "all" | "goal" | "frame";
+
+function stepsFor(g: GoalInput, part: GoalFormPart): StepKey[] {
+  const goal: StepKey[] = ["goal", "date"];
+  const frame: StepKey[] = g.extraSessionsPerWeek === 0 ? ["frequency"] : ["frequency", "days", "duration", "equipment"];
+  if (part === "goal") return [...goal, "summary"];
+  if (part === "frame") return [...frame, "summary"];
+  return [...goal, ...frame, "summary"];
+}
+
 const chip = (active: boolean) =>
   `rounded-lg border px-3 py-3 text-base font-medium transition ${
     active ? "border-primary bg-primary text-primary-foreground" : "border-line bg-surface hover:border-muted/50"
@@ -27,7 +38,7 @@ const formatDate = (d: string) =>
   );
 
 /** Ziel-Assistent: eine Frage pro Schritt, am Ende Zusammenfassung mit KI-Text, Target und Testvorschlag. */
-export function GoalForm({ initial }: { initial: GoalInput }) {
+export function GoalForm({ initial, part = "all" }: { initial: GoalInput; part?: GoalFormPart }) {
   const t = useT();
   const [g, setG] = useState<GoalInput>(initial);
   const [stepIndex, setStepIndex] = useState(0);
@@ -36,10 +47,7 @@ export function GoalForm({ initial }: { initial: GoalInput }) {
   const [previewKey, setPreviewKey] = useState<string | null>(null);
   const [loading, startLoading] = useTransition();
 
-  const steps: StepKey[] =
-    g.extraSessionsPerWeek === 0
-      ? ["goal", "date", "frequency", "summary"]
-      : ["goal", "date", "frequency", "days", "duration", "equipment", "summary"];
+  const steps = stepsFor(g, part);
   const step = steps[Math.min(stepIndex, steps.length - 1)];
   const go = (key: StepKey) => goToIndex(steps.indexOf(key));
   const next = (snapshot: GoalInput = g) => goToIndex(Math.min(stepIndex + 1, steps.length - 1), snapshot);
@@ -80,10 +88,7 @@ export function GoalForm({ initial }: { initial: GoalInput }) {
 
   /** Zu einem Schritt wechseln; beim Erreichen der Zusammenfassung die KI fragen. */
   function goToIndex(index: number, snapshot: GoalInput = g) {
-    const list: StepKey[] =
-      snapshot.extraSessionsPerWeek === 0
-        ? ["goal", "date", "frequency", "summary"]
-        : ["goal", "date", "frequency", "days", "duration", "equipment", "summary"];
+    const list = stepsFor(snapshot, part);
     setStepIndex(index);
     if (list[index] === "summary") loadPreview(snapshot);
   }
@@ -170,7 +175,8 @@ export function GoalForm({ initial }: { initial: GoalInput }) {
                 onClick={() => {
                   const snapshot = { ...g, extraSessionsPerWeek: n, availableWeekdays: g.availableWeekdays.slice(0, n) };
                   setG(snapshot);
-                  goToIndex(3, snapshot); // bei 0 ist Schritt 3 die Zusammenfassung, sonst die Tage
+                  const list = stepsFor(snapshot, part);
+                  goToIndex(list.indexOf(n === 0 ? "summary" : "days"), snapshot);
                 }}
                 className={`${chip(g.extraSessionsPerWeek === n)} py-5 font-display text-3xl font-bold`}
               >

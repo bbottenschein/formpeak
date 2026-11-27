@@ -13,7 +13,20 @@ const shortDate = (d: string) =>
 const num = (n: number) => n.toLocaleString("de-DE", { maximumFractionDigits: 2 });
 
 /** Ziel-Bereich – „Komme ich voran?“: Ziel, Referenztest mit Termin, Vorher-nachher. */
-export function GoalOverview({ goal, tests, today, t }: { goal: GoalInput; tests: TestEntry[]; today: string; t: Translate }) {
+export function GoalOverview({
+  goal,
+  tests,
+  today,
+  frameCard,
+  t,
+}: {
+  goal: GoalInput;
+  tests: TestEntry[];
+  today: string;
+  /** Trainingsrahmen des aktuellen Modus (Saison/Off-Season), direkt unter dem Ziel. */
+  frameCard?: React.ReactNode;
+  t: Translate;
+}) {
   const focus = t(`goal.goalFocus.${goal.type}`);
   const testKey = goal.testKey;
   const relevant = testKey ? tests.filter((x) => x.testKey === testKey) : [];
@@ -28,13 +41,10 @@ export function GoalOverview({ goal, tests, today, t }: { goal: GoalInput; tests
         <p className="text-xl font-medium leading-snug">
           {goal.targetDate
             ? t("goalView.sentence", { date: longDate(goal.targetDate), focus })
-            : t("goalView.sentenceNoDate", { focus })}{" "}
-          {goal.extraSessionsPerWeek > 0
-            ? t("goalView.frame", { sessions: goal.extraSessionsPerWeek, minutes: goal.timeBudgetMin })
-            : t("goalView.frameNone")}
+            : t("goalView.sentenceNoDate", { focus })}
         </p>
         <div className="flex items-center gap-3">
-          <Link href="/goals/edit" className="text-sm text-muted underline underline-offset-4">
+          <Link href="/goals/edit?part=goal" className="text-sm text-muted underline underline-offset-4">
             {t("goalView.edit")}
           </Link>
           <Info title={t("goalView.inYourWords")}>
@@ -43,6 +53,8 @@ export function GoalOverview({ goal, tests, today, t }: { goal: GoalInput; tests
           </Info>
         </div>
       </div>
+
+      {frameCard}
 
       {testKey && (
         <div className="card flex flex-col gap-3">

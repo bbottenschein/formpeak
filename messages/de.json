@@ -1156,7 +1156,12 @@
     "e1rm": "≈ 1RM {value} kg",
     "noTestPlanned": "Kein Test geplant.",
     "calendarHint": "Der Termin steht auch in deinem Kalender.",
-    "inYourWords": "Dein Ziel in Worten"
+    "inYourWords": "Dein Ziel in Worten",
+    "frameSeason": "Trainingsrahmen · Saison",
+    "frameOff": "Trainingsrahmen · Off-Season",
+    "frameLine": "{sessions} × pro Woche · bis {minutes} min",
+    "editFrame": "Rahmen ändern",
+    "modeInfo": "Ein Ziel, zwei Trainingsrahmen: In der Saison planst du um Training und Spiele herum, in der Off-Season (Pause ohne Team) mit eigenem Rahmen und mehr Einheiten. Umschalten jederzeit – dein Ziel bleibt."
   },
   "log": {
     "title": "Erfassen",

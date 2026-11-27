@@ -5,9 +5,6 @@ import { DeltaTiles } from "@/features/overview/delta-tiles";
 import { ReadinessRing } from "@/features/overview/readiness-ring";
 import { LoadTrend, ReadinessTrend } from "@/features/overview/trend-charts";
 import { WeekStrip } from "@/features/overview/week-strip";
-import { ModeToggle } from "@/features/offseason/mode-toggle";
-import { getOffseason } from "@/features/offseason/queries";
-import { OffseasonStatus } from "@/features/offseason/status";
 import { getConsistency, getReviewData, previousMonthStart } from "@/features/review/queries";
 import { ReviewCard } from "@/features/review/review-card";
 import { computeTodayWithTrend } from "@/features/today/metrics";
@@ -29,9 +26,8 @@ export default async function HomePage() {
   const weekday = weekdayOf(today);
   const reviewWeek = weekday === 0 ? mondayOf(today) : weekday === 1 ? addDays(mondayOf(today), -7) : null;
   const reviewMonth = Number(today.slice(8, 10)) <= 3 ? previousMonthStart(today) : null;
-  const [week, off, consistency, weekReview, monthReview, { data: texts }] = await Promise.all([
+  const [week, consistency, weekReview, monthReview, { data: texts }] = await Promise.all([
     getWeek(user.id, mondayOf(today), today, metrics),
-    getOffseason(supabase, user.id, today),
     getConsistency(supabase, user.id, today),
     reviewWeek ? getReviewData(supabase, user.id, "week", reviewWeek, today) : Promise.resolve(null),
     reviewMonth ? getReviewData(supabase, user.id, "month", reviewMonth, today) : Promise.resolve(null),
@@ -59,8 +55,6 @@ export default async function HomePage() {
         </Link>
       )}
 
-      <ModeToggle offseason={Boolean(off)} />
-      {off && <OffseasonStatus off={off} date={today} t={t} editable />}
 
       <div className="card flex flex-col items-center gap-3">
         {perf ? (

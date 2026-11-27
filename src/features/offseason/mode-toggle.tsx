@@ -39,7 +39,7 @@ export function ModeToggle({ offseason }: { offseason: boolean }) {
         onClick={(e) => e.target === dialog.current && dialog.current?.close()}
         className="m-0 mt-auto w-full max-w-none border-t border-line bg-surface p-0 text-foreground backdrop:bg-black/60"
       >
-        <form action={endOffseason} className="mx-auto flex max-w-lg flex-col gap-3 px-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-5">
+        <form action={endOffseason} onSubmit={() => setTimeout(() => dialog.current?.close(), 0)} className="mx-auto flex max-w-lg flex-col gap-3 px-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] pt-5">
           <p className="font-display text-xl font-semibold">{t("offseason.endTitle")}</p>
           <p className="text-sm text-muted">{t("offseason.endText")}</p>
           <button className="btn-primary mt-2">{t("offseason.endConfirm")}</button>

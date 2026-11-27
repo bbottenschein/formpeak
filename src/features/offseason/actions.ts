@@ -75,7 +75,7 @@ export async function saveOffseason(input: OffseasonInput): Promise<{ error?: bo
   if (!active) await planPauseTests(supabase, user.id, addDays(today, o.recoveryWeeks * 7), endsOn);
   await resetPlans(supabase, user.id, today);
   refresh();
-  redirect("/");
+  redirect("/goals");
 }
 
 /** Off-Season beenden: ab heute gilt wieder der Season-Modus mit festen Terminen. */
@@ -93,5 +93,5 @@ export async function endOffseason() {
     await resetPlans(supabase, user.id, today);
   }
   refresh();
-  redirect("/");
+  redirect("/goals");
 }

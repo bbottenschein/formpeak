@@ -343,7 +343,7 @@ Profil als Symbol oben rechts.
 | --- | --- | --- |
 | **Home** (`/`) | Wie geht es mir gerade? | Performance-Ring mit Satz, Tipp → Aufschlüsselung (`/score`); Kacheln Belastung und Stress vs. Normalwert; Wochenleiste Mo–So mit festen Terminen; aktive Schmerzstellen; Verlauf von Score und Belastung über 4 Wochen |
 | **Heute** (`/today`) | Was mache ich heute? | Ohne Check-in zuerst „Check-in starten“. Termine mit Uhrzeit, der Plan für heute (Einheit mit „Training starten“), höchstens ein Tipp, offenes Feedback |
-| **Ziel** (`/goals`) | Komme ich voran? | Ohne Ziel: Onboarding (Click-Through). Mit Ziel: Ziel-Übersicht, Referenztest mit Anleitung, nächster Termin mit Countdown, Ergebnis eintragen, Vorher-nachher |
+| **Ziel** (`/goals`) | Komme ich voran? | Oben Umschalter Season / Off-Season. Ohne Ziel: Onboarding (Click-Through). Mit Ziel: ein Ziel (ändern: `?part=goal`), darunter der Trainingsrahmen des aktuellen Modus (Saison: `?part=frame`; Off-Season: eigener Rahmen mit Abschnitten, `/offseason`), Referenztest mit Countdown, Ergebnis eintragen, Vorher-nachher |
 | **Kalender** (`/week`) | Wann ist was? | Woche mit festen Terminen und geplanten Einheiten, Hinweisen zur Belastung, Einheit planen, Einzeltermin, Serien verwalten, Referenztest-Termine |
 | **+ Erfassen** (`/log`) | Schnell eintragen | Morgen-Check-in, Abend-Check-in, offenes Feedback, Gym-Einheit, Körpermaße |
 | Profil (oben rechts, `/settings`) | – | Erinnerungen, Name, Zeitzone, Datenschutz, Admin, Abmelden, Quellen |
@@ -411,7 +411,7 @@ der Vorwoche zählen geplant). Verstöße → eine Rückfrage an die KI, danach 
 
 ### 7.3 Off-Season (umgesetzt, `src/core/load/offseason.ts`, `src/features/offseason`)
 
-Umschalter **Season / Off-Season** auf Home. Off-Season = Pause ohne Teamtraining und Spiele
+Umschalter **Season / Off-Season** im Bereich Ziel (ein Ziel, zwei Rahmen). Off-Season = Pause ohne Teamtraining und Spiele
 (Saisonphase `break`). Der Nutzer legt im Klick-Through selbst fest: Start der Vorbereitung (oder
 offen), Erholungswochen (0–2), Einheiten pro Woche (1–6), Tage, Dauer, Trainingsmittel. Dieser Rahmen
 ersetzt während der Pause den Saison-Rahmen. Feste Termine pausieren im Zeitraum; nach der Pause
