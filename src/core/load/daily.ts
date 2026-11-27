@@ -4,6 +4,7 @@ import { computeAcwr } from "./acwr";
 import { activePainSpots, type PainSpotStatus } from "./pain";
 import { isUnderloaded } from "./planning-hints";
 import { computeReadiness } from "./readiness";
+import { computePerformanceScore, loadVsNormal, stressVsNormal, type PerformanceScore, type StressEntry } from "./score";
 import { dailyLoads } from "./session-load";
 import { computeTrafficLight, type LightReason } from "./traffic-light";
 import type { MorningCheckin, PainEntry, Session, TrafficLight } from "./types";
@@ -16,6 +17,8 @@ export interface DailyInput {
   firstDataDate: IsoDate | null;
   /** Heutiges Datum in der Zeitzone des Nutzers. */
   today: IsoDate;
+  /** Stresswerte aus den Abend-Check-ins (optional, für den Vergleich mit dem Normalwert). */
+  eveningStress?: StressEntry[];
 }
 
 export interface DailyMetrics {
@@ -28,6 +31,12 @@ export interface DailyMetrics {
   calibrationDaysLeft: number;
   underload: boolean;
   readiness: number | null;
+  /** Performance-Score mit Aufschlüsselung, null ohne Morgen-Check-in. */
+  performance: PerformanceScore | null;
+  /** Belastung 7 Tage vs. Normalwert in %, null ohne Normalwert. */
+  loadDelta: number | null;
+  /** Stress 7 Tage vs. Normalwert in %, null ohne genug Werte. */
+  stressDelta: number | null;
   light: TrafficLight;
   reasons: LightReason[];
   painSpots: PainSpotStatus[];
@@ -47,7 +56,8 @@ export function computeDailyMetrics(
   const previousHr = sorted
     .filter((c) => c.date < date && c.restingHr != null)
     .map((c) => c.restingHr as number);
-  const readiness = checkin ? computeReadiness(checkin, previousHr, config).score : null;
+  const readinessResult = checkin ? computeReadiness(checkin, previousHr, config) : null;
+  const readiness = readinessResult?.score ?? null;
 
   const painSpots = activePainSpots(
     input.painEntries,
@@ -70,6 +80,12 @@ export function computeDailyMetrics(
     calibrationDaysLeft: acwr.calibrationDaysLeft,
     underload: isUnderloaded(acwr.ratio, config),
     readiness,
+    performance: readinessResult ? computePerformanceScore(readinessResult, acwr.ratio, config) : null,
+    loadDelta: loadVsNormal(acwr.ratio),
+    stressDelta: stressVsNormal(
+      [...sorted.map((c) => ({ date: c.date, stress: c.stress })), ...(input.eveningStress ?? [])],
+      date,
+    ),
     light,
     reasons,
     painSpots,

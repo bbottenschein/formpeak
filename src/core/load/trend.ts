@@ -7,6 +7,8 @@ export interface TrendPoint {
   date: IsoDate;
   /** null = an dem Tag kein Morgen-Check-in. */
   readiness: number | null;
+  /** Performance-Score (Erholung minus Belastungskorrektur), null ohne Check-in. */
+  score: number | null;
   /** Ampel des Tages (grau ohne Check-in). */
   light: TrafficLight;
   /** Tatsächliche Tageslast in AU. */
@@ -23,6 +25,13 @@ export function computeTrend(
 ): TrendPoint[] {
   return dateRange(from, to).map((date) => {
     const m = computeDailyMetrics(date, input, config);
-    return { date, readiness: m.readiness, light: m.light, load: m.dayLoad, acwr: m.acwr };
+    return {
+      date,
+      readiness: m.readiness,
+      score: m.performance?.score ?? null,
+      light: m.light,
+      load: m.dayLoad,
+      acwr: m.acwr,
+    };
   });
 }

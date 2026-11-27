@@ -1,25 +1,37 @@
 import { describe, expect, it } from "vitest";
-import { suggestTests } from "./tests";
+import { GOAL_TYPES } from "./schema";
+import { lowerIsBetter, suggestTests } from "./tests";
 
 describe("suggestTests", () => {
-  it("Kondition mit Platz: Yo-Yo zuerst", () => {
-    expect(suggestTests("endurance", ["pitch", "outdoor"]).map((t) => t.key)).toEqual(["yoyo_ir1", "cooper12"]);
+  it("Kondition mit Platz: Yo-Yo zuerst, ohne Platz 3-km-Lauf zuerst", () => {
+    expect(suggestTests("endurance", ["pitch", "outdoor"]).map((t) => t.key)).toEqual(["yoyo_ir1", "run3k"]);
+    expect(suggestTests("endurance", ["outdoor"]).map((t) => t.key)).toEqual(["run3k", "yoyo_ir1"]);
   });
 
-  it("Kondition ohne Platz: Cooper-Test zuerst, Yo-Yo hinten", () => {
-    expect(suggestTests("endurance", ["outdoor"]).map((t) => t.key)).toEqual(["cooper12", "yoyo_ir1"]);
-  });
-
-  it("jedes Ziel hat mindestens einen Test, der ohne Ausrüstung geht oder bevorzugt wird", () => {
-    for (const type of ["endurance", "speed", "strength", "prevention", "comeback"] as const) {
-      expect(suggestTests(type, ["gym"]).length).toBeGreaterThan(0);
-    }
+  it("Schnelligkeit: 10- und 20-m-Sprint, ohne Platz Sprunghöhe zuerst", () => {
+    expect(suggestTests("speed", ["pitch"]).map((t) => t.key)).toEqual(["sprint10", "sprint20", "cmj"]);
     expect(suggestTests("speed", ["gym"])[0].key).toBe("cmj");
-    expect(suggestTests("prevention", [])[0].key).toBe("single_leg_hop");
   });
 
-  it("Einheiten und Richtung", () => {
-    const sprint = suggestTests("speed", ["pitch"])[0];
-    expect(sprint).toMatchObject({ key: "sprint30", unit: "s", lowerIsBetter: true });
+  it("Kraft: 5RM Kniebeuge mit Studio", () => {
+    expect(suggestTests("strength", ["gym"])[0].key).toBe("squat_5rm");
+  });
+
+  it("neue Ziele: Muskelaufbau und Gewichtsabnahme", () => {
+    expect(suggestTests("muscle_gain", ["gym"]).map((t) => t.key)).toEqual(["squat_5rm", "bench_5rm", "body_weight"]);
+    expect(suggestTests("weight_loss", []).map((t) => t.key)).toEqual(["body_weight", "waist"]);
+  });
+
+  it("jedes Ziel hat Tests", () => {
+    for (const type of GOAL_TYPES) expect(suggestTests(type, []).length).toBeGreaterThan(0);
+  });
+});
+
+describe("lowerIsBetter", () => {
+  it("Körpergewicht hängt vom Ziel ab, Zeiten immer kleiner besser", () => {
+    expect(lowerIsBetter("body_weight", "weight_loss")).toBe(true);
+    expect(lowerIsBetter("body_weight", "muscle_gain")).toBe(false);
+    expect(lowerIsBetter("sprint10", "speed")).toBe(true);
+    expect(lowerIsBetter("squat_5rm", "strength")).toBe(false);
   });
 });

@@ -71,6 +71,9 @@ export default async function SettingsPage() {
       <form action={logout}>
         <button className="btn-secondary w-full">{t("profile.logout")}</button>
       </form>
+      <Link href="/sources" className="btn-secondary text-center">
+        {t("sources.title")}
+      </Link>
       <div className="flex flex-col gap-1 border-t border-line pt-4">
         <h2 className="eyebrow">{t("settings.install")}</h2>
         <p className="text-sm text-muted">{t("settings.installHint")}</p>

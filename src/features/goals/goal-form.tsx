@@ -9,7 +9,7 @@ import { EQUIPMENT_OPTIONS, GOAL_TYPES, TIME_BUDGETS, type GoalInput } from "./s
 import { SELF_TESTS, suggestTests, type TestKey } from "./tests";
 
 const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0] as const;
-type StepKey = "goal" | "frequency" | "days" | "duration" | "equipment" | "summary";
+type StepKey = "goal" | "date" | "frequency" | "days" | "duration" | "equipment" | "summary";
 
 const chip = (active: boolean) =>
   `rounded-lg border px-3 py-3 text-base font-medium transition ${
@@ -37,8 +37,8 @@ export function GoalForm({ initial }: { initial: GoalInput }) {
 
   const steps: StepKey[] =
     g.extraSessionsPerWeek === 0
-      ? ["goal", "frequency", "summary"]
-      : ["goal", "frequency", "days", "duration", "equipment", "summary"];
+      ? ["goal", "date", "frequency", "summary"]
+      : ["goal", "date", "frequency", "days", "duration", "equipment", "summary"];
   const step = steps[Math.min(stepIndex, steps.length - 1)];
   const go = (key: StepKey) => goToIndex(steps.indexOf(key));
   const next = (snapshot: GoalInput = g) => goToIndex(Math.min(stepIndex + 1, steps.length - 1), snapshot);
@@ -81,8 +81,8 @@ export function GoalForm({ initial }: { initial: GoalInput }) {
   function goToIndex(index: number, snapshot: GoalInput = g) {
     const list: StepKey[] =
       snapshot.extraSessionsPerWeek === 0
-        ? ["goal", "frequency", "summary"]
-        : ["goal", "frequency", "days", "duration", "equipment", "summary"];
+        ? ["goal", "date", "frequency", "summary"]
+        : ["goal", "date", "frequency", "days", "duration", "equipment", "summary"];
     setStepIndex(index);
     if (list[index] === "summary") loadPreview(snapshot);
   }
@@ -135,6 +135,29 @@ export function GoalForm({ initial }: { initial: GoalInput }) {
         </>
       )}
 
+      {step === "date" && (
+        <>
+          <WizardQuestion title={t("goal.stepDateTitle")} hint={t("goal.stepDateHint")} />
+          <input
+            type="date"
+            value={g.targetDate ?? ""}
+            onChange={(e) => setG({ ...g, targetDate: e.target.value || null })}
+            className="input text-lg"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              const snapshot = { ...g, targetDate: null };
+              setG(snapshot);
+              next(snapshot);
+            }}
+            className="self-start text-sm text-muted underline underline-offset-4"
+          >
+            {t("goal.noDate")}
+          </button>
+        </>
+      )}
+
       {step === "frequency" && (
         <>
           <WizardQuestion title={t("goal.step2Title")} hint={t("goal.step2Hint")} />
@@ -146,7 +169,7 @@ export function GoalForm({ initial }: { initial: GoalInput }) {
                 onClick={() => {
                   const snapshot = { ...g, extraSessionsPerWeek: n, availableWeekdays: g.availableWeekdays.slice(0, n) };
                   setG(snapshot);
-                  goToIndex(2, snapshot); // bei 0 ist Schritt 2 die Zusammenfassung, sonst die Tage
+                  goToIndex(3, snapshot); // bei 0 ist Schritt 3 die Zusammenfassung, sonst die Tage
                 }}
                 className={`${chip(g.extraSessionsPerWeek === n)} py-5 font-display text-3xl font-bold`}
               >
@@ -283,16 +306,13 @@ export function GoalForm({ initial }: { initial: GoalInput }) {
 
           <section className="card flex flex-col gap-4">
             <h3 className="font-display text-xl font-semibold uppercase tracking-wide">{t("goal.target")}</h3>
-            <label className="flex flex-col gap-1.5">
-              <span className="label">{t("goal.targetDateHint")}</span>
-              <input
-                type="date"
-                value={g.targetDate ?? ""}
-                onChange={(e) => setG({ ...g, targetDate: e.target.value || null })}
-                onBlur={() => loadPreview(g)}
-                className="input"
-              />
-            </label>
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-sm text-muted">{t("goal.targetDateHint")}</span>
+              <button type="button" onClick={() => go("date")} className="text-sm underline underline-offset-4">
+                {g.targetDate ? formatDate(g.targetDate) : t("goal.noDate")}
+              </button>
+            </div>
+            {g.type === "weight_loss" && <p className="text-sm text-muted">{t("goal.weightLossNote")}</p>}
 
             {g.testKey && (
               <TestCard

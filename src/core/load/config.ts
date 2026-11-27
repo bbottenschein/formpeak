@@ -36,6 +36,12 @@ export const LOAD_CONFIG = {
       zeroAtBpm: 20,
     },
   },
+  score: {
+    /** Abzug vom Performance-Score bei erhöhter Belastung (1,3 < ACWR ≤ 1,5). */
+    elevatedCorrection: 10,
+    /** Abzug bei Belastungsspitze (ACWR > 1,5). */
+    spikeCorrection: 20,
+  },
   pain: {
     restrictIntensity: 4,
     restrictSeriesDays: 2,

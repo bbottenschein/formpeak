@@ -38,7 +38,7 @@ const axisProps = {
   axisLine: false,
 } as const;
 
-/** Readiness der letzten 14 Tage als Linie mit den Ampel-Schwellen 50 und 70. */
+/** Performance-Score über die Zeit als Linie mit den Ampel-Schwellen 50 und 70. */
 export function ReadinessTrend({ data }: { data: TrendPoint[] }) {
   const t = useT();
   return (
@@ -51,11 +51,11 @@ export function ReadinessTrend({ data }: { data: TrendPoint[] }) {
         <ReferenceLine y={50} stroke={MUTED} strokeDasharray="4 4" />
         <Tooltip
           cursor={{ stroke: MUTED, strokeWidth: 1 }}
-          content={<ChartTooltip render={(p) => (p.readiness == null ? t("overview.tooltipNoCheckin") : t("overview.tooltipReadiness", { value: p.readiness }))} />}
+          content={<ChartTooltip render={(p) => (p.score == null ? t("overview.tooltipNoCheckin") : t("overview.tooltipReadiness", { value: p.score }))} />}
         />
         <Line
           type="monotone"
-          dataKey="readiness"
+          dataKey="score"
           stroke={INK}
           strokeWidth={2}
           connectNulls={false}
@@ -68,7 +68,7 @@ export function ReadinessTrend({ data }: { data: TrendPoint[] }) {
   );
 }
 
-/** Tägliche Last (AU) der letzten 14 Tage als Balken. */
+/** Tägliche Last (AU) als Balken. */
 export function LoadTrend({ data }: { data: TrendPoint[] }) {
   const t = useT();
   return (

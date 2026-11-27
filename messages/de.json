@@ -121,7 +121,10 @@
     "settings": "Einstellungen",
     "overview": "Übersicht",
     "plan": "Plan",
-    "profile": "Profil"
+    "profile": "Profil",
+    "home": "Home",
+    "goal": "Ziel",
+    "log": "Erfassen"
   },
   "checkin": {
     "title": "Morgen-Check-in",
@@ -293,7 +296,7 @@
     "errorSave": "Die Serie konnte nicht gespeichert werden."
   },
   "week": {
-    "title": "Plan",
+    "title": "Kalender",
     "prev": "Vorherige Woche",
     "next": "Nächste Woche",
     "thisWeek": "Diese Woche",
@@ -319,7 +322,8 @@
       "pain_spare_region": "Schmerzstelle aussparen: {spots}.",
       "no_rest_day": "Diese Woche fehlt ein kompletter Ruhetag.",
       "weekly_load_increase": "Geplante Last {percent} % über der Vorwoche – empfohlen sind höchstens 10–15 %."
-    }
+    },
+    "goalTest": "Referenztest: {name}"
   },
   "session": {
     "newTitle": "Einheit planen",
@@ -499,7 +503,7 @@
     "trendLoadUnit": "AU",
     "trendEmpty": "Noch zu wenig Daten. Der Verlauf füllt sich mit jedem Check-in.",
     "threshold": "{value}",
-    "tooltipReadiness": "Readiness {value}",
+    "tooltipReadiness": "Performance {value}",
     "tooltipNoCheckin": "kein Check-in",
     "tooltipLoad": "{value} AU",
     "fixtures": {
@@ -554,7 +558,9 @@
       "speed": "Schnelligkeit",
       "strength": "Kraft",
       "prevention": "Verletzungsprävention",
-      "comeback": "Comeback nach Pause"
+      "comeback": "Comeback nach Pause",
+      "muscle_gain": "Muskelaufbau",
+      "weight_loss": "Gewichtsabnahme"
     },
     "description": "Was willst du erreichen?",
     "descriptionPlaceholder": "z. B. 90 Minuten durchlaufen, ohne in der zweiten Halbzeit einzubrechen",
@@ -630,22 +636,47 @@
       "yoyo_ir1": {
         "name": "Yo-Yo Intermittent Recovery Test 1",
         "how": "2 × 20 m Pendelläufe nach Tonsignal (App oder Audio), dazwischen 10 s aktive Pause. Das Tempo steigt, bis du zweimal das Signal verpasst. Ergebnis: gelaufene Meter.",
-        "why": "Für Fußball entwickelt und validiert; bildet die wiederholten Sprints und Erholungsphasen im Spiel ab und ist gut reproduzierbar."
+        "why": "Für Fußball entwickelt und validiert; bildet wiederholte Sprints mit kurzen Erholungsphasen ab und ist gut reproduzierbar."
       },
-      "cooper12": {
-        "name": "12-Minuten-Lauf (Cooper-Test)",
-        "how": "Nach dem Aufwärmen 12 Minuten so weit wie möglich laufen, am besten auf einer 400-m-Bahn oder mit GPS-Uhr. Ergebnis: Meter.",
-        "why": "Klassischer Ausdauertest, allein und ohne Audio machbar; zeigt Fortschritte in der Grundlagenausdauer."
+      "run3k": {
+        "name": "3-km-Lauf",
+        "how": "Nach 10 Minuten Einlaufen 3 km so schnell wie möglich laufen, auf einer Bahn oder flachen Strecke mit GPS-Uhr. Ergebnis: Zeit in Minuten (z. B. 12,5 = 12:30).",
+        "why": "Einfacher Ausdauertest, allein und ohne Audio machbar; zeigt Fortschritte in der Grundlagenausdauer."
       },
-      "sprint30": {
-        "name": "30-m-Sprint",
-        "how": "Aus dem Stand 30 m sprinten, mit dem Handy in Zeitlupe filmen und die Zeit vom ersten Fußaufsetzen bis zur Ziellinie ablesen. Bester von 3 Versuchen. Ergebnis: Sekunden.",
-        "why": "Standardtest der Linearschnelligkeit im Fußball; mit Zeitlupenvideo präzise genug für den eigenen Verlauf."
+      "sprint10": {
+        "name": "10-m-Sprint",
+        "how": "Aus dem Stand 10 m sprinten, mit dem Handy in Zeitlupe filmen, Zeit vom ersten Fußaufsetzen bis zur Linie ablesen. Bester von 3 Versuchen. Ergebnis: Sekunden.",
+        "why": "Misst den Antritt – im Spiel entscheiden oft die ersten Meter. Für 10- und 20-m-Sprints ist eine gute Wiederholbarkeit belegt."
+      },
+      "sprint20": {
+        "name": "20-m-Sprint",
+        "how": "Wie der 10-m-Sprint, nur über 20 m. Bester von 3 Versuchen. Ergebnis: Sekunden.",
+        "why": "Misst Beschleunigung und Endgeschwindigkeit; mit gleichem Aufbau gut wiederholbar."
       },
       "cmj": {
         "name": "Sprunghöhe (Countermovement Jump)",
         "how": "Hände an die Hüften, kurz in die Knie und so hoch wie möglich springen. Mit einer Sprung-App (z. B. My Jump) filmen. Bester von 3 Versuchen. Ergebnis: cm.",
         "why": "Misst die Schnellkraft der Beine; per Smartphone-App nachweislich valide und zuverlässig."
+      },
+      "squat_5rm": {
+        "name": "5-Wiederholungs-Maximum Kniebeuge",
+        "how": "Nach dem Aufwärmen das Gewicht steigern, bis du gerade noch 5 saubere Wiederholungen schaffst. Ergebnis: Gewicht in kg; die App schätzt daraus dein 1RM.",
+        "why": "Sicherer als ein echter Maximalversuch und gut wiederholbar; zeigt Kraftzuwachs der Beine."
+      },
+      "bench_5rm": {
+        "name": "5-Wiederholungs-Maximum Bankdrücken",
+        "how": "Wie bei der Kniebeuge: Gewicht steigern bis zu 5 sauberen Wiederholungen, mit Sicherung. Ergebnis: kg.",
+        "why": "Zeigt Kraftzuwachs im Oberkörper; ergänzt die Kniebeuge beim Muskelaufbau."
+      },
+      "body_weight": {
+        "name": "Körpergewicht (Wochenschnitt)",
+        "how": "Morgens nach dem Aufstehen, vor dem Frühstück wiegen, an mindestens 3 Tagen pro Woche. Ergebnis: Wochenschnitt in kg.",
+        "why": "Einzelwerte schwanken stark; der Wochenschnitt zeigt den echten Trend. Für Leistung: höchstens 0,5–1 % pro Woche abnehmen."
+      },
+      "waist": {
+        "name": "Taillenumfang",
+        "how": "Morgens, ausgeatmet, Maßband auf Höhe des Bauchnabels. Ergebnis: cm.",
+        "why": "Ergänzt das Gewicht – Muskelaufbau kann das Gewicht stabil halten, während der Umfang sinkt."
       },
       "single_leg_hop": {
         "name": "Einbeiniger Weitsprung (Seitenvergleich)",
@@ -662,7 +693,9 @@
       "m": "m",
       "s": "s",
       "cm": "cm",
-      "%": "%"
+      "%": "%",
+      "kg": "kg",
+      "min": "min"
     },
     "summaryFallback": "Du willst {focus}: „{text}“",
     "summaryFallbackDate": "Du willst {focus} – bis {date}: „{text}“",
@@ -671,9 +704,16 @@
       "speed": "schneller werden",
       "strength": "kräftiger werden",
       "prevention": "Verletzungen vorbeugen",
-      "comeback": "nach der Pause zurückkommen"
+      "comeback": "nach der Pause zurückkommen",
+      "muscle_gain": "Muskeln aufbauen",
+      "weight_loss": "Gewicht reduzieren"
     },
-    "valuesOptional": "Beides optional – du kannst die Werte auch nach dem ersten Test eintragen."
+    "valuesOptional": "Beides optional – du kannst die Werte auch nach dem ersten Test eintragen.",
+    "weightLossNote": "Die App plant nur dein Training, keine Ernährung. Für deine Leistung: höchstens 0,5–1 % des Körpergewichts pro Woche.",
+    "resultInvalid": "Bitte einen gültigen Wert eintragen.",
+    "stepDateTitle": "Bis wann willst du es schaffen?",
+    "stepDateHint": "Ein Datum hilft, den Plan realistisch zu takten. Optional.",
+    "noDate": "Ohne festes Datum"
   },
   "history": {
     "title": "Verlauf",
@@ -703,5 +743,315 @@
     "next": "Weiter",
     "progress": "Schritt {step} von {total}",
     "skip": "Überspringen"
+  },
+  "home": {
+    "scoreLabel": "Performance",
+    "mood": {
+      "good": "gut erholt",
+      "medium": "etwas angeschlagen",
+      "low": "Erholung zuerst"
+    },
+    "noCheckin": "Noch kein Check-in heute",
+    "checkinCta": "Check-in starten",
+    "tapForDetails": "Tippen für die Aufschlüsselung",
+    "load": "Belastung",
+    "stress": "Stress",
+    "vsNormal": "{dir} deinem Schnitt",
+    "atNormal": "wie dein Schnitt",
+    "noNormal": "Normalwert ab ca. 4 Wochen",
+    "noNormalStress": "Noch zu wenige Werte",
+    "weekTitle": "Deine Woche",
+    "trendScore": "Performance · 4 Wochen",
+    "trendLoad": "Belastung · 4 Wochen",
+    "allTrends": "Alle Verläufe",
+    "above": "über",
+    "below": "unter"
+  },
+  "score": {
+    "title": "So entsteht dein Score",
+    "intro": "Der Performance-Score fasst deinen Morgen-Check-in zusammen und wird bei hoher Belastung korrigiert.",
+    "recovery": "Erholung aus dem Check-in",
+    "correction": "Korrektur durch Belastung",
+    "final": "Performance-Score",
+    "share": "{value} % Anteil",
+    "notToday": "heute nicht gemessen – Anteil auf die anderen verteilt",
+    "full": "voll – kein Abzug",
+    "costs": "zieht heute {value} Punkte ab",
+    "correctionNone": "Belastung im normalen Bereich – keine Korrektur",
+    "correctionApplied": "Belastung deutlich über deinem Schnitt (ACWR {acwr}) – {value} Punkte Abzug",
+    "correctionCalibrating": "Noch keine Korrektur – der Vergleich mit deinem Schnitt startet nach ca. 4 Wochen",
+    "drag": "Heute am meisten: {component} ({value} Punkte)",
+    "components": {
+      "sleepDuration": "Schlafdauer",
+      "sleepQuality": "Schlafqualität",
+      "energy": "Energie",
+      "soreness": "Muskelkater",
+      "stress": "Stress",
+      "restingHr": "Ruhepuls",
+      "load": "Belastung 7 vs. 28 Tage"
+    },
+    "basis": "Grundlage",
+    "basisWellness": "Wellness-Fragebögen (Hooper & Mackinnon 1995; McLean et al. 2010; Saw et al. 2016)",
+    "basisHr": "Ruhepuls als Ermüdungsmarker (Buchheit 2014)",
+    "basisLoad": "sRPE (Foster et al. 2001); ACWR (Gabbett 2016), kritisch: Impellizzeri et al. 2020",
+    "weightsTitle": "Warum diese Gewichte?",
+    "weightsText": "Die Studien zeigen, welche Fragen etwas über deine Erholung aussagen – Gewichte legen sie nicht fest. Die Anteile sind Startwerte der App: Schlaf und Energie zählen am meisten, weil sie deinen Gesamtzustand am direktesten beschreiben. Sobald genug eigene Daten da sind, sollen die Gewichte an dich angepasst werden.",
+    "limitsTitle": "Grenzen",
+    "limitsText": "Der Score ist keine medizinische Bewertung. Das Verhältnis von akuter zu chronischer Belastung (ACWR) ist wissenschaftlich umstritten und dient nur als Richtwert. Dein Körpergefühl bleibt die wichtigste Quelle.",
+    "sourcesLink": "Alle Quellen"
+  },
+  "sources": {
+    "title": "Quellen",
+    "intro": "Auf diesen Studien beruhen Score, Belastung und Tests. Alle Angaben wurden einzeln geprüft.",
+    "open": "Zur Studie",
+    "items": {
+      "hooper1995": {
+        "title": "Monitoring Overtraining in Athletes",
+        "authors": "Hooper & Mackinnon",
+        "journal": "Sports Medicine",
+        "year": "1995",
+        "summary": "Empfiehlt, Übertraining über regelmäßige Selbsteinschätzungen zu erkennen. Grundlage des Hooper-Index aus Schlaf, Stress, Müdigkeit und Muskelkater."
+      },
+      "hooper1995b": {
+        "title": "Markers for monitoring overtraining and recovery",
+        "authors": "Hooper et al.",
+        "journal": "Medicine & Science in Sports & Exercise",
+        "year": "1995",
+        "summary": "Bei 14 Leistungsschwimmern zeigten selbst eingeschätztes Wohlbefinden Übertraining und Erholung zuverlässig an. Fragebögen sind ein effizientes Werkzeug."
+      },
+      "mclean2010": {
+        "title": "Neuromuscular, endocrine, and perceptual fatigue responses during different length between-match microcycles",
+        "authors": "McLean et al.",
+        "journal": "Int. Journal of Sports Physiology and Performance",
+        "year": "2010",
+        "summary": "Bei Profis waren Müdigkeit, Wohlbefinden und Muskelkater in den 48 Stunden nach dem Spiel schlechter und erholten sich mit passendem Training binnen etwa 4 Tagen. Wellness-Fragen bilden den Verlauf ab."
+      },
+      "saw2016": {
+        "title": "Monitoring the athlete training response: subjective self-reported measures trump commonly used objective measures",
+        "authors": "Saw, Main & Gastin",
+        "journal": "British Journal of Sports Medicine",
+        "year": "2016",
+        "summary": "Systematische Übersicht: Subjektive Angaben reagierten empfindlicher und konsistenter auf Trainingsbelastung als viele objektive Marker. Sie eignen sich allein oder in Kombination."
+      },
+      "buchheit2014": {
+        "title": "Monitoring training status with HR measures: do all roads lead to Rome?",
+        "authors": "Buchheit",
+        "journal": "Frontiers in Physiology",
+        "year": "2014",
+        "summary": "Ruhe- und Belastungspuls sind nützliche Marker für den Trainingszustand, wenn Messbedingungen gleich bleiben. Empfiehlt die Kombination mit Fragebögen und einfachen Leistungstests."
+      },
+      "foster2001": {
+        "title": "A new approach to monitoring exercise training",
+        "authors": "Foster et al.",
+        "journal": "Journal of Strength and Conditioning Research",
+        "year": "2001",
+        "summary": "Führt die Session-RPE-Methode ein: Intensität (0–10) mal Dauer. Für viele Trainingsformen als valide gezeigt – Grundlage der Belastungsberechnung der App."
+      },
+      "gabbett2016": {
+        "title": "The training–injury prevention paradox: should athletes be training smarter and harder?",
+        "authors": "Gabbett",
+        "journal": "British Journal of Sports Medicine",
+        "year": "2016",
+        "summary": "Hohe, schrittweise aufgebaute Belastung schützt eher, schnelle Spitzen erhöhen das Risiko. Stellt das Verhältnis akuter zu chronischer Belastung (ACWR) vor."
+      },
+      "impellizzeri2020": {
+        "title": "Acute:Chronic Workload Ratio: Conceptual Issues and Fundamental Pitfalls",
+        "authors": "Impellizzeri et al.",
+        "journal": "Int. Journal of Sports Physiology and Performance",
+        "year": "2020",
+        "summary": "Kritik am ACWR: Als Verhältnis hat er methodische Schwächen, ein ursächlicher Zusammenhang mit Verletzungen ist nicht belegt. Deshalb nutzt die App ihn nur als Richtwert."
+      },
+      "krustrup2003": {
+        "title": "The Yo-Yo intermittent recovery test: physiological response, reliability, and validity",
+        "authors": "Krustrup et al.",
+        "journal": "Medicine & Science in Sports & Exercise",
+        "year": "2003",
+        "summary": "Der Yo-Yo IR1 ist für Fußball valide und gut reproduzierbar (Variation ca. 4,9 %). Er bildet die intermittierende Belastung im Spiel ab."
+      },
+      "myjump": {
+        "title": "My Jump App: systematische Übersicht und Meta-Analyse",
+        "authors": "verschiedene",
+        "journal": "Übersichtsarbeit",
+        "year": "2023",
+        "summary": "Die Sprunghöhe per Smartphone-App (Flugzeit aus Video) ist im Vergleich zu Laborgeräten valide und reliabel."
+      },
+      "sprint2025": {
+        "title": "The Reliability of 20 m Sprint Time Using a Novel Assessment Technique",
+        "authors": "verschiedene",
+        "journal": "Sensors",
+        "year": "2025",
+        "summary": "Bei Teamsportlern waren 10- und 20-m-Zeiten gut wiederholbar (ICC 0,89–0,95). Gleiche Bedingungen sind wichtig."
+      },
+      "lsi2021": {
+        "title": "Leistungsunterschiede zwischen den Beinen bei jungen Fußballern",
+        "authors": "verschiedene",
+        "journal": "Übersichtsarbeit",
+        "year": "2021",
+        "summary": "Einbeinige Sprungtests zeigen Seitenunterschiede; ein Seitenvergleich um 90–100 % gilt als Orientierung, mit Vorsicht bei der Auslegung."
+      },
+      "ybalance2023": {
+        "title": "Evaluation of the Value of the Y-Balance Test to Predict Lower Limb Injuries in Professional Male Footballers",
+        "authors": "verschiedene",
+        "journal": "Prospektive Kohortenstudie",
+        "year": "2023",
+        "summary": "Der Y-Balance-Test ist ein einfaches, zuverlässiges Screening, um vor der Saison Spieler mit höherem Verletzungsrisiko zu erkennen."
+      }
+    }
+  },
+  "today2": {
+    "title": "Heute",
+    "checkinFirst": "Zuerst dein Check-in – dann weißt du, was heute geht.",
+    "schedule": "Dein Tag",
+    "nothingFixed": "Heute keine festen Termine.",
+    "suggestion": "Passend zu deinem Ziel",
+    "suggestionNoGoal": "Passend für heute",
+    "minutes": "{value} min",
+    "start": "Starten",
+    "tip": "Tipp des Tages",
+    "noTip": "Heute kein besonderer Hinweis – zieh deinen Plan durch.",
+    "routineWhy": {
+      "recovery_flush": "Heute steht Erholung im Vordergrund.",
+      "activation_md1": "Morgen ist Spiel – kurz aktivieren, nicht ermüden.",
+      "mobility_hip_groin": "Häng nach dem Training 10 Minuten Mobilität dran.",
+      "acceleration": "Freier, grüner Tag – ideal für deinen Antritt.",
+      "intervals_4x4": "Freier, grüner Tag – Intervalle bringen deine Ausdauer voran.",
+      "easy_run": "Ein lockerer Lauf hilft beim Ziel, ohne dich zu ermüden.",
+      "prevention_core": "Kurzes Präventionsprogramm für Oberschenkel, Leiste und Wade.",
+      "strength_full": "Freier, grüner Tag – Zeit für Krafttraining."
+    },
+    "tips": {
+      "pain_red": "Eine Schmerzstelle ist auf Rot. Lass das bitte von einer Ärztin oder einem Physio anschauen, bevor du intensiv trainierst.",
+      "light_red": "Deine Ampel ist rot. Heute zählt Erholung mehr als jede Zusatzeinheit.",
+      "feedback_open": "Für {count} Einheit(en) fehlt noch dein Feedback – ohne RPE rechnet die App mit Schätzwerten.",
+      "test_due": "Dein Referenztest ist fällig. Mach ihn bei frischen Beinen, am besten an einem freien Tag.",
+      "stress_high": "Dein Stress liegt {percent} % über deinem Schnitt. Plan heute bewusst etwas Ruhe ein.",
+      "load_high": "Deine Belastung liegt {percent} % über deinem Schnitt. Steigere diese Woche nicht weiter.",
+      "underload": "Deine Belastung ist seit einiger Zeit niedrig. Steigere langsam, höchstens 10–15 % pro Woche."
+    },
+    "eveningCta": "Abend-Check-in",
+    "toLog": "Jetzt nachtragen"
+  },
+  "routines": {
+    "titles": {
+      "mobility_hip_groin": "Mobilität Hüfte & Leiste",
+      "recovery_flush": "Regeneration",
+      "activation_md1": "Aktivierung vor dem Spiel",
+      "acceleration": "Antritt",
+      "intervals_4x4": "Intervalle 4 × 4 min",
+      "easy_run": "Lockerer Lauf",
+      "prevention_core": "Prävention",
+      "strength_full": "Kraft Ganzkörper"
+    },
+    "exercises": {
+      "hip_flexor_stretch": "Hüftbeuger-Dehnung im Ausfallschritt",
+      "adductor_rock": "Adduktoren-Wippen im Vierfüßler",
+      "ninety_ninety": "90/90-Sitz, Seiten wechseln",
+      "worlds_greatest": "World's Greatest Stretch",
+      "glute_bridge": "Glute Bridge",
+      "calf_stretch": "Wadendehnung an der Wand",
+      "easy_bike_or_walk": "Locker Rad fahren oder gehen",
+      "hamstring_floss": "Beinbeuger mobilisieren (Bein strecken/beugen)",
+      "breathing": "Ruhige Bauchatmung",
+      "leg_swings": "Beinpendel vor/zurück und seitlich",
+      "pogo_jumps": "Fußgelenksprünge (Pogo)",
+      "strides": "Steigerungsläufe",
+      "short_sprints": "Kurze Sprints aus dem Stand",
+      "warmup_jog": "Einlaufen",
+      "a_skips": "Skippings",
+      "flying_sprints": "Fliegende Sprints (10 m Anlauf)",
+      "easy_jog": "Auslaufen",
+      "interval_4min": "4 min zügig (fast maximal), 3 min locker",
+      "easy_run_30": "Lockerer Dauerlauf, du kannst dich unterhalten",
+      "nordic_curl": "Nordic Hamstring Curl",
+      "copenhagen_plank": "Copenhagen Plank",
+      "single_leg_balance": "Einbeinstand mit geschlossenen Augen",
+      "side_plank": "Seitstütz",
+      "calf_raise_single": "Einbeiniges Wadenheben",
+      "squat": "Kniebeuge",
+      "rdl": "Rumänisches Kreuzheben",
+      "split_squat": "Bulgarian Split Squat",
+      "pull_up_row": "Klimmzug oder Rudern"
+    },
+    "reps": {
+      "5_per_side": "5 je Seite",
+      "12": "12 Wdh",
+      "10_per_side": "10 je Seite",
+      "3_per_side": "3 je Seite",
+      "2x10": "2 × 10",
+      "3x20m": "3 × 20 m",
+      "3x10m": "3 × 10 m",
+      "2x15m": "2 × 15 m",
+      "6x10m": "6 × 10 m",
+      "4x": "4 ×",
+      "3x5": "3 × 5",
+      "3x20s_per_side": "3 × 20 s je Seite",
+      "3x30s_per_side": "3 × 30 s je Seite",
+      "2x30s_per_side": "2 × 30 s je Seite",
+      "2x12_per_side": "2 × 12 je Seite",
+      "4x5": "4 × 5",
+      "3x6": "3 × 6",
+      "3x8_per_side": "3 × 8 je Seite",
+      "3x8": "3 × 8"
+    },
+    "seconds": "{value} s",
+    "minutes": "{value} min",
+    "done": "Erledigt – eintragen",
+    "doneSaving": "Wird eingetragen …",
+    "planGym": "Als Gym-Einheit mit Gewichten anlegen",
+    "timerStart": "Timer starten",
+    "timerNext": "Nächste Übung",
+    "back": "Zurück zu Heute"
+  },
+  "goalView": {
+    "title": "Dein Ziel",
+    "sentence": "Du willst bis {date} {focus}.",
+    "sentenceNoDate": "Du willst {focus}.",
+    "frame": "Du hast {sessions} × {minutes} min pro Woche.",
+    "frameNone": "Du trainierst nur mit dem Team.",
+    "edit": "Ziel ändern",
+    "test": "Referenztest",
+    "nextIn": "Nächster Test in {days} Tagen",
+    "nextToday": "Test heute fällig",
+    "overdue": "Test seit {days} Tagen fällig",
+    "firstTest": "Mach deinen ersten Test – er ist dein Ausgangswert.",
+    "enterResult": "Ergebnis eintragen",
+    "resultLabel": "Ergebnis ({unit})",
+    "save": "Speichern",
+    "saving": "Wird gespeichert …",
+    "howTo": "So geht der Test",
+    "progress": "Fortschritt",
+    "before": "Start",
+    "now": "Jetzt",
+    "better": "{value} {unit} besser ({pct} %)",
+    "worse": "{value} {unit} schwächer ({pct} %)",
+    "toTarget": "{value} % des Wegs zum Ziel",
+    "onlyOne": "Nach deinem zweiten Test siehst du hier den Vorher-nachher-Vergleich.",
+    "history": "Bisherige Tests",
+    "e1rm": "≈ 1RM {value} kg",
+    "noTestPlanned": "Kein Test geplant.",
+    "calendarHint": "Der Termin steht auch in deinem Kalender."
+  },
+  "log": {
+    "title": "Erfassen",
+    "intro": "Schnell eintragen.",
+    "morning": "Morgen-Check-in",
+    "evening": "Abend-Check-in",
+    "done": "erledigt",
+    "open": "offen",
+    "feedback": "Feedback offen",
+    "noFeedback": "Kein offenes Feedback.",
+    "gym": "Gym-Einheit starten",
+    "gymHint": "Übungen und Sätze mit Gewicht",
+    "plan": "Einheit planen",
+    "planHint": "Lauf, Mobilität, Regeneration …",
+    "body": "Körpermaße",
+    "weight": "Gewicht (kg)",
+    "waist": "Taille (cm)",
+    "bodySave": "Speichern",
+    "bodySaved": "Gespeichert",
+    "bodyInvalid": "Bitte Gewicht und/oder Taillenumfang angeben."
+  },
+  "header": {
+    "profile": "Profil"
   }
 }

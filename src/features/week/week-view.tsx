@@ -73,10 +73,18 @@ export function WeekView({ week, today, t }: { week: WeekData; today: string; t:
                   </span>
                 )}
               </div>
+              {day.goalTests.map((key) => (
+                <Link key={key} href="/goals" className="card flex items-center justify-between gap-2 border-primary/40 py-3">
+                  <span className="font-display text-lg font-semibold uppercase tracking-wide">
+                    {t("week.goalTest", { name: t(`goal.tests.${key as "sprint10"}.name`) })}
+                  </span>
+                  <span aria-hidden className="text-muted">→</span>
+                </Link>
+              ))}
               {day.sessions.map((s) => (
                 <SessionCard key={s.id} session={s} hints={s.hints} feedbackDue={s.feedbackDue} t={t} />
               ))}
-              {active.length === 0 && <p className="text-sm text-muted">{t("week.restDay")}</p>}
+              {active.length === 0 && day.goalTests.length === 0 && <p className="text-sm text-muted">{t("week.restDay")}</p>}
               <Link href={`/sessions/new?date=${day.date}`} className="self-start text-sm text-muted underline underline-offset-4">
                 + {t("week.addSession")}
               </Link>

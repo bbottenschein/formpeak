@@ -22,6 +22,8 @@ export interface WeekDay {
   date: string;
   mdLabel: string | null;
   sessions: WeekSession[];
+  /** Geplante Referenztests an diesem Tag (Testschlüssel). */
+  goalTests: string[];
 }
 
 export interface WeekData {
@@ -55,6 +57,14 @@ export async function getWeek(
     .select("id", { count: "exact", head: true })
     .eq("user_id", userId);
 
+  const { data: plannedTests } = await supabase
+    .from("goal_tests")
+    .select("test_key, scheduled_for")
+    .eq("user_id", userId)
+    .eq("status", "planned")
+    .gte("scheduled_for", monday)
+    .lte("scheduled_for", addDays(monday, 6));
+
   const matchDates = rows.filter((r) => r.type === "match" && r.status !== "cancelled").map((r) => r.date);
 
   const days: WeekDay[] = Array.from({ length: 7 }, (_, i) => {
@@ -77,7 +87,12 @@ export async function getWeek(
           feedbackDue: r.status === "planned" && date <= today,
         };
       });
-    return { date, mdLabel: matchdayLabel(matchdayContext(date, matchDates)), sessions };
+    return {
+      date,
+      mdLabel: matchdayLabel(matchdayContext(date, matchDates)),
+      sessions,
+      goalTests: (plannedTests ?? []).filter((x) => x.scheduled_for === date).map((x) => x.test_key as string),
+    };
   });
 
   const weekSessions = core.filter((s) => s.date >= monday && s.date <= addDays(monday, 6));

@@ -10,3 +10,4 @@ export * from "./matchday";
 export * from "./planning-hints";
 export * from "./daily";
 export * from "./trend";
+export * from "./score";

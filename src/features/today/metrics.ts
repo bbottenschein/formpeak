@@ -34,7 +34,7 @@ async function loadDailyInput(userId: string, date: string, today: string): Prom
   // Feste Termine müssen als Einheit existieren, damit vergangene Termine in die Last eingehen.
   await ensureFixtures(supabase, userId, from, addDays(date, 14));
 
-  const [sessions, checkins, pains, first] = await Promise.all([
+  const [sessions, checkins, pains, first, evenings] = await Promise.all([
     loadSessions(supabase, userId, from, date),
     supabase
       .from("checkins")
@@ -50,6 +50,13 @@ async function loadDailyInput(userId: string, date: string, today: string): Prom
       .gte("date", from)
       .lte("date", date),
     firstDataDate(supabase, userId),
+    supabase
+      .from("checkins")
+      .select("date, evening_stress")
+      .eq("user_id", userId)
+      .eq("kind", "evening")
+      .gte("date", from)
+      .lte("date", date),
   ]);
   for (const r of [checkins, pains]) {
     if (r.error) throw new Error(`Daten für Kennzahlen nicht lesbar: ${r.error.message}`);
@@ -71,6 +78,9 @@ async function loadDailyInput(userId: string, date: string, today: string): Prom
     painEntries: (pains.data ?? []) as PainEntry[],
     firstDataDate: first,
     today,
+    eveningStress: (evenings.data ?? [])
+      .filter((e) => e.evening_stress != null)
+      .map((e) => ({ date: e.date, stress: e.evening_stress as number })),
   };
 }
 
@@ -83,7 +93,7 @@ export async function computeMetricsFor(userId: string, date: string, today: str
 export async function computeTodayWithTrend(
   userId: string,
   today: string,
-  days = 14,
+  days = 28,
 ): Promise<{ metrics: DailyMetrics; trend: TrendPoint[] }> {
   const input = await loadDailyInput(userId, today, today);
   return {

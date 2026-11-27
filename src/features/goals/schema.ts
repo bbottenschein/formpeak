@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { TEST_KEYS } from "./tests";
 
-export const GOAL_TYPES = ["endurance", "speed", "strength", "prevention", "comeback"] as const;
+export const GOAL_TYPES = ["endurance", "speed", "strength", "muscle_gain", "weight_loss", "prevention", "comeback"] as const;
 export const EQUIPMENT_OPTIONS = ["gym", "home", "outdoor", "pitch", "bike"] as const;
 export const TIME_BUDGETS = [20, 30, 45, 60, 75, 90] as const;
 
@@ -36,3 +36,25 @@ export type GoalInput = z.infer<typeof goalSchema>;
 export const goalSaveSchema = goalSchema.refine((g) => g.extraSessionsPerWeek === 0 || g.equipment.length > 0, {
   message: "equipment",
 });
+
+/** Startwerte für das Onboarding; übernimmt einen vorhandenen Trainingsrahmen. */
+export function emptyGoal(
+  frame: Pick<GoalInput, "extraSessionsPerWeek" | "timeBudgetMin" | "availableWeekdays" | "equipment"> | null,
+): GoalInput {
+  return {
+    type: "endurance",
+    description: "",
+    testKey: null,
+    testName: null,
+    aiSummary: null,
+    baselineValue: null,
+    targetValue: null,
+    unit: null,
+    targetDate: null,
+    extraSessionsPerWeek: frame?.extraSessionsPerWeek ?? 2,
+    timeBudgetMin: frame?.timeBudgetMin ?? 60,
+    availableWeekdays:
+      frame && frame.availableWeekdays.length === frame.extraSessionsPerWeek ? frame.availableWeekdays : [],
+    equipment: frame?.equipment ?? [],
+  };
+}

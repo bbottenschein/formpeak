@@ -1,6 +1,8 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import type { TestEntry } from "./progress";
 import type { GoalInput } from "./schema";
+import type { TestKey } from "./tests";
 
 export interface GoalData {
   goal: GoalInput | null;
@@ -52,5 +54,35 @@ export async function getGoal(userId: string): Promise<GoalData> {
             ...frame,
           }
         : null,
+  };
+}
+
+/** Aktives Ziel mit Id und allen Referenztests. */
+export async function getGoalWithTests(userId: string) {
+  const supabase = await createClient();
+  const { data: goal } = await supabase
+    .from("goals")
+    .select("id, created_at")
+    .eq("user_id", userId)
+    .eq("active", true)
+    .maybeSingle();
+  if (!goal) return { goalId: null, tests: [] as TestEntry[] };
+  const { data } = await supabase
+    .from("goal_tests")
+    .select("id, test_key, status, date, scheduled_for, value")
+    .eq("goal_id", goal.id)
+    .order("created_at");
+  return {
+    goalId: goal.id as string,
+    tests: (data ?? []).map(
+      (r): TestEntry => ({
+        id: r.id,
+        testKey: r.test_key as TestKey,
+        status: r.status,
+        date: r.date,
+        scheduledFor: r.scheduled_for,
+        value: r.value == null ? null : Number(r.value),
+      }),
+    ),
   };
 }
