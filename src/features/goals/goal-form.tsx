@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useMemo, useState, useTransition } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { Wizard, WizardQuestion } from "@/features/shell/wizard";
 import { Info } from "@/features/ui/info";
 import { useT } from "@/lib/i18n/client";
@@ -37,6 +37,18 @@ const formatDate = (d: string) =>
     new Date(`${d}T00:00:00Z`),
   );
 
+/** Ein Referenztest pro Schwerpunkt (ohne Doppelte); eigene Wahl bleibt, solange sie passt. */
+function withTests(g: GoalInput, firstSuggestion: TestKey | null): Pick<GoalInput, "testKeys" | "testKey" | "unit"> {
+  const keys: TestKey[] = [];
+  g.focuses.forEach((f, i) => {
+    const options = suggestTests(f, g.equipment).map((x) => x.key).filter((k) => !keys.includes(k));
+    const own = g.testKeys[i];
+    const pick = own && options.includes(own) ? own : i === 0 && firstSuggestion && options.includes(firstSuggestion) ? firstSuggestion : options[0];
+    if (pick) keys.push(pick);
+  });
+  return { testKeys: keys, testKey: keys[0] ?? null, unit: keys[0] ? SELF_TESTS[keys[0]].unit : null };
+}
+
 /** Ziel-Assistent: eine Frage pro Schritt, am Ende Zusammenfassung mit KI-Text, Target und Testvorschlag. */
 export function GoalForm({ initial, part = "all" }: { initial: GoalInput; part?: GoalFormPart }) {
   const t = useT();
@@ -58,6 +70,7 @@ export function GoalForm({ initial, part = "all" }: { initial: GoalInput; part?:
     const key = JSON.stringify([
       snapshot.type,
       snapshot.description,
+      snapshot.focuses,
       snapshot.extraSessionsPerWeek,
       snapshot.timeBudgetMin,
       snapshot.availableWeekdays,
@@ -69,6 +82,7 @@ export function GoalForm({ initial, part = "all" }: { initial: GoalInput; part?:
     startLoading(async () => {
       const result = await previewGoal({
         type: snapshot.type,
+        focuses: snapshot.focuses,
         description: snapshot.description,
         extraSessionsPerWeek: snapshot.extraSessionsPerWeek,
         timeBudgetMin: snapshot.timeBudgetMin,
@@ -78,10 +92,9 @@ export function GoalForm({ initial, part = "all" }: { initial: GoalInput; part?:
       });
       setPreview(result);
       setG((prev) => {
-        // Eigene Testwahl behalten, solange sie zum Ziel passt; sonst den Vorschlag nehmen.
-        const fits = suggestTests(prev.type, prev.equipment).some((x) => x.key === prev.testKey);
-        const testKey = fits && prev.testKey ? prev.testKey : result.testKey;
-        return { ...prev, aiSummary: result.source === "ai" ? result.summary : null, testKey, unit: SELF_TESTS[testKey].unit };
+        // Ein Test pro Schwerpunkt: eigene Wahl behalten, solange sie passt; sonst den Vorschlag.
+        const keys = withTests(prev, result.testKey);
+        return { ...prev, aiSummary: result.source === "ai" ? result.summary : null, ...keys };
       });
     });
   }
@@ -93,16 +106,16 @@ export function GoalForm({ initial, part = "all" }: { initial: GoalInput; part?:
     if (list[index] === "summary") loadPreview(snapshot);
   }
 
-  const tests = useMemo(() => suggestTests(g.type, g.equipment), [g.type, g.equipment]);
   const toggleDay = (d: number) => {
     const has = g.availableWeekdays.includes(d);
     if (has) setG({ ...g, availableWeekdays: g.availableWeekdays.filter((x) => x !== d) });
     else if (g.availableWeekdays.length < g.extraSessionsPerWeek) setG({ ...g, availableWeekdays: [...g.availableWeekdays, d] });
   };
 
+  const focusText = g.focuses.map((f) => t(`goal.goalFocus.${f}`)).join(` ${t("goal.and")} `);
   const fallbackSummary = g.targetDate
-    ? t("goal.summaryFallbackDate", { focus: t(`goal.goalFocus.${g.type}`), date: formatDate(g.targetDate), text: g.description })
-    : t("goal.summaryFallback", { focus: t(`goal.goalFocus.${g.type}`), text: g.description });
+    ? t("goal.summaryFallbackDate", { focus: focusText, date: formatDate(g.targetDate), text: g.description })
+    : t("goal.summaryFallback", { focus: focusText, text: g.description });
 
   return (
     <Wizard
@@ -119,13 +132,28 @@ export function GoalForm({ initial, part = "all" }: { initial: GoalInput; part?:
     >
       {step === "goal" && (
         <>
-          <WizardQuestion title={t("goal.step1Title")} hint={t("goal.step1Hint")} />
+          <WizardQuestion title={t("goal.step1Title")} hint={t("goal.step1Hint")} note={t("goal.step1Note")} />
           <div className="flex flex-wrap gap-2">
-            {GOAL_TYPES.map((type) => (
-              <button key={type} type="button" onClick={() => setG({ ...g, type })} className={chip(g.type === type)}>
-                {t(`goal.types.${type}`)}
-              </button>
-            ))}
+            {GOAL_TYPES.map((type) => {
+              const active = g.focuses.includes(type);
+              const full = !active && g.focuses.length >= 3;
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  aria-pressed={active}
+                  disabled={full}
+                  onClick={() => {
+                    const focuses = active ? g.focuses.filter((f) => f !== type) : [...g.focuses, type];
+                    if (focuses.length === 0) return;
+                    setG({ ...g, focuses, type: focuses[0] });
+                  }}
+                  className={`${chip(active)} ${full ? "opacity-40" : ""}`}
+                >
+                  {t(`goal.types.${type}`)}
+                </button>
+              );
+            })}
           </div>
           <label className="flex flex-col gap-1.5">
             <span className="eyebrow">{t("goal.description")}</span>
@@ -325,37 +353,44 @@ export function GoalForm({ initial, part = "all" }: { initial: GoalInput; part?:
                 {g.targetDate ? formatDate(g.targetDate) : t("goal.noDate")}
               </button>
             </div>
-            {g.testKey && (
-              <TestCard
-                testKey={g.testKey}
-                onPickAlternative={(k) => setG({ ...g, testKey: k, unit: SELF_TESTS[k].unit, baselineValue: null, targetValue: null })}
-                alternatives={tests.filter((x) => x.key !== g.testKey).map((x) => x.key)}
-              />
-            )}
-
-            {g.testKey && (
-              <div className="grid grid-cols-2 items-end gap-3">
-                <label className="flex flex-col gap-1.5">
+            {g.testKeys.map((key, i) => (
+              <div key={key} className="flex flex-col gap-3 border-t border-line pt-3">
+                <TestCard
+                  testKey={key}
+                  onPickAlternative={(k) => {
+                    const testKeys = g.testKeys.map((x) => (x === key ? k : x));
+                    setG({ ...g, testKeys, testKey: testKeys[0], unit: SELF_TESTS[testKeys[0]].unit, targetValue: null });
+                  }}
+                  alternatives={suggestTests(g.focuses[i] ?? g.type, g.equipment)
+                    .map((x) => x.key)
+                    .filter((x) => !g.testKeys.includes(x))}
+                />
+                <label className="flex items-center justify-between gap-3">
                   <span className="label flex items-center gap-1">
-                    {t("goal.baselineHint")}
-                    <Info title={t("goal.baselineHint")} className="-my-1">
+                    {t("goal.targetValueHint")}
+                    <Info title={t("goal.targetValueHint")} className="-my-1">
                       <p>{t("goal.valuesOptional")}</p>
                     </Info>
                   </span>
-                  <div className="flex items-center gap-2">
-                    <input inputMode="decimal" defaultValue={g.baselineValue ?? ""} key={`b-${g.testKey}`} onChange={(e) => setG({ ...g, baselineValue: toNumber(e.target.value) })} className="input" />
-                    <span className="text-sm text-muted">{SELF_TESTS[g.testKey].unit}</span>
-                  </div>
-                </label>
-                <label className="flex flex-col gap-1.5">
-                  <span className="label">{t("goal.targetValueHint")}</span>
-                  <div className="flex items-center gap-2">
-                    <input inputMode="decimal" defaultValue={g.targetValue ?? ""} key={`z-${g.testKey}`} onChange={(e) => setG({ ...g, targetValue: toNumber(e.target.value) })} className="input" />
-                    <span className="text-sm text-muted">{SELF_TESTS[g.testKey].unit}</span>
-                  </div>
+                  <span className="flex items-center gap-2">
+                    <input
+                      inputMode="decimal"
+                      defaultValue={g.targets[key] ?? ""}
+                      key={`z-${key}`}
+                      onChange={(e) => {
+                        const v = toNumber(e.target.value);
+                        const targets = { ...g.targets };
+                        if (v == null) delete targets[key];
+                        else targets[key] = v;
+                        setG({ ...g, targets, targetValue: targets[g.testKeys[0]] ?? null });
+                      }}
+                      className="input w-28"
+                    />
+                    <span className="w-8 text-sm text-muted">{SELF_TESTS[key].unit}</span>
+                  </span>
                 </label>
               </div>
-            )}
+            ))}
           </section>
 
           {state.error && (

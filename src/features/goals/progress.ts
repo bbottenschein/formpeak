@@ -75,3 +75,35 @@ export function progress(
 export function estimated1rmFrom5rm(weightKg: number): number {
   return Math.round(epley1rm(weightKg, 5) * 2) / 2;
 }
+
+export type GoalOutcome = "achieved" | "partly" | "missed" | "open";
+
+/**
+ * Ergebnis eines Ziels am Ende: pro Test Vorher-nachher (mind. zwei Werte).
+ * Alle erreicht (Zielwert bzw. ohne Zielwert: verbessert) und alle getestet → geschafft; mindestens einer
+ * verbessert → teilweise; sonst nicht geschafft. Ohne zwei Werte → offen.
+ */
+export function goalOutcome(tests: { values: number[]; target: number | null; lowerIsBetter: boolean }[]): GoalOutcome {
+  const results = tests
+    .map((x) => {
+      const p = progress(x.values, x.target, x.lowerIsBetter);
+      if (!p) return null;
+      return { improved: p.improvement > 0, reached: x.target != null ? p.towardTargetPct === 100 : p.improvement > 0 };
+    })
+    .filter((r): r is { improved: boolean; reached: boolean } => r != null);
+  if (results.length === 0) return "open";
+  // Nicht alle Tests gemacht → höchstens „teilweise“.
+  if (results.every((r) => r.reached)) return results.length === tests.length ? "achieved" : "partly";
+  if (results.some((r) => r.improved)) return "partly";
+  return "missed";
+}
+
+/** Tag für den Abschlusstest: das Zieldatum oder der nächste Tag davor ohne Fußball (max. 6 Tage). */
+export function finalTestDate(targetDate: IsoDate, busy: Set<IsoDate>, earliest: IsoDate): IsoDate {
+  for (let i = 0; i <= 6; i++) {
+    const d = addDays(targetDate, -i);
+    if (d < earliest) break;
+    if (!busy.has(d)) return d;
+  }
+  return targetDate < earliest ? earliest : targetDate;
+}

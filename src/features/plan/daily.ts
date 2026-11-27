@@ -11,7 +11,7 @@ import {
 } from "@/core/load";
 import type { GoalData } from "@/features/goals/queries";
 import { getOffseason } from "@/features/offseason/queries";
-import { loadSessions, toCoreSession } from "@/features/sessions/data";
+import { isOpenSuggestion, loadSessions, toCoreSession } from "@/features/sessions/data";
 import { hasAnthropicKey } from "@/lib/env.server";
 import type { Translate } from "@/lib/i18n/translate";
 import type { createClient } from "@/lib/supabase/server";
@@ -45,7 +45,7 @@ export async function adjustTodayPlan(input: {
   const monday = mondayOf(today);
   const rows = await loadSessions(supabase, userId, addDays(monday, -7), addDays(monday, 13));
   const isOwnPlan = (r: (typeof rows)[number]) =>
-    (r.planned_by === "ai" || r.planned_by === "rules") && r.status === "planned" && r.date === today;
+    isOpenSuggestion(r) && r.date === today;
   const todays = rows.filter(isOwnPlan);
   if (todays.length === 0) return [];
 

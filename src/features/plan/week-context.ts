@@ -2,12 +2,12 @@ import "server-only";
 import { addDays, dayAllowances, mondayOf, offseasonWeek, type PlanCheckContext, type PlanUnit, type TrafficLight } from "@/core/load";
 import type { GoalData } from "@/features/goals/queries";
 import { getOffseason } from "@/features/offseason/queries";
-import { loadSessions, toCoreSession, type SessionRow } from "@/features/sessions/data";
+import { isOpenSuggestion, loadSessions, toCoreSession, type SessionRow } from "@/features/sessions/data";
 import type { createClient } from "@/lib/supabase/server";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
-const isOpenPlan = (r: SessionRow) => (r.planned_by === "ai" || r.planned_by === "rules") && r.status === "planned";
+const isOpenPlan = (r: SessionRow) => isOpenSuggestion(r);
 
 /**
  * Rahmen einer Woche für Änderungen an einzelnen Vorschlägen (verschieben, tauschen):

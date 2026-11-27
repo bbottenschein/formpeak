@@ -3,7 +3,7 @@ import Link from "next/link";
 import { sessionLoad } from "@/core/load";
 import { getCurrentUser } from "@/features/auth/session";
 import { cancelSession, deleteSession, moveSession, restoreSession } from "@/features/sessions/actions";
-import { SESSION_COLUMNS, toCoreSession, type SessionRow } from "@/features/sessions/data";
+import { isGoalTestSession, SESSION_COLUMNS, toCoreSession, type SessionRow } from "@/features/sessions/data";
 import { FeedbackForm } from "@/features/sessions/feedback-form";
 import { GymLog } from "@/features/gym/gym-log";
 import { AdjustedBadge, BasisList, ExerciseList } from "@/features/plan/planned-session";
@@ -110,7 +110,12 @@ export default async function SessionPage({ params }: PageProps<"/sessions/[id]"
           {t("training.start")}
         </Link>
       )}
-      {session.status === "planned" && suggested && <SessionChoices sessionId={session.id} />}
+      {session.status === "planned" && suggested && !isGoalTestSession(session) && <SessionChoices sessionId={session.id} />}
+      {isGoalTestSession(session) && (
+        <Link href="/goals" className="text-sm text-muted underline underline-offset-4">
+          {t("goalView.enterResult")} →
+        </Link>
+      )}
       <AdjustedBadge session={session} today={today} t={t} />
       {session.status !== "cancelled" && <ExerciseList exercises={planned} t={t} label={t("plan.howTo")} />}
 

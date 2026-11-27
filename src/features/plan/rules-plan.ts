@@ -54,11 +54,15 @@ export function offseasonRotation(goalType: string | null, block: OffseasonWeek[
 
 export function rulesPlan(
   allowances: DayAllowance[],
-  opts: { goalType: string | null; equipment: string[]; maxMainUnits: number; offseason?: OffseasonWeek },
+  opts: { goalType: string | null; goalTypes?: string[]; equipment: string[]; maxMainUnits: number; offseason?: OffseasonWeek },
 ): RulesPlanItem[] {
-  const rotation = opts.offseason
-    ? offseasonRotation(opts.goalType, opts.offseason.block)
-    : (GOAL_ROTATION[opts.goalType ?? ""] ?? ["prevention_core"]);
+  // Mehrere Schwerpunkte: Rotationen im Wechsel (z. B. Schnelligkeit + Muskelaufbau).
+  const types = opts.goalTypes?.length ? opts.goalTypes : [opts.goalType ?? ""];
+  const rotations = types.map((g) => (opts.offseason ? offseasonRotation(g || null, opts.offseason.block) : (GOAL_ROTATION[g] ?? ["prevention_core"])));
+  const rotation: RoutineKey[] = [];
+  for (let i = 0; i < Math.max(...rotations.map((r) => r.length)); i++) {
+    for (const r of rotations) if (r[i] && !rotation.includes(r[i])) rotation.push(r[i]);
+  }
   const items: RulesPlanItem[] = [];
   let mains = 0;
   let next = 0;

@@ -15,7 +15,7 @@ import {
   type PlanCheckContext,
 } from "@/core/load";
 import type { GoalData } from "@/features/goals/queries";
-import { ensureFixtures, loadSessions, toCoreSession, type SessionRow } from "@/features/sessions/data";
+import { ensureFixtures, isOpenSuggestion, loadSessions, toCoreSession, type SessionRow } from "@/features/sessions/data";
 import { ROUTINES } from "@/features/today/routines";
 import { hasAnthropicKey } from "@/lib/env.server";
 import type { Translate } from "@/lib/i18n/translate";
@@ -31,7 +31,7 @@ import type { PlannedSession, WeekPlanResult } from "./types";
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
 
-const isPlanSession = (s: SessionRow) => (s.planned_by === "ai" || s.planned_by === "rules") && s.status === "planned";
+const isPlanSession = (s: SessionRow) => isOpenSuggestion(s);
 
 export interface PlanWeekInput {
   supabase: Supabase;
@@ -288,10 +288,10 @@ export async function planWeek(input: PlanWeekInput): Promise<boolean> {
         })),
         ziel: goal.goal
           ? {
-              typ: goal.goal.type,
+              schwerpunkte: goal.goal.focuses,
               beschreibung: goal.goal.aiSummary || goal.goal.description,
               zieldatum: goal.goal.targetDate,
-              referenztest: goal.goal.testKey,
+              referenztests: goal.goal.testKeys,
             }
           : null,
         rahmen: {
@@ -343,6 +343,7 @@ export async function planWeek(input: PlanWeekInput): Promise<boolean> {
     if (!result) {
       const items = rulesPlan(allowances, {
         goalType: goal.goal?.type ?? null,
+        goalTypes: goal.goal?.focuses,
         equipment: frame.equipment,
         maxMainUnits: frame.extraSessionsPerWeek,
         offseason: offWeek,

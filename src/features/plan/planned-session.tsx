@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { SessionRow } from "@/features/sessions/data";
+import { isGoalTestSession, type SessionRow } from "@/features/sessions/data";
 import { Info } from "@/features/ui/info";
 import type { Translate } from "@/lib/i18n/translate";
 import { isBasisKey } from "./basis";
@@ -102,7 +102,12 @@ export function PlannedSessionCard({
           {t("training.start")}
         </Link>
       )}
-      {!done && <SessionChoices sessionId={session.id} />}
+      {!done && !isGoalTestSession(session) && <SessionChoices sessionId={session.id} />}
+      {isGoalTestSession(session) && (
+        <Link href="/goals" className="self-start text-sm text-muted underline underline-offset-4">
+          {t("goalView.enterResult")} →
+        </Link>
+      )}
     </div>
   );
 }

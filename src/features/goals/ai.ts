@@ -8,6 +8,8 @@ import { SELF_TESTS, TEST_KEYS, suggestTests, type TestKey } from "./tests";
 
 export interface GoalContext {
   type: (typeof GOAL_TYPES)[number];
+  /** Alle Schwerpunkte (der erste = type). */
+  focuses?: (typeof GOAL_TYPES)[number][];
   description: string;
   extraSessionsPerWeek: number;
   timeBudgetMin: number;
@@ -32,7 +34,8 @@ Regeln:
 - Übernimm, was der Spieler will; erfinde keine Zahlen, die er nicht genannt hat.
 - Keine Diagnosen, keine medizinischen Aussagen. Bei Schmerzen oder Verletzungen nur auf ärztliche Abklärung verweisen.
 - "focus": höchstens drei kurze Schwerpunkte (z. B. "Intervalle", "Unterkörperkraft"), passend zum Trainingsrahmen.
-- "testKey": wähle aus den angebotenen Tests den passendsten, der mit den verfügbaren Trainingsmitteln machbar ist.`;
+- "testKey": wähle aus den angebotenen Tests den passendsten für den ersten Schwerpunkt, der mit den verfügbaren Trainingsmitteln machbar ist.
+- Mehrere Schwerpunkte (z. B. Schnelligkeit und Muskelaufbau) gemeinsam in einem Satz formulieren.`;
 
 /** Regelbasierte Zusammenfassung – wenn kein API-Schlüssel da ist oder die KI ausfällt. */
 export function rulesSummary(ctx: GoalContext): GoalSummaryResult {
@@ -64,7 +67,7 @@ export async function summarizeGoal(ctx: GoalContext): Promise<GoalSummaryResult
           role: "user",
           content: JSON.stringify({
             heute: ctx.today,
-            schwerpunkt: ctx.type,
+            schwerpunkte: ctx.focuses ?? [ctx.type],
             in_eigenen_worten: ctx.description,
             zusatzeinheiten_pro_woche: ctx.extraSessionsPerWeek,
             max_minuten_pro_einheit: ctx.timeBudgetMin,

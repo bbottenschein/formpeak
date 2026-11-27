@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { estimated1rmFrom5rm, nextTestDate, progress, testSchedule, type TestEntry } from "./progress";
+import { estimated1rmFrom5rm, finalTestDate, goalOutcome, nextTestDate, progress, testSchedule, type TestEntry } from "./progress";
 
 const entry = (e: Partial<TestEntry>): TestEntry => ({
   id: Math.random().toString(36),
@@ -62,5 +62,42 @@ describe("progress", () => {
 
   it("5RM → geschätztes 1RM", () => {
     expect(estimated1rmFrom5rm(100)).toBe(116.5);
+  });
+});
+
+describe("goalOutcome", () => {
+  const sprint = (values: number[], target: number | null = null) => ({ values, target, lowerIsBetter: true });
+  const squat = (values: number[], target: number | null = null) => ({ values, target, lowerIsBetter: false });
+  it("alle Zielwerte erreicht → geschafft", () => {
+    expect(goalOutcome([sprint([1.95, 1.84], 1.85), squat([80, 92.5], 90)])).toBe("achieved");
+  });
+  it("ohne Zielwert zählt Verbesserung", () => {
+    expect(goalOutcome([sprint([1.95, 1.9])])).toBe("achieved");
+  });
+  it("einer verbessert, anderer nicht erreicht → teilweise", () => {
+    expect(goalOutcome([sprint([1.95, 1.9], 1.8), squat([80, 80])])).toBe("partly");
+  });
+  it("nichts verbessert → nicht geschafft", () => {
+    expect(goalOutcome([sprint([1.95, 2.0])])).toBe("missed");
+  });
+  it("ein Test ohne Abschlusswert → höchstens teilweise", () => {
+    expect(goalOutcome([sprint([1.95, 1.84], 1.85), squat([80])])).toBe("partly");
+  });
+  it("nur ein Wert → offen", () => {
+    expect(goalOutcome([sprint([1.95])])).toBe("open");
+    expect(goalOutcome([])).toBe("open");
+  });
+});
+
+describe("finalTestDate", () => {
+  it("Zieldatum frei → Zieldatum", () => {
+    expect(finalTestDate("2027-01-10", new Set(), "2026-12-01")).toBe("2027-01-10");
+  });
+  it("Zieldatum mit Spiel → Tag davor ohne Termin", () => {
+    expect(finalTestDate("2027-01-09", new Set(["2027-01-09", "2027-01-08"]), "2026-12-01")).toBe("2027-01-07");
+  });
+  it("nie vor dem frühesten Tag; kein freier Tag → Zieldatum", () => {
+    expect(finalTestDate("2026-12-02", new Set(["2026-12-02", "2026-12-01"]), "2026-12-01")).toBe("2026-12-02");
+    expect(finalTestDate("2026-12-02", new Set(["2026-12-02"]), "2026-12-01")).toBe("2026-12-01");
   });
 });

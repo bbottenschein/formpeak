@@ -68,7 +68,7 @@ export async function ensureReviewText(kind: ReviewKind, from: string): Promise<
               tage: data.stats.days,
               bestwerte: data.bests.map((b) => ({ uebung: b.name, geschaetztes_1rm_kg: b.e1rm })),
               referenztests: data.tests,
-              ziel: goal.goal ? { typ: goal.goal.type, beschreibung: goal.goal.aiSummary || goal.goal.description } : null,
+              ziel: goal.goal ? { schwerpunkte: goal.goal.focuses, beschreibung: goal.goal.aiSummary || goal.goal.description } : null,
               naechste_woche_off_season: off ? { abschnitt: offseasonWeek(off.phase, data.to).block, entlastungswoche: offseasonWeek(off.phase, data.to).deload } : null,
             }),
           },

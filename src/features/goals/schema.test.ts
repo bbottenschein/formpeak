@@ -3,6 +3,9 @@ import { goalSaveSchema, goalSchema } from "./schema";
 
 const goal = {
   type: "endurance",
+  focuses: ["endurance"],
+  testKeys: ["yoyo_ir1"],
+  targets: { yoyo_ir1: 1600 },
   description: "90 Minuten durchlaufen",
   testKey: "yoyo_ir1",
   testName: "Yo-Yo-Test",
@@ -18,6 +21,13 @@ const goal = {
 };
 
 describe("goalSchema", () => {
+  it("mehrere Schwerpunkte (max. 3), erster = type", () => {
+    expect(goalSchema.safeParse({ ...goal, focuses: ["endurance", "speed"], testKeys: ["yoyo_ir1", "sprint10"] }).success).toBe(true);
+    expect(goalSchema.safeParse({ ...goal, focuses: ["speed", "endurance"] }).success).toBe(false);
+    expect(goalSchema.safeParse({ ...goal, focuses: [] }).success).toBe(false);
+    expect(goalSchema.safeParse({ ...goal, focuses: ["endurance", "speed", "strength", "prevention"] }).success).toBe(false);
+  });
+
   it("gültiges Ziel, Test optional", () => {
     expect(goalSchema.safeParse(goal).success).toBe(true);
     expect(

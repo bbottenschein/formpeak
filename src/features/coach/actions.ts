@@ -9,7 +9,7 @@ import { PLAN_MODEL } from "@/features/plan/ai";
 import { getPlannedExercises } from "@/features/plan/queries";
 import { postponeSession, swapSession } from "@/features/plan/session-actions";
 import { loadWeekContext } from "@/features/plan/week-context";
-import { loadSessions } from "@/features/sessions/data";
+import { isOpenSuggestion, loadSessions } from "@/features/sessions/data";
 import { computeMetricsFor } from "@/features/today/metrics";
 import { hasAnthropicKey } from "@/lib/env.server";
 import { userToday } from "@/lib/date";
@@ -44,7 +44,7 @@ export async function chatCoach(history: ChatMessage[]): Promise<{ reply: string
     computeMetricsFor(user.id, today, today),
     loadSessions(supabase, user.id, today, today),
   ]);
-  const plan = rows.filter((r) => (r.planned_by === "ai" || r.planned_by === "rules") && r.status === "planned");
+  const plan = rows.filter(isOpenSuggestion);
   const exercises = await getPlannedExercises(plan.map((r) => r.id));
   const wc = await loadWeekContext(supabase, user.id, today, today, goal, metrics.light);
   const allowance = wc?.allowances.find((a) => a.date === today);
@@ -60,7 +60,7 @@ export async function chatCoach(history: ChatMessage[]): Promise<{ reply: string
     ampel: metrics.light,
     readiness: metrics.readiness,
     schmerz: metrics.painSpots.filter((s) => s.level !== "note").map((s) => ({ region: s.region, seite: s.side, stufe: s.level })),
-    ziel: goal.goal ? { typ: goal.goal.type, beschreibung: goal.goal.aiSummary || goal.goal.description } : null,
+    ziel: goal.goal ? { schwerpunkte: goal.goal.focuses, beschreibung: goal.goal.aiSummary || goal.goal.description } : null,
     off_season: wc?.offWeek ? { abschnitt: wc.offWeek.block, entlastungswoche: wc.offWeek.deload } : null,
     erlaubt_heute: allowance
       ? { arten: allowance.kinds, max_minuten: allowance.maxMinutes, max_rpe: allowance.maxRpe, unterkoerper: allowance.lowerBody }

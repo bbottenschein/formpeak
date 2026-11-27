@@ -6,6 +6,7 @@ import {
   plannedLoad,
   sessionHints,
   weekHints,
+  weeklyLoad,
   type DailyMetrics,
   type SessionHint,
   type WeekHint,
@@ -31,6 +32,8 @@ export interface WeekData {
   days: WeekDay[];
   hints: WeekHint[];
   plannedLoad: number;
+  /** Wochenlast ohne leichte Einheiten und Vergleichswert (Vorwoche/4-Wochen-Schnitt). */
+  load: { planned: number; reference: number };
   hasSeries: boolean;
 }
 
@@ -103,6 +106,7 @@ export async function getWeek(
     plannedLoad: weekSessions
       .filter((s) => s.status !== "cancelled")
       .reduce((sum, s) => sum + plannedLoad(s), 0),
+    load: weeklyLoad(monday, core, today),
     hasSeries: (count ?? 0) > 0,
   };
 }

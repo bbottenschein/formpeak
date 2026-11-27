@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { addDays, dateRange, findMoveDate, isMainUnit, validatePlan } from "@/core/load";
 import { getCurrentUser } from "@/features/auth/session";
 import { getGoal } from "@/features/goals/queries";
-import { SESSION_COLUMNS, type SessionRow } from "@/features/sessions/data";
+import { isOpenSuggestion, SESSION_COLUMNS, type SessionRow } from "@/features/sessions/data";
 import { computeMetricsFor } from "@/features/today/metrics";
 import { ROUTINES, type RoutineKey } from "@/features/today/routines";
 import { hasAnthropicKey } from "@/lib/env.server";
@@ -27,7 +27,7 @@ async function openPlanSession(id: string) {
   const supabase = await createClient();
   const { data } = await supabase.from("sessions").select(SESSION_COLUMNS).eq("id", id).eq("user_id", user.id).maybeSingle();
   const row = data as SessionRow | null;
-  const ok = row && row.status === "planned" && (row.planned_by === "ai" || row.planned_by === "rules");
+  const ok = row && isOpenSuggestion(row);
   return { user, supabase, row: ok ? row : null };
 }
 
@@ -97,7 +97,7 @@ export async function swapSession(id: string): Promise<{ ok: boolean }> {
             max_rpe: allowance.maxRpe,
             unterkoerper: allowance.lowerBody,
           },
-          ziel: goal.goal ? { typ: goal.goal.type, beschreibung: goal.goal.aiSummary || goal.goal.description } : null,
+          ziel: goal.goal ? { schwerpunkte: goal.goal.focuses, beschreibung: goal.goal.aiSummary || goal.goal.description } : null,
           off_season: wc.offWeek ? { abschnitt: wc.offWeek.block, entlastungswoche: wc.offWeek.deload } : null,
           trainingsmittel: wc.frame.equipment,
           bibliothek: library.map((e) => ({ name: e.name, geraet: e.equipment, unterkoerper: e.lowerBody })),

@@ -7,9 +7,10 @@ import { getT } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { mondayOf, userToday } from "@/lib/date";
 import { summarizeGoal, type GoalContext, type GoalSummaryResult } from "./ai";
+import { scheduleFinalTest } from "./lifecycle";
 import { nextTestDate } from "./progress";
-import { goalSaveSchema } from "./schema";
-import { TEST_KEYS, type TestKey } from "./tests";
+import { GOAL_TYPES, goalSaveSchema, type GoalType } from "./schema";
+import { suggestTests, TEST_KEYS, type TestKey } from "./tests";
 
 export type GoalState = { error?: string };
 
@@ -37,10 +38,14 @@ export async function saveGoal(_prev: GoalState, formData: FormData): Promise<Go
     })
     .eq("id", user.id);
 
+  const testKeys = [...new Set(g.testKeys.length ? g.testKeys : g.testKey ? [g.testKey] : [])];
   const goalRow = {
-    type: g.type,
+    type: g.focuses[0],
+    focuses: [...new Set(g.focuses)],
+    test_keys: testKeys,
+    targets: Object.fromEntries(Object.entries(g.targets).filter(([k]) => testKeys.includes(k as TestKey))),
     description: g.description,
-    test_key: g.testKey,
+    test_key: testKeys[0] ?? null,
     test_name: g.testKey ? t(`goal.tests.${g.testKey}.name`) : g.testName,
     ai_summary: g.aiSummary,
     baseline_value: g.baselineValue,
@@ -58,7 +63,7 @@ export async function saveGoal(_prev: GoalState, formData: FormData): Promise<Go
     ? await supabase.from("goals").update(goalRow).eq("id", existing.id).select("id").single()
     : await supabase
         .from("goals")
-        .insert({ ...goalRow, user_id: user.id, active: true, priority: 1 })
+        .insert({ ...goalRow, user_id: user.id, active: true, priority: 1, starts_on: userToday(user.timezone) })
         .select("id")
         .single();
 
@@ -67,7 +72,11 @@ export async function saveGoal(_prev: GoalState, formData: FormData): Promise<Go
     return { error: t("goal.errorSave") };
   }
 
-  if (g.testKey) await planReferenceTests(saved.id, g.testKey, g.baselineValue, user.id, userToday(user.timezone));
+  const today = userToday(user.timezone);
+  for (const [i, key] of testKeys.entries()) {
+    await planReferenceTests(saved.id, key, i === 0 ? g.baselineValue : null, user.id, today, testKeys);
+  }
+  await scheduleFinalTest(supabase, user.id, saved.id, testKeys, g.targetDate, today, t);
   // Neues Ziel oder neuer Rahmen: Wochenpläne ab dieser Woche neu erstellen lassen
   // (beim nächsten Öffnen von Heute/Kalender; offene Vorschläge werden dabei ersetzt).
   await supabase.from("week_plans").delete().eq("user_id", user.id).gte("week_start", mondayOf(userToday(user.timezone)));
@@ -86,14 +95,16 @@ async function planReferenceTests(
   baseline: number | null,
   userId: string,
   today: string,
+  activeKeys: TestKey[] = [testKey],
 ) {
   const supabase = await createClient();
+  // Offene Termine von Tests, die nicht mehr zum Ziel gehören, entfallen.
   await supabase
     .from("goal_tests")
     .update({ status: "skipped" })
     .eq("goal_id", goalId)
     .eq("status", "planned")
-    .neq("test_key", testKey);
+    .not("test_key", "in", `(${activeKeys.join(",")})`);
 
   const { data: existing } = await supabase
     .from("goal_tests")
@@ -172,4 +183,70 @@ export async function previewGoal(ctx: Omit<GoalContext, "today">): Promise<Goal
     description: ctx.description.slice(0, 500),
     today: userToday(user.timezone),
   });
+}
+
+/** Pläne ab dieser Woche neu erstellen lassen (Ziel geändert). */
+async function resetPlans(userId: string, today: string) {
+  const supabase = await createClient();
+  await supabase.from("week_plans").delete().eq("user_id", userId).gte("week_start", mondayOf(today));
+  revalidatePath("/", "layout");
+}
+
+async function activeGoal() {
+  const user = await getCurrentUser();
+  const supabase = await createClient();
+  const { data: goal } = await supabase
+    .from("goals")
+    .select("id, focuses, test_keys, target_date")
+    .eq("user_id", user.id)
+    .eq("active", true)
+    .maybeSingle();
+  return { user, supabase, goal };
+}
+
+/** Sofort-Änderung: Schwerpunkte (1–3). Neue Schwerpunkte bekommen einen passenden Referenztest. */
+export async function updateGoalFocuses(focuses: GoalType[]): Promise<{ ok: boolean }> {
+  const list = [...new Set(focuses)].filter((f) => (GOAL_TYPES as readonly string[]).includes(f));
+  if (list.length < 1 || list.length > 3) return { ok: false };
+  const { user, supabase, goal } = await activeGoal();
+  if (!goal) return { ok: false };
+  const { data: profile } = await supabase.from("profiles").select("equipment").eq("id", user.id).single();
+  const equipment = (profile?.equipment ?? []) as Parameters<typeof suggestTests>[1];
+  const old = (goal.test_keys ?? []) as TestKey[];
+  const keys: TestKey[] = [];
+  for (const f of list) {
+    const options = suggestTests(f, equipment).map((x) => x.key);
+    const keep = old.find((k) => options.includes(k) && !keys.includes(k));
+    const pick = keep ?? options.find((k) => !keys.includes(k));
+    if (pick) keys.push(pick);
+  }
+  const today = userToday(user.timezone);
+  await supabase.from("goals").update({ focuses: list, type: list[0], test_keys: keys, test_key: keys[0] ?? null }).eq("id", goal.id);
+  for (const k of keys) await planReferenceTests(goal.id, k, null, user.id, today, keys);
+  await scheduleFinalTest(supabase, user.id, goal.id, keys, goal.target_date, today, getT(user.locale));
+  await resetPlans(user.id, today);
+  return { ok: true };
+}
+
+/** Sofort-Änderung: Zieldatum (Ende des Zeitraums); der Abschlusstest wandert mit. */
+export async function updateGoalDate(date: string | null): Promise<{ ok: boolean }> {
+  if (date != null && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return { ok: false };
+  const { user, supabase, goal } = await activeGoal();
+  const today = userToday(user.timezone);
+  if (!goal || (date != null && date <= today)) return { ok: false };
+  await supabase.from("goals").update({ target_date: date }).eq("id", goal.id);
+  await scheduleFinalTest(supabase, user.id, goal.id, (goal.test_keys ?? []) as TestKey[], date, today, getT(user.locale));
+  await resetPlans(user.id, today);
+  return { ok: true };
+}
+
+/** Sofort-Änderung: Beschreibung in eigenen Worten. */
+export async function updateGoalDescription(text: string): Promise<{ ok: boolean }> {
+  const description = text.trim().slice(0, 500);
+  if (description.length < 3) return { ok: false };
+  const { supabase, goal } = await activeGoal();
+  if (!goal) return { ok: false };
+  await supabase.from("goals").update({ description, ai_summary: null }).eq("id", goal.id);
+  revalidatePath("/goals");
+  return { ok: true };
 }

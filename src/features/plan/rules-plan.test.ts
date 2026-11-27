@@ -113,3 +113,15 @@ describe("rulesAlternative", () => {
     expect(rulesAlternative(md, { routineKey: null, title: "x", focus: [] }, [], title)).toBeNull();
   });
 });
+
+describe("rulesPlan – mehrere Schwerpunkte", () => {
+  it("Schnelligkeit + Muskelaufbau im Wechsel", () => {
+    const a = dayAllowances({ weekStart: "2026-11-30", today: "2026-11-30", sessions: [], availableWeekdays: [1, 3, 5], timeBudgetMin: 60 });
+    const plan = rulesPlan(a, { goalType: "speed", goalTypes: ["speed", "muscle_gain"], equipment: ["gym", "pitch"], maxMainUnits: 3 });
+    expect(plan.filter((p) => ["2026-11-30", "2026-12-02", "2026-12-04"].includes(p.date)).map((p) => p.routine)).toEqual([
+      "acceleration",
+      "strength_full",
+      "prevention_core",
+    ]);
+  });
+});

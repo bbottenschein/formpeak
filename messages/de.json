@@ -328,7 +328,11 @@
     },
     "goalTest": "Referenztest: {name}",
     "loadInfoTitle": "Geplante Last",
-    "loadInfo": "Last = Anstrengung (RPE 0–10) × Minuten, gemessen in AU. Steigt sie mehr als 15 % über die Vorwoche, steigt das Verletzungsrisiko – dann warnt die App."
+    "loadInfo": "Last = Anstrengung (RPE 0–10) × Minuten, gemessen in AU. Steigt sie mehr als 15 % über die Vorwoche, steigt das Verletzungsrisiko – dann warnt die App.",
+    "weekLoad": "Wochenlast {value} AU",
+    "legend": "Balken: gefüllt = Fußball, umrandet = deine Einheiten, gestrichelt = Test. Höhe = Dauer, blass = erledigt. Leichte Mobilität zählt nicht zur Wochenlast.",
+    "noCalendarShort": "Feste Fußballtermine anlegen",
+    "addFixtureShort": "Einzeltermin"
   },
   "session": {
     "newTitle": "Einheit planen",
@@ -723,7 +727,13 @@
     "stepDateHint": "Ein Datum hilft, den Plan realistisch zu takten. Optional.",
     "noDate": "Ohne festes Datum",
     "step3TitleCount": "An welchen {count} Tagen?",
-    "step3TitleOne": "An welchem Tag?"
+    "step3TitleOne": "An welchem Tag?",
+    "step1Note": "Bis zu 3 Schwerpunkte",
+    "and": "und",
+    "finalTestTitle": "Abschlusstest",
+    "finalWarmup": "Aufwärmen",
+    "finalWarmupHow": "Locker einlaufen, dann Beinpendel und zwei, drei Steigerungen – du testest mit vollem Einsatz.",
+    "finalBestOf": "Bester von 3"
   },
   "history": {
     "title": "Verlauf",
@@ -1161,7 +1171,29 @@
     "frameOff": "Trainingsrahmen · Off-Season",
     "frameLine": "{sessions} × pro Woche · bis {minutes} min",
     "editFrame": "Rahmen ändern",
-    "modeInfo": "Ein Ziel, zwei Trainingsrahmen: In der Saison planst du um Training und Spiele herum, in der Off-Season (Pause ohne Team) mit eigenem Rahmen und mehr Einheiten. Umschalten jederzeit – dein Ziel bleibt."
+    "modeInfo": "Ein Ziel, zwei Trainingsrahmen: In der Saison planst du um Training und Spiele herum, in der Off-Season (Pause ohne Team) mit eigenem Rahmen und mehr Einheiten. Umschalten jederzeit – dein Ziel bleibt.",
+    "sectionGoal": "Ziel",
+    "sectionVolume": "Trainingsvolumen",
+    "sectionProgress": "Progress",
+    "focuses": "Schwerpunkte",
+    "until": "Bis",
+    "editText": "bearbeiten",
+    "since": "seit {date}",
+    "weeksLeft": "noch {weeks} Wo.",
+    "targetValue": "Ziel {value} {unit}",
+    "reached": "Zielwert erreicht",
+    "betterShort": "+{pct} % besser",
+    "worseShort": "{pct} % schwächer",
+    "startValue": "Startwert {value} {unit} – nach dem nächsten Test siehst du den Vergleich.",
+    "archive": "Frühere Ziele",
+    "outcome": {
+      "achieved": "Geschafft",
+      "partly": "Teilweise",
+      "missed": "Nicht geschafft",
+      "open": "Ohne Abschlusstest"
+    },
+    "progressInfo": "Jeder Schwerpunkt hat einen Referenztest: zum Start, alle 5 Wochen und als Abschlusstest in der letzten Woche vor dem Zieldatum. Am Zieldatum bewertet die App das Ziel und legt es ins Archiv.",
+    "newGoal": "Neues Ziel"
   },
   "log": {
     "title": "Erfassen",

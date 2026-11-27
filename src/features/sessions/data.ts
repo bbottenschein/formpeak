@@ -140,3 +140,10 @@ export async function loadSessions(
   if (error) throw new Error(`Einheiten nicht lesbar: ${error.message}`);
   return (data ?? []) as SessionRow[];
 }
+
+/** Abschlusstest eines Ziels (fest eingeplant, wird nie umgeplant oder angepasst). */
+export const isGoalTestSession = (r: Pick<SessionRow, "rationale">) => Boolean(r.rationale?.startsWith("goal_test:"));
+
+/** Offener Vorschlag der App (KI oder Regeln), der umgeplant, verschoben oder angepasst werden darf. */
+export const isOpenSuggestion = (r: Pick<SessionRow, "planned_by" | "status" | "rationale">) =>
+  (r.planned_by === "ai" || r.planned_by === "rules") && r.status === "planned" && !isGoalTestSession(r);

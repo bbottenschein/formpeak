@@ -16,7 +16,7 @@ export async function getGoal(userId: string): Promise<GoalData> {
   const [{ data: goal }, { data: profile }] = await Promise.all([
     supabase
       .from("goals")
-      .select("type, description, test_key, test_name, baseline_value, target_value, unit, target_date, ai_summary")
+      .select("type, focuses, test_keys, targets, description, test_key, test_name, baseline_value, target_value, unit, target_date, ai_summary")
       .eq("user_id", userId)
       .eq("active", true)
       .maybeSingle(),
@@ -43,6 +43,9 @@ export async function getGoal(userId: string): Promise<GoalData> {
       goal && frame
         ? {
             type: goal.type,
+            focuses: (goal.focuses?.length ? goal.focuses : [goal.type]) as GoalInput["focuses"],
+            testKeys: (goal.test_keys?.length ? goal.test_keys : goal.test_key ? [goal.test_key] : []) as GoalInput["testKeys"],
+            targets: (goal.targets ?? {}) as Record<string, number>,
             description: goal.description ?? "",
             testKey: goal.test_key,
             testName: goal.test_name,
